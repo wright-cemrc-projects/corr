@@ -1,10 +1,13 @@
 # EasyCorr (name under consideration)
 EasyCorr provides easy TEM and FLM correlation as a Java desktop application for On-The-Fly processing.
 
+
 ## About EasyCorr
 EasyCorr supports both on-the-fly and post-acquisition two dimensional (2D) cryo-correlation. The on-the-fly correlation by EasyCorr can perform image registration, transformation and correlation between EM and FM.
 
 The output is ready for SerialEM automated data collection at transformed fluorescent targets of interest (TOIs) on registered EM images. 
+
+![Map View](images/mapview.png)
 
 ## EasyCorr Features
 
