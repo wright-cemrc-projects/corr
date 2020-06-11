@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="320.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cemrc.easycorr.wizard.WizardImportPositionsController">
+   <children>
+      <VBox alignment="TOP_RIGHT" prefHeight="320.0" prefWidth="400.0">
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+         <children>
+            <Label prefHeight="100.0" prefWidth="390.0" text="User created pixel positions can next be imported from CSV and associated with a matching map." wrapText="true">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+            </Label>
+            <HBox fx:id="projectPanel" prefHeight="250.0" prefWidth="300.0" />
+            <Button fx:id="importPointsButton" alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#doImport" text="Import Pixel Positions(.csv)">
+               <VBox.margin>
+                  <Insets right="10.0" top="25.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+      </VBox>
+   </children>
+</HBox>
