@@ -34,6 +34,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -58,6 +60,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.TreeTableColumn.CellEditEvent;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -70,6 +73,7 @@ import javafx.scene.transform.Rotate;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.converter.DefaultStringConverter;
 
 /**
  * A controller class for the image view.
@@ -111,7 +115,6 @@ public class ImageViewerController {
 	
 	@FXML
 	TableView<PointsDatasetTableItem> pointsTableView;
-	//ComboBox<IPositionDataset> pointsCombo;
 	
 	@FXML
 	Button newPoints;
@@ -181,6 +184,7 @@ public class ImageViewerController {
 			return m_visible; 
 		}
 		
+		// TODO: does this need to be a property?
 		private NavigatorColorEnum m_color = NavigatorColorEnum.Red;
 		private IPositionDataset m_dataset;
 		
@@ -198,8 +202,11 @@ public class ImageViewerController {
 		}
 		
 		public NavigatorColorEnum getColor() {
-			return NavigatorColorEnum.Red;
-			// return m_dataset.getColor();
+			return m_color;
+		}
+		
+		public void setColor(NavigatorColorEnum color) {
+			m_color = color;
 		}
 
 		public IPositionDataset getDataset() {
@@ -228,13 +235,12 @@ public class ImageViewerController {
 	    TableColumn<PointsDatasetTableItem, NavigatorColorEnum> column3 = new TableColumn<>("Color");
 	    column3.setCellValueFactory(new PropertyValueFactory<>("color"));
 	    
-	    // TODO: make column 3 a combo dropdown
+	    ObservableList<NavigatorColorEnum> cbValues = FXCollections.observableArrayList(NavigatorColorEnum.values());
+	    column3.setCellFactory(ComboBoxTableCell.forTableColumn(cbValues));
 	    
 	    TableColumn<PointsDatasetTableItem, Boolean> column4 = new TableColumn<>("Visible");
 	    column4.setCellValueFactory(new PropertyValueFactory<>("visible"));
-	    column4.setCellFactory( tc -> new CheckBoxTableCell());
-	    
-	    // TODO: How to make the zoom canvas update when checked/unchecked??
+	    column4.setCellFactory( tc -> new CheckBoxTableCell<PointsDatasetTableItem, Boolean>());
 	    
 	    pointsTableView.getColumns().add(column1);
 	    pointsTableView.getColumns().add(column2);
@@ -345,6 +351,14 @@ public class ImageViewerController {
 					PointsDatasetTableItem item = new PointsDatasetTableItem();
 					item.setDataset(p);
 					item.setName(p.getName());
+					item.visibleProperty().addListener(new ChangeListener<Boolean>() {
+
+						@Override
+						public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
+							updateZoomCanvas();
+						}
+						
+					});
 					pointsTableView.getItems().add(item);
 				}
 			}
@@ -453,7 +467,7 @@ public class ImageViewerController {
      * @param pixelPositions
      * @param colorId
      */
-    private void drawPixels(GraphicsContext gc, IPositionDataset positions, int colorId) {
+    private void drawPixels(GraphicsContext gc, IPositionDataset positions, NavigatorColorEnum color) {
     	
     	if (positions == null) return;
     	
@@ -462,10 +476,29 @@ public class ImageViewerController {
     	Vector2<Float> offset = new Vector2<Float>(-10f, -5f);
     	int i = 1;
     	
+		Color c;
+		switch (color) {
+		case Red:
+			c = Color.RED;
+			break;
+		case Blue:
+			c = Color.BLUE;
+			break;
+		case Green:
+			c = Color.GREEN;
+			break;
+		
+		default:
+			c = Color.RED;
+			break;
+		}
+    	
     	gc.beginPath();
     	for (Vector2<Float> pixel : positions.getPixelPositions()) {
-    		gc.setStroke(Color.RED);
-    		gc.setFill(Color.RED);
+    		
+    		
+    		gc.setStroke(c);
+    		gc.setFill(c);
             gc.moveTo(pixel.x + 2, pixel.y);
             gc.lineTo(pixel.x - 2, pixel.y);
             gc.moveTo(pixel.x, pixel.y + 2);
@@ -503,7 +536,7 @@ public class ImageViewerController {
 		List<PointsDatasetTableItem> items = pointsTableView.getItems();
 		for (PointsDatasetTableItem item : items) {
 			if (item.visibleProperty().getValue()) {
-				drawPixels(gc, item.getDataset(), item.getColor().ordinal());
+				drawPixels(gc, item.getDataset(), item.getColor());
 			}
 		}
 	}
