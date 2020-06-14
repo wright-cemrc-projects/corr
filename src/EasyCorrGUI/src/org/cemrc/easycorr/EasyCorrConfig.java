@@ -15,6 +15,10 @@ public class EasyCorrConfig {
 	
 	private static Image ApplicationIcon = new Image(EasyCorrConfig.class.getResourceAsStream("/view/EasyCorr_App.png"));
 	
+	public static String getApplicationName() {
+		return AppName;
+	}
+	
 	public static String getAboutText() {
 		StringBuilder sb = new StringBuilder();
 		

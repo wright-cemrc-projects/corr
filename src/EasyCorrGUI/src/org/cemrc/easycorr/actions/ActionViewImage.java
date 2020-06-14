@@ -57,6 +57,7 @@ public class ActionViewImage {
 	    	Stage dialogStage = new Stage();
 	    	dialogStage.getIcons().add(EasyCorrConfig.getApplicationIcon());
 	    	dialogStage.setScene(importScene);
+	    	dialogStage.setTitle(EasyCorrConfig.getApplicationName());
 	    	dialogStage.show();
 			
 		} catch (Exception e) {

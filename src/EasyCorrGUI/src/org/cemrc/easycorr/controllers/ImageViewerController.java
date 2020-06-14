@@ -7,9 +7,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -21,14 +24,18 @@ import org.cemrc.autodoc.Vector3;
 import org.cemrc.data.EasyCorrDocument;
 import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
+import org.cemrc.data.NavigatorColorEnum;
 import org.cemrc.data.PixelPositionDataset;
 import org.cemrc.easycorr.EasyCorr;
 import org.cemrc.easycorr.EasyCorrConfig;
 import org.cemrc.math.MatrixMath;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -37,12 +44,21 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.TreeTableColumn.CellEditEvent;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
@@ -94,16 +110,17 @@ public class ImageViewerController {
 	ImageView imageViewFull;
 	
 	@FXML
-	ComboBox<IPositionDataset> pointsCombo;
+	TableView<PointsDatasetTableItem> pointsTableView;
+	//ComboBox<IPositionDataset> pointsCombo;
 	
 	@FXML
 	Button newPoints;
 	
 	@FXML
-	Button addButton;
+	ToggleButton addButton;
 	
 	@FXML
-	Button removeButton;
+	ToggleButton removeButton;
 	
 	@FXML
 	TextField zoomField;
@@ -134,22 +151,115 @@ public class ImageViewerController {
 	public void setDocument(EasyCorrDocument doc) {
 		m_document = doc;
 	}
-	
+
 	@FXML
 	public void addPointsPressed() {
-		mode = PointState.Add;
+		if (addButton.isSelected()) {
+			mode = PointState.Add;
+		} else {
+			mode = PointState.None;
+		}
 	}
 	
 	@FXML
 	public void removePointsPressed() {
-		mode = PointState.Remove;
+		if (removeButton.isSelected()) {
+			mode = PointState.Remove;
+		} else {
+			mode = PointState.None;
+		}
+	}
+	
+	/**
+	 * Represents a table item.
+	 * @author larso
+	 *
+	 */
+	public class PointsDatasetTableItem {
+		private final BooleanProperty m_visible = new SimpleBooleanProperty();
+		public BooleanProperty visibleProperty() { 
+			return m_visible; 
+		}
+		
+		private NavigatorColorEnum m_color = NavigatorColorEnum.Red;
+		private IPositionDataset m_dataset;
+		
+		public String getName() {
+			return m_dataset.getName();
+		}
+		
+		public void setName(String name) {
+			// TODO
+			// m_dataset.setName(name);
+		}
+		
+		public int getPoints() {
+			return m_dataset.getPixelPositions().size();
+		}
+		
+		public NavigatorColorEnum getColor() {
+			return NavigatorColorEnum.Red;
+			// return m_dataset.getColor();
+		}
+
+		public IPositionDataset getDataset() {
+			return m_dataset;
+		}
+		
+		public void setDataset(IPositionDataset dataset) {
+			m_dataset = dataset;
+		}
+	}
+	
+	/**
+	 * Setup the points dataset tableview columns and properties.
+	 */
+	private void setupTableView() {
+		
+		// http://tutorials.jenkov.com/javafx/tableview.html#tableview-selection-model
+		
+	    TableColumn<PointsDatasetTableItem, String> column1 = new TableColumn<>("Name");
+	    column1.setCellValueFactory(new PropertyValueFactory<>("name"));
+	    column1.setMaxWidth(100);
+
+	    TableColumn<PointsDatasetTableItem, String> column2 = new TableColumn<>("Points");
+	    column2.setCellValueFactory(new PropertyValueFactory<>("points"));
+	    
+	    TableColumn<PointsDatasetTableItem, NavigatorColorEnum> column3 = new TableColumn<>("Color");
+	    column3.setCellValueFactory(new PropertyValueFactory<>("color"));
+	    
+	    // TODO: make column 3 a combo dropdown
+	    
+	    TableColumn<PointsDatasetTableItem, Boolean> column4 = new TableColumn<>("Visible");
+	    column4.setCellValueFactory(new PropertyValueFactory<>("visible"));
+	    column4.setCellFactory( tc -> new CheckBoxTableCell());
+	    
+	    // TODO: How to make the zoom canvas update when checked/unchecked??
+	    
+	    pointsTableView.getColumns().add(column1);
+	    pointsTableView.getColumns().add(column2);
+	    pointsTableView.getColumns().add(column3);
+	    pointsTableView.getColumns().add(column4);
+	    
+	    // Add a listener for selections.
+	    pointsTableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PointsDatasetTableItem>() {
+
+			@Override
+			public void changed(ObservableValue<? extends PointsDatasetTableItem> arg0, PointsDatasetTableItem old,
+					PointsDatasetTableItem newvalue) {
+				if (newvalue != null) {
+					m_activePoints = newvalue.getDataset();
+					updateZoomCanvas();
+				}
+			}
+	    	
+	    });
+	    
+	    pointsTableView.setEditable(true);
 	}
 	
 	@FXML
 	public void createPositionDataset() {
-		// TODO create a new PixelPositionDataset for this map,
-		// TODO set as active set and add to document.
-		
 		PixelPositionDataset dataset = new PixelPositionDataset();
 		dataset.setMap(m_activeMap);
 		dataset.setDrawnID(m_activeMap.getId());
@@ -158,8 +268,17 @@ public class ImageViewerController {
 		m_document.getData().addPositionData(dataset);
 		m_activePoints = dataset;
 		
-		updatePointsCombo();
-		pointsCombo.setValue(m_activePoints);
+		updatePointsTableView();
+		
+		int index = 0;
+		for (PointsDatasetTableItem item : pointsTableView.getItems()) {
+			if (item.getDataset() == dataset) {
+				pointsTableView.getSelectionModel().clearAndSelect(index);
+				break;
+			} else {
+				index++;
+			}
+		}
 	}
 	
 	@FXML
@@ -169,12 +288,7 @@ public class ImageViewerController {
 		try {
 			float value = Float.parseFloat(text);
 
-			if (value < 0.0f || value > 100.0f) {
-				double currentZoom = m_zoomCanvas.getScaleY();
-				currentZoom *= 100.0;
-				
-				zoomField.setText(Double.toString(currentZoom));
-			} else {
+			if (value >= 0.0f && value <= 100.0f) {
 				double scale = value /= 100.0;
 				
 				m_zoomCanvas.setScaleX(scale);
@@ -207,7 +321,9 @@ public class ImageViewerController {
 		double currentZoom = m_zoomCanvas.getScaleY();
 		currentZoom *= 100.0;
 		
-		zoomField.setText(Double.toString(currentZoom));
+		DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
+		decimalFormat.setMaximumFractionDigits(2);
+		zoomField.setText(decimalFormat.format(currentZoom));
 	}
 	
 	/**
@@ -217,15 +333,19 @@ public class ImageViewerController {
 	public void setActiveMap(IMap map) {
 		m_activeMap = map;
 		loadImage(map.getImage());
-		updatePointsCombo();
+		updatePointsTableView();
 	}
 	
-	private void updatePointsCombo() {
+	private void updatePointsTableView() {
 		if (m_activeMap != null) {
-			pointsCombo.getItems().clear();
+			
+			pointsTableView.getItems().clear();
 			for (IPositionDataset p : m_document.getData().getPositionData()) {
 				if (p.getMapId() == m_activeMap.getId()) {
-					pointsCombo.getItems().add(p);
+					PointsDatasetTableItem item = new PointsDatasetTableItem();
+					item.setDataset(p);
+					item.setName(p.getName());
+					pointsTableView.getItems().add(item);
 				}
 			}
 		}
@@ -233,7 +353,7 @@ public class ImageViewerController {
 	
 	@FXML
 	public void updatePoints() {
-		m_activePoints = pointsCombo.getValue();
+		m_activePoints = pointsTableView.getSelectionModel().getSelectedItem().getDataset();
 		updateZoomCanvas();
 	}
 	
@@ -379,8 +499,13 @@ public class ImageViewerController {
 		}
 		gc.restore();
 		
-		// Can have more than one set of positions active?
-		drawPixels(gc, m_activePoints, 1);
+		// Draw each checked off points set.
+		List<PointsDatasetTableItem> items = pointsTableView.getItems();
+		for (PointsDatasetTableItem item : items) {
+			if (item.visibleProperty().getValue()) {
+				drawPixels(gc, item.getDataset(), item.getColor().ordinal());
+			}
+		}
 	}
 	
     public static double clamp( double value, double min, double max) {
@@ -396,6 +521,10 @@ public class ImageViewerController {
 	
 	@FXML
 	public void initialize() {
+		
+		ToggleGroup group = new ToggleGroup();
+		addButton.setToggleGroup(group);
+		removeButton.setToggleGroup(group);
 		
 		// Setup a button image
         // load the image
@@ -458,6 +587,7 @@ public class ImageViewerController {
 			canvasClickedCallback(event.getX(), event.getY());
 		});
 		
+		/*
 		// Setup callbacks to update the views.
 		Callback<ListView<IPositionDataset>, ListCell<IPositionDataset>> cellFactoryPositions = new Callback<ListView<IPositionDataset>, ListCell<IPositionDataset>>() {
 
@@ -480,6 +610,9 @@ public class ImageViewerController {
 		
 		pointsCombo.setButtonCell(cellFactoryPositions.call(null));
 		pointsCombo.setCellFactory(cellFactoryPositions);
+		*/
+		
+		setupTableView();
 		
 		colorAdjust = new ColorAdjust();
 		colorAdjust.brightnessProperty().bind(brightnessSlider1.valueProperty());
@@ -544,6 +677,7 @@ public class ImageViewerController {
 		}
 		
 		updateZoomCanvas();
+		pointsTableView.refresh();
 	}
 	
 	@FXML

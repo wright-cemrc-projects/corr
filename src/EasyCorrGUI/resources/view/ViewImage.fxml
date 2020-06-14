@@ -2,12 +2,13 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
@@ -26,28 +27,22 @@
                      </children></StackPane>
               </items>
             </SplitPane>
-            <VBox prefHeight="200.0" prefWidth="140.0" HBox.hgrow="NEVER">
+            <VBox prefHeight="200.0" prefWidth="300.0" HBox.hgrow="NEVER">
                <children>
-                  <Button fx:id="saveImageButton" mnemonicParsing="false" onAction="#doSaveImage" text="Save Image">
-                     <VBox.margin>
-                        <Insets bottom="10.0" left="10.0" right="5.0" top="5.0" />
-                     </VBox.margin>
-                  </Button>
-                  <Label text="Visible Points" />
-                  <HBox prefHeight="20.0" prefWidth="120.0">
+                  <TableView fx:id="pointsTableView" />
+                  <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <ComboBox fx:id="pointsCombo" onAction="#updatePoints" prefWidth="100.0" />
-                        <Button fx:id="newPoints" maxHeight="32.0" maxWidth="32.0" mnemonicParsing="false" onAction="#createPositionDataset" text="Button" />
+                        <ToggleButton fx:id="addButton" mnemonicParsing="false" onAction="#addPointsPressed" text="Draw" />
+                        <ToggleButton fx:id="removeButton" mnemonicParsing="false" onAction="#removePointsPressed" text="Erase" />
+                        <Button fx:id="newPoints" alignment="TOP_RIGHT" maxHeight="32.0" maxWidth="120.0" mnemonicParsing="false" onAction="#createPositionDataset" prefHeight="32.0" prefWidth="32.0" HBox.hgrow="NEVER">
+                           <HBox.margin>
+                              <Insets left="45.0" />
+                           </HBox.margin></Button>
                      </children>
                   </HBox>
-                  <Button fx:id="addButton" mnemonicParsing="false" onAction="#addPointsPressed" prefWidth="120.0" text="Draw Points">
+                  <Button fx:id="saveImageButton" mnemonicParsing="false" onAction="#doSaveImage" prefWidth="120.0" text="Save Image">
                      <VBox.margin>
-                        <Insets top="20.0" />
-                     </VBox.margin>
-                  </Button>
-                  <Button fx:id="removeButton" layoutX="59.0" layoutY="112.0" mnemonicParsing="false" onAction="#removePointsPressed" prefWidth="120.0" text="Remove Points">
-                     <VBox.margin>
-                        <Insets top="20.0" />
+                        <Insets bottom="10.0" right="5.0" top="20.0" />
                      </VBox.margin>
                   </Button>
                   <Label text="Zoom (%)">

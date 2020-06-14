@@ -4,8 +4,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -237,7 +240,9 @@ public class AlignedImageViewerController {
 		double currentZoom = m_zoomCanvas.getScaleY();
 		currentZoom *= 100.0;
 		
-		zoomField.setText(Double.toString(currentZoom));
+		DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
+		decimalFormat.setMaximumFractionDigits(2);
+		zoomField.setText(decimalFormat.format(currentZoom));
 	}
 	
 	@FXML
@@ -247,12 +252,7 @@ public class AlignedImageViewerController {
 		try {
 			float value = Float.parseFloat(text);
 
-			if (value < 0.0f || value > 100.0f) {
-				double currentZoom = m_zoomCanvas.getScaleY();
-				currentZoom *= 100.0;
-				
-				zoomField.setText(Double.toString(currentZoom));
-			} else {
+			if (value >= 0.0f && value <= 100.0f) {
 				double scale = value /= 100.0;
 				
 				m_zoomCanvas.setScaleX(scale);
