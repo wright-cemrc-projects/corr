@@ -45,6 +45,11 @@ public class AutodocMap extends BasicMap implements IMap {
 			Vector2<Integer> values = (Vector2<Integer>) m_item.getValue(NavigatorKey.MapWidthHeight);
 			setDimensions(values);
 		}
+		
+		if (m_item.hasKey(NavigatorKey.MapFile)) {
+			setImage(new File((String) m_item.getValue(NavigatorKey.MapFile)));
+		}
+		
 	}
 	
 	public int getId() {
@@ -57,16 +62,6 @@ public class AutodocMap extends BasicMap implements IMap {
 	@Override
 	public GenericItem getAutoDoc() {
 		return m_item;
-	}
-
-	@Override
-	public File getImage() {
-		
-		if (m_item.hasKey(NavigatorKey.MapFile)) {
-			return new File((String) m_item.getValue(NavigatorKey.MapFile));
-		}
-		
-		return null;
 	}
 
 	@Override

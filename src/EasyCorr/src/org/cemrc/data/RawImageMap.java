@@ -49,6 +49,11 @@ public class RawImageMap implements IMap {
 	public File getImage() {
 		return m_imageLocation;
 	}
+	
+	@Override
+	public File getAltImage() {
+		return null;
+	}
 
 	@Override
 	public String getName() {

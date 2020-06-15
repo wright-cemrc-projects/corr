@@ -1,6 +1,7 @@
 package org.cemrc.data;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,38 @@ public class BasicMap implements IMap {
 	
 	@XmlElement(name="image")
 	private File m_image = null;
+	
+	@XmlElement(name="sourceFile")
+	private File m_sourceFile = null;
+	
+	public File getSourceFile() {
+		return m_sourceFile;
+	}
+	
+	public void setImage(File f) {
+		m_image = f;
+	}
+	
+	public void setSourceFile(File f) {
+		m_sourceFile = f;
+	}
+	
+	@Override
+	public File getImage() {
+		return m_image;
+	}
+	
+	@Override
+	public File getAltImage() {
+		if (m_image != null && m_sourceFile != null) {
+			String name = m_image.getName();
+			String parent = m_sourceFile.getParent();
+			
+			return Paths.get(parent).resolve(name).toFile();
+		}
+		
+		return null;
+	}
 
 	/**
 	 * Get the MapScaleMat matrix 2x2
@@ -153,11 +186,6 @@ public class BasicMap implements IMap {
 
 	@Override
 	public GenericItem getAutoDoc() {
-		throw new IllegalArgumentException("Not implemented for BasicMap.");
-	}
-
-	@Override
-	public File getImage() {
 		throw new IllegalArgumentException("Not implemented for BasicMap.");
 	}
 

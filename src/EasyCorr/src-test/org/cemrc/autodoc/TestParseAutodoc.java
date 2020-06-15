@@ -24,7 +24,7 @@ class TestParseAutodoc {
 			List<GenericItem> docItems = AutodocParser.parse(inputStream);
 			// Get a NavData from the flat autodoc list.
 			NavData navData = new NavData();
-			navData.mergeAutodoc(docItems);
+			navData.mergeAutodoc(docItems, null);
 			
 			// Check for expected records.
 			assertEquals(docItems.size(), 13);

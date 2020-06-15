@@ -53,7 +53,7 @@ public class ActionImportAutodoc {
 			List<GenericItem> docItems = AutodocParser.parse(io);
 			
 			// Get a NavData from the flat autodoc list.
-			m_document.getData().mergeAutodoc(docItems);
+			m_document.getData().mergeAutodoc(docItems, file);
 
 		} catch (IOException e) {
 			System.err.println("Unable to open " + file.getName() + " " + e.getMessage());

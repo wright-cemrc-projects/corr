@@ -32,6 +32,12 @@ public interface IMap {
 	public File getImage();
 	
 	/**
+	 * Alternative or fallback image location to workaround .nav limitations
+	 * @return
+	 */
+	public File getAltImage();
+	
+	/**
 	 * Get a map's visible name
 	 * @return
 	 */

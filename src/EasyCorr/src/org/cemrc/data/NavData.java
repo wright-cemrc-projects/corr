@@ -2,6 +2,7 @@ package org.cemrc.data;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -118,8 +119,9 @@ public class NavData {
 	/**
 	 * Merge in the autodoc 
 	 * @param items
+	 * @param sourceFile
 	 */
-	public void mergeAutodoc(List<GenericItem> items) {
+	public void mergeAutodoc(List<GenericItem> items, File sourceFile) {
 		
 		// Bundle stage positions being drawn on the same map together. 
 		Map<Integer, AutodocPositionDataset> positions = new HashMap<Integer, AutodocPositionDataset>();
@@ -164,6 +166,7 @@ public class NavData {
 			
 						// Map type
 						AutodocMap map = new AutodocMap(item);
+						map.setSourceFile(sourceFile);
 						m_maps.add(map);
 						
 						break;

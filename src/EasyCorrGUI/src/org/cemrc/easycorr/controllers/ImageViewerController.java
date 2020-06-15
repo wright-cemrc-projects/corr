@@ -338,7 +338,16 @@ public class ImageViewerController {
 	 */
 	public void setActiveMap(IMap map) {
 		m_activeMap = map;
-		loadImage(map.getImage());
+		
+		File imageLocation = map.getImage();
+		if (! imageLocation.exists()) {
+			File altImage = map.getAltImage();
+			if ( altImage != null && altImage.exists()) {
+				imageLocation = altImage;
+			}
+		}
+		
+		loadImage(imageLocation);
 		updatePointsTableView();
 	}
 	

@@ -47,7 +47,7 @@ public class TestEasyCorrDocument {
 			// Deserialize the autodoc from text file.
 			List<GenericItem> docItems = AutodocParser.parse(inputStream);
 			// Get a NavData from the flat autodoc list.
-			data.mergeAutodoc(docItems);
+			data.mergeAutodoc(docItems, null);
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}

@@ -30,7 +30,7 @@ public class TestNavData {
 		
 			// Get a NavData from the flat autodoc list.
 			NavData navData = new NavData();
-			navData.mergeAutodoc(docItems);
+			navData.mergeAutodoc(docItems, null);
 			
 			// Rebuild the autodoc items.
 			List<GenericItem> restoredItems = navData.getAutodoc();
