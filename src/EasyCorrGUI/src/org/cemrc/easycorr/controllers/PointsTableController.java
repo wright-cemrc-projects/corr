@@ -3,7 +3,9 @@ package org.cemrc.easycorr.controllers;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -34,7 +36,7 @@ public class PointsTableController {
 	private PointsDatasetTableItem m_selected;
 	
 	private EasyCorrDocument m_document = null;
-	private IMap m_activeMap = null;
+	private Set<IMap> m_maps = new HashSet<IMap>();
 	
     /**
      * Can be called when a some value has changed.
@@ -68,8 +70,8 @@ public class PointsTableController {
 	 * Set the active map
 	 * @param map
 	 */
-	public void setActiveMap(IMap map) {
-		m_activeMap = map;
+	public void addMap(IMap map) {
+		m_maps.add(map);
 	}
 	
 	/**
@@ -192,24 +194,28 @@ public class PointsTableController {
 	 * Recreate the row items in the table view.
 	 */
 	public void updatePointsTableView() {
-		if (m_activeMap != null) {
-			
-			m_pointsTableView.getItems().clear();
-			for (IPositionDataset p : m_document.getData().getPositionData()) {
-				if (p.getMapId() == m_activeMap.getId()) {
-					PointsDatasetTableItem item = new PointsDatasetTableItem();
-					item.setDataset(p);
-					item.setName(p.getName());
-					item.visibleProperty().addListener(new ChangeListener<Boolean>() {
+		
+		Set<IPositionDataset> existing = new HashSet<IPositionDataset>();
+		
+		// TODO: if we implement deleting rows, this will require a change.
+		for (PointsDatasetTableItem item : m_pointsTableView.getItems()) {
+			existing.add(item.getDataset());
+		}
+		
+		for (IPositionDataset p : m_document.getData().getPositionData()) {				
+			if (m_maps.contains(p.getMap()) && !existing.contains(p)) {
+				PointsDatasetTableItem item = new PointsDatasetTableItem();
+				item.setDataset(p);
+				item.setName(p.getName());
+				item.visibleProperty().addListener(new ChangeListener<Boolean>() {
 
-						@Override
-						public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-							firePropertyChange("VISIBILITY_CHANGE", item, item);
-						}
-						
-					});
-					m_pointsTableView.getItems().add(item);
-				}
+					@Override
+					public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
+						firePropertyChange("VISIBILITY_CHANGE", item, item);
+					}
+					
+				});
+				m_pointsTableView.getItems().add(item);
 			}
 		}
 	}

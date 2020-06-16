@@ -1,28 +1,24 @@
 package org.cemrc.easycorr.controllers;
 
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
-import org.cemrc.autodoc.Vector2;
 import org.cemrc.data.EasyCorrDocument;
 import org.cemrc.data.IMap;
-import org.cemrc.data.IPositionDataset;
-import org.cemrc.data.Registration;
 import org.cemrc.easycorr.EasyCorrConfig;
-import org.cemrc.math.AffineTransformation;
 
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
@@ -31,18 +27,17 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.effect.Blend;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.ColorAdjust;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.transform.Rotate;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -58,8 +53,14 @@ public class AlignedImageViewerController {
 	@FXML
 	TextField zoomField;
 	
+	/*
 	@FXML
 	TextField rotationAngleEntry;
+	*/
+	
+	@FXML
+	TableView<PointsTableController.PointsDatasetTableItem> pointsTableView;
+	PointsTableController m_pointsTableController;
 	
 	@FXML
 	ToggleButton showAligned;
@@ -106,6 +107,7 @@ public class AlignedImageViewerController {
 	
 	public void setDocument(EasyCorrDocument doc) {
 		m_document = doc;
+		m_pointsTableController.setDocument(doc);
 	}
 	
 	/**
@@ -124,6 +126,9 @@ public class AlignedImageViewerController {
 		}
 		
 		m_alignedImage = loadImage(imageLocation);
+		
+		m_pointsTableController.addMap(map);
+		m_pointsTableController.updatePointsTableView();
 	}
 	
 	/**
@@ -153,6 +158,9 @@ public class AlignedImageViewerController {
 		if (width > m_zoomCanvas.getWidth()) {
 			m_zoomCanvas.setWidth(width);
 		}
+		
+		m_pointsTableController.addMap(map);
+		m_pointsTableController.updatePointsTableView();
 	}
 	
 	/**
@@ -179,6 +187,17 @@ public class AlignedImageViewerController {
 	
 	@FXML
 	public void initialize() {
+		// Setup the table
+		m_pointsTableController = new PointsTableController(pointsTableView);
+		m_pointsTableController.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				updateZoomCanvas();
+			}
+			
+		});
+		
         zoomField.textProperty().addListener((observable, oldValue, newValue) -> {
             zoomChanged();
         });
@@ -281,6 +300,7 @@ public class AlignedImageViewerController {
 		}
 	}
 	
+	/*
 	@FXML
 	public void rotateChanged() {
 		String text = rotationAngleEntry.getText();
@@ -298,6 +318,7 @@ public class AlignedImageViewerController {
 		} catch (NumberFormatException ex) {
 		}
 	}
+	*/
 	
     /**
      * Sets the transform for the GraphicsContext to rotate around a pivot point.

@@ -227,7 +227,7 @@ public class ImageViewerController {
 		}
 		
 		loadImage(imageLocation);
-		m_pointsTableController.setActiveMap(map);
+		m_pointsTableController.addMap(map);
 		m_pointsTableController.updatePointsTableView();
 	}
 	

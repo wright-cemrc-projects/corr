@@ -30,7 +30,7 @@
             </SplitPane>
             <VBox prefHeight="200.0" prefWidth="300.0" HBox.hgrow="NEVER">
                <children>
-                  <TableView fx:id="pointsTableView" />
+                  <TableView fx:id="pointsTableView" VBox.vgrow="ALWAYS" />
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
                         <ToggleButton fx:id="addButton" minWidth="60.0" mnemonicParsing="false" onAction="#addPointsPressed" text="Draw" />
