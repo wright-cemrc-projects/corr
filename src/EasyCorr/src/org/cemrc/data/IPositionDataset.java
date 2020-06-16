@@ -87,4 +87,16 @@ public interface IPositionDataset {
 	 * @param near
 	 */
 	public void removePixelPositionNear(double x, double y, double near);
+	
+	/**
+	 * Get the color of the pointset
+	 * @return
+	 */
+	public NavigatorColorEnum getColor();
+	
+	/**
+	 * Set the color of the pointset
+	 * @param color
+	 */
+	public void setColor(NavigatorColorEnum color);
 }

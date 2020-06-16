@@ -1,12 +1,11 @@
 package org.cemrc.easycorr.controllers;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.HashMap;
@@ -26,45 +25,28 @@ import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
 import org.cemrc.data.NavigatorColorEnum;
 import org.cemrc.data.PixelPositionDataset;
-import org.cemrc.easycorr.EasyCorr;
 import org.cemrc.easycorr.EasyCorrConfig;
 import org.cemrc.math.MatrixMath;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.TreeTableColumn.CellEditEvent;
-import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.ComboBoxTableCell;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
@@ -72,8 +54,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.Callback;
-import javafx.util.converter.DefaultStringConverter;
 
 /**
  * A controller class for the image view.
@@ -114,7 +94,8 @@ public class ImageViewerController {
 	ImageView imageViewFull;
 	
 	@FXML
-	TableView<PointsDatasetTableItem> pointsTableView;
+	TableView<PointsTableController.PointsDatasetTableItem> pointsTableView;
+	PointsTableController m_pointsTableController;
 	
 	@FXML
 	Button newPoints;
@@ -145,7 +126,6 @@ public class ImageViewerController {
 	// The backing data.
 	private EasyCorrDocument m_document;
 	private IMap m_activeMap;
-	private IPositionDataset m_activePoints;
 	
 	// Eventually can include transformations here.
 	// These are the images that will be drawn as layers.
@@ -153,6 +133,7 @@ public class ImageViewerController {
 	
 	public void setDocument(EasyCorrDocument doc) {
 		m_document = doc;
+		m_pointsTableController.setDocument(doc);
 	}
 
 	@FXML
@@ -173,97 +154,6 @@ public class ImageViewerController {
 		}
 	}
 	
-	/**
-	 * Represents a table item.
-	 * @author larso
-	 *
-	 */
-	public class PointsDatasetTableItem {
-		private final BooleanProperty m_visible = new SimpleBooleanProperty();
-		public BooleanProperty visibleProperty() { 
-			return m_visible; 
-		}
-		
-		// TODO: does this need to be a property?
-		private NavigatorColorEnum m_color = NavigatorColorEnum.Red;
-		private IPositionDataset m_dataset;
-		
-		public String getName() {
-			return m_dataset.getName();
-		}
-		
-		public void setName(String name) {
-			// TODO
-			// m_dataset.setName(name);
-		}
-		
-		public int getPoints() {
-			return m_dataset.getPixelPositions().size();
-		}
-		
-		public NavigatorColorEnum getColor() {
-			return m_color;
-		}
-		
-		public void setColor(NavigatorColorEnum color) {
-			m_color = color;
-		}
-
-		public IPositionDataset getDataset() {
-			return m_dataset;
-		}
-		
-		public void setDataset(IPositionDataset dataset) {
-			m_dataset = dataset;
-		}
-	}
-	
-	/**
-	 * Setup the points dataset tableview columns and properties.
-	 */
-	private void setupTableView() {
-		
-		// http://tutorials.jenkov.com/javafx/tableview.html#tableview-selection-model
-		
-	    TableColumn<PointsDatasetTableItem, String> column1 = new TableColumn<>("Name");
-	    column1.setCellValueFactory(new PropertyValueFactory<>("name"));
-	    column1.setMaxWidth(100);
-
-	    TableColumn<PointsDatasetTableItem, String> column2 = new TableColumn<>("Points");
-	    column2.setCellValueFactory(new PropertyValueFactory<>("points"));
-	    
-	    TableColumn<PointsDatasetTableItem, NavigatorColorEnum> column3 = new TableColumn<>("Color");
-	    column3.setCellValueFactory(new PropertyValueFactory<>("color"));
-	    
-	    ObservableList<NavigatorColorEnum> cbValues = FXCollections.observableArrayList(NavigatorColorEnum.values());
-	    column3.setCellFactory(ComboBoxTableCell.forTableColumn(cbValues));
-	    
-	    TableColumn<PointsDatasetTableItem, Boolean> column4 = new TableColumn<>("Visible");
-	    column4.setCellValueFactory(new PropertyValueFactory<>("visible"));
-	    column4.setCellFactory( tc -> new CheckBoxTableCell<PointsDatasetTableItem, Boolean>());
-	    
-	    pointsTableView.getColumns().add(column1);
-	    pointsTableView.getColumns().add(column2);
-	    pointsTableView.getColumns().add(column3);
-	    pointsTableView.getColumns().add(column4);
-	    
-	    // Add a listener for selections.
-	    pointsTableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PointsDatasetTableItem>() {
-
-			@Override
-			public void changed(ObservableValue<? extends PointsDatasetTableItem> arg0, PointsDatasetTableItem old,
-					PointsDatasetTableItem newvalue) {
-				if (newvalue != null) {
-					m_activePoints = newvalue.getDataset();
-					updateZoomCanvas();
-				}
-			}
-	    	
-	    });
-	    
-	    pointsTableView.setEditable(true);
-	}
-	
 	@FXML
 	public void createPositionDataset() {
 		PixelPositionDataset dataset = new PixelPositionDataset();
@@ -271,20 +161,9 @@ public class ImageViewerController {
 		dataset.setDrawnID(m_activeMap.getId());
 		dataset.setRegisID(m_activeMap.getRegis());
 		
-		m_document.getData().addPositionData(dataset);
-		m_activePoints = dataset;
-		
-		updatePointsTableView();
-		
-		int index = 0;
-		for (PointsDatasetTableItem item : pointsTableView.getItems()) {
-			if (item.getDataset() == dataset) {
-				pointsTableView.getSelectionModel().clearAndSelect(index);
-				break;
-			} else {
-				index++;
-			}
-		}
+		m_document.getData().addPositionData(dataset);		
+		m_pointsTableController.updatePointsTableView();
+		m_pointsTableController.select(dataset);
 	}
 	
 	@FXML
@@ -348,35 +227,12 @@ public class ImageViewerController {
 		}
 		
 		loadImage(imageLocation);
-		updatePointsTableView();
-	}
-	
-	private void updatePointsTableView() {
-		if (m_activeMap != null) {
-			
-			pointsTableView.getItems().clear();
-			for (IPositionDataset p : m_document.getData().getPositionData()) {
-				if (p.getMapId() == m_activeMap.getId()) {
-					PointsDatasetTableItem item = new PointsDatasetTableItem();
-					item.setDataset(p);
-					item.setName(p.getName());
-					item.visibleProperty().addListener(new ChangeListener<Boolean>() {
-
-						@Override
-						public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-							updateZoomCanvas();
-						}
-						
-					});
-					pointsTableView.getItems().add(item);
-				}
-			}
-		}
+		m_pointsTableController.setActiveMap(map);
+		m_pointsTableController.updatePointsTableView();
 	}
 	
 	@FXML
 	public void updatePoints() {
-		m_activePoints = pointsTableView.getSelectionModel().getSelectedItem().getDataset();
 		updateZoomCanvas();
 	}
 	
@@ -453,24 +309,6 @@ public class ImageViewerController {
     }
 	
     /**
-     * Draws an image on a graphics context.
-     *
-     * The image is drawn at (tlpx, tlpy) rotated by angle pivoted around the point:
-     *   (tlpx + image.getWidth() / 2, tlpy + image.getHeight() / 2)
-     *
-     * @param gc the graphics context the image is to be drawn on.
-     * @param angle the angle of rotation.
-     * @param tlpx the top left x co-ordinate where the image will be plotted (in canvas co-ordinates).
-     * @param tlpy the top left y co-ordinate where the image will be plotted (in canvas co-ordinates).
-     */
-    private void drawRotatedImage(GraphicsContext gc, Image image, double angle, double tlpx, double tlpy) {
-        gc.save(); // saves the current state on stack, including the current transform
-        rotate(gc, angle, tlpx + image.getWidth() / 2, tlpy + image.getHeight() / 2);
-        gc.drawImage(image, tlpx, tlpy);
-        gc.restore(); // back to original state (before rotation)
-    }
-    
-    /**
      * Draw crosshair pixel positions in a color on the canvas.
      * @param gc
      * @param pixelPositions
@@ -480,13 +318,14 @@ public class ImageViewerController {
     	
     	if (positions == null) return;
     	
-    	// TODO: get a color
-    	
     	Vector2<Float> offset = new Vector2<Float>(-10f, -5f);
     	int i = 1;
     	
 		Color c;
 		switch (color) {
+		case Black:
+			c = Color.BLACK;
+			break;
 		case Red:
 			c = Color.RED;
 			break;
@@ -496,7 +335,12 @@ public class ImageViewerController {
 		case Green:
 			c = Color.GREEN;
 			break;
-		
+		case Yellow:
+			c = Color.YELLOW;
+			break;
+		case Magenta:
+			c = Color.MAGENTA;
+			break;
 		default:
 			c = Color.RED;
 			break;
@@ -542,11 +386,10 @@ public class ImageViewerController {
 		gc.restore();
 		
 		// Draw each checked off points set.
-		List<PointsDatasetTableItem> items = pointsTableView.getItems();
-		for (PointsDatasetTableItem item : items) {
-			if (item.visibleProperty().getValue()) {
-				drawPixels(gc, item.getDataset(), item.getColor());
-			}
+		List<IPositionDataset> drawPoints = m_pointsTableController.getVisible(m_activeMap);
+		
+		for (IPositionDataset item : drawPoints) {
+			drawPixels(gc, item, item.getColor());
 		}
 	}
 	
@@ -563,6 +406,17 @@ public class ImageViewerController {
 	
 	@FXML
 	public void initialize() {
+		
+		// Setup the table
+		m_pointsTableController = new PointsTableController(pointsTableView);
+		m_pointsTableController.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				updateZoomCanvas();
+			}
+			
+		});
 		
 		ToggleGroup group = new ToggleGroup();
 		addButton.setToggleGroup(group);
@@ -629,33 +483,6 @@ public class ImageViewerController {
 			canvasClickedCallback(event.getX(), event.getY());
 		});
 		
-		/*
-		// Setup callbacks to update the views.
-		Callback<ListView<IPositionDataset>, ListCell<IPositionDataset>> cellFactoryPositions = new Callback<ListView<IPositionDataset>, ListCell<IPositionDataset>>() {
-
-		    @Override
-		    public ListCell<IPositionDataset> call(ListView<IPositionDataset> l) {
-		        return new ListCell<IPositionDataset>() {
-
-		            @Override
-		            protected void updateItem(IPositionDataset item, boolean empty) {
-		                super.updateItem(item, empty);
-		                if (item == null || empty) {
-		                    setGraphic(null);
-		                } else {
-		                    setText(item.getName());
-		                }
-		            }
-		        } ;
-		    }
-		};
-		
-		pointsCombo.setButtonCell(cellFactoryPositions.call(null));
-		pointsCombo.setCellFactory(cellFactoryPositions);
-		*/
-		
-		setupTableView();
-		
 		colorAdjust = new ColorAdjust();
 		colorAdjust.brightnessProperty().bind(brightnessSlider1.valueProperty());
 		colorAdjust.contrastProperty().bind(contrastSlider1.valueProperty());
@@ -705,13 +532,15 @@ public class ImageViewerController {
 		
 		Vector3<Float> actualPosition = getActualPixelPosition(x, y);
 		
-		if (m_activePoints != null) {
+		IPositionDataset activePoints = m_pointsTableController.getSelected();
+		
+		if (activePoints != null) {
 			switch (mode) {
 			case Add:
-				m_activePoints.addPixelPosition(actualPosition.x, actualPosition.y);
+				activePoints.addPixelPosition(actualPosition.x, actualPosition.y);
 				break;
 			case Remove:
-				m_activePoints.removePixelPositionNear(actualPosition.x, actualPosition.y, near);
+				activePoints.removePixelPositionNear(actualPosition.x, actualPosition.y, near);
 				break;
 			default:
 				break;

@@ -15,6 +15,7 @@ import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector4;
 import org.cemrc.data.EasyCorrDocument;
 import org.cemrc.data.IMap;
+import org.cemrc.data.NavigatorColorEnum;
 import org.cemrc.data.PixelPositionDataset;
 import org.cemrc.easycorr.EasyCorrConfig;
 
@@ -50,7 +51,7 @@ public class ImportPointsController {
 	IMap selectedMap;
 	int columnX = 2;
 	int columnY = 3;
-	int colorID = 2;
+	NavigatorColorEnum colorId = NavigatorColorEnum.Red;
 	int regid = 2;
 	
 	public void setDocument(EasyCorrDocument doc) {
@@ -74,7 +75,11 @@ public class ImportPointsController {
 	@FXML
 	public void initialize() {
 		importButton.setDisable(true);
-		colorCombo.getItems().addAll(new String []{"0", "1", "2", "3", "4", "5"});
+		
+		// Populate the color combo
+		for (NavigatorColorEnum e : NavigatorColorEnum.values()) {
+			colorCombo.getItems().add(e.toString());
+		}
 	}
 	
 	@FXML
@@ -205,14 +210,7 @@ public class ImportPointsController {
 	@FXML
 	public void onChooseColor() {
 		String selected = colorCombo.getValue();
-		
-		List<String> names = colorCombo.getItems();
-		for (int i = 0; i < colorCombo.getVisibleRowCount(); i++) {
-			if (selected.equals(names.get(i))) {
-				colorID = i;
-				break;
-			}
-		}
+		colorId = NavigatorColorEnum.valueOf(selected);
 	}
 	
 	@FXML
@@ -250,7 +248,7 @@ public class ImportPointsController {
 		
 		PixelPositionDataset pixelPositions = new PixelPositionDataset();
 		pixelPositions.setPixelPositions(parsedPositions);
-		pixelPositions.setColorID(colorID);
+		pixelPositions.setColor(colorId);
 
 		// Get useful values from the map.
 		if (selectedMap != null) {

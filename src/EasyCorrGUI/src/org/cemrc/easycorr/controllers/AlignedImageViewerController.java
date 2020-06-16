@@ -114,7 +114,16 @@ public class AlignedImageViewerController {
 	 */
 	public void setActiveMap(IMap map) {
 		m_activeMap = map;
-		m_alignedImage = loadImage(map.getImage());
+		
+		File imageLocation = map.getImage();
+		if (! imageLocation.exists()) {
+			File altImage = map.getAltImage();
+			if ( altImage != null && altImage.exists()) {
+				imageLocation = altImage;
+			}
+		}
+		
+		m_alignedImage = loadImage(imageLocation);
 	}
 	
 	/**
@@ -123,7 +132,16 @@ public class AlignedImageViewerController {
 	 */
 	public void setReferenceMap(IMap map) {
 		m_referenceMap = map;
-		m_referenceImage = loadImage(map.getImage());
+		
+		File imageLocation = map.getImage();
+		if (! imageLocation.exists()) {
+			File altImage = map.getAltImage();
+			if ( altImage != null && altImage.exists()) {
+				imageLocation = altImage;
+			}
+		}
+		
+		m_referenceImage = loadImage(imageLocation);
 		
 		double height = m_referenceImage.getHeight();
 		double width = m_referenceImage.getWidth();

@@ -27,8 +27,6 @@ public class PixelPositionDataset extends AbstractPositionDataset implements IPo
 	
 	@XmlElement(name="drawnID")
 	private Integer m_drawnID = new Integer(0);
-	@XmlElement(name="colorID")
-	private Integer m_colorID = new Integer(0);
 	@XmlElement(name="regisID")
 	private Integer m_regisID = new Integer(0);
 	@XmlElement(name="imported")
@@ -45,16 +43,6 @@ public class PixelPositionDataset extends AbstractPositionDataset implements IPo
 	 */
 	public PixelPositionDataset setDrawnID(int id) {
 		m_drawnID = id;
-		return this;
-	}
-	
-	/**
-	 * Set the color ID to use.
-	 * @param id
-	 * @return
-	 */
-	public PixelPositionDataset setColorID(int id) {
-		m_colorID = id;
 		return this;
 	}
 	
@@ -136,9 +124,8 @@ public class PixelPositionDataset extends AbstractPositionDataset implements IPo
 		genericItem.addNavigatorField(NavigatorKey.Type, 0);
 		genericItem.addNavigatorField(NavigatorKey.NumPts, 1);
 		// Set provided values.
-		if (m_colorID != null) {
-			genericItem.addNavigatorField(NavigatorKey.Color, m_colorID);
-		}
+		genericItem.addNavigatorField(NavigatorKey.Color, getColor().ordinal());
+		
 		if (m_drawnID != null) {
 			genericItem.addNavigatorField(NavigatorKey.DrawnID, m_drawnID);
 		}
