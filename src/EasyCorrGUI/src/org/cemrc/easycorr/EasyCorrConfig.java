@@ -9,7 +9,7 @@ import javafx.scene.image.Image;
  */
 public class EasyCorrConfig {
 	
-	public static String VersionName = "0.11.3";
+	public static String VersionName = "0.11.5";
 	
 	public static String AppName = "EasyCorr";
 	

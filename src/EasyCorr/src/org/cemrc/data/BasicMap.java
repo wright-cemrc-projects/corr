@@ -41,6 +41,18 @@ public class BasicMap implements IMap {
 	@XmlElement(name="sourceFile")
 	private File m_sourceFile = null;
 	
+	@XmlElement(name="stageZ")
+	private float m_stageZ;
+	
+	@Override
+	public float getStageZ() {
+		return m_stageZ;
+	}
+	
+	public void setStageZ(float z) {
+		m_stageZ = z;
+	}
+	
 	public File getSourceFile() {
 		return m_sourceFile;
 	}

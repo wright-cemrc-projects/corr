@@ -14,13 +14,10 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.cemrc.autodoc.FloatList;
 import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
 import org.cemrc.autodoc.Vector3;
-import org.cemrc.autodoc.Vector4;
 import org.cemrc.math.MatrixMath;
 
 /**
@@ -256,7 +253,7 @@ public class NavData {
 			float pos_z = pos.z;
 			pos.z = 1f;
 			pos = MatrixMath.multiply(affineMatrix, pos);
-			pos.z = pos_z;
+			pos.z = registeredMap.getRegistration().getStageZ();
 			rv.addNavigatorField(NavigatorKey.StageXYZ, pos);
 			
 			// PtsX, PtsY
@@ -293,7 +290,7 @@ public class NavData {
 			// update the StageXYZ to a new StageXYZ using inv(AffineMatrix).
 			double [][] affineMatrix = registeredMap.getRegistration().getStageMatrix();
 			pos = MatrixMath.multiply(affineMatrix, pos);
-			pos.z = pos_z;
+			pos.z = registeredMap.getRegistration().getStageZ();
 			
 			rv.addNavigatorField(NavigatorKey.StageXYZ, pos);
 			

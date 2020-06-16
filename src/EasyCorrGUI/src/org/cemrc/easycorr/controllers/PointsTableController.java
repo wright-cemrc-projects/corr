@@ -215,6 +215,7 @@ public class PointsTableController {
 					}
 					
 				});
+				item.visibleProperty().setValue(true);
 				m_pointsTableView.getItems().add(item);
 			}
 		}

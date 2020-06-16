@@ -3,12 +3,9 @@ package org.cemrc.data;
 import java.io.File;
 import java.util.List;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector4;
-import org.cemrc.math.AffineTransformation;
 
 /**
  * Interface for 
@@ -114,4 +111,10 @@ public interface IMap {
 	 * @return
 	 */
 	public List<Vector2<Float>> getStageBounds(boolean useAffineTransformation);
+	
+	/**
+	 * Get the Z stage position
+	 * @return
+	 */
+	public float getStageZ();
 }

@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.cemrc.autodoc.GenericItem;
-import org.cemrc.autodoc.NavigatorKey;
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector4;
 
@@ -111,5 +110,10 @@ public class RawImageMap implements IMap {
 	@Override
 	public List<Vector2<Float>> getStageBounds(boolean useAffineTransformation) {
 		throw new IllegalArgumentException("Not implemented for RawImageMap.");
+	}
+	
+	@Override
+	public float getStageZ() {
+		return 0;
 	}
 }

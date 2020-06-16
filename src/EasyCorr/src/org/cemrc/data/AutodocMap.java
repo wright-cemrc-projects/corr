@@ -5,13 +5,11 @@ import java.io.File;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
 import org.cemrc.autodoc.Vector2;
+import org.cemrc.autodoc.Vector3;
 import org.cemrc.autodoc.Vector4;
-import org.cemrc.math.AffineTransformation;
 
 /**
  * MapData describes the magnification, stage position offset, and more.
@@ -50,6 +48,10 @@ public class AutodocMap extends BasicMap implements IMap {
 			setImage(new File((String) m_item.getValue(NavigatorKey.MapFile)));
 		}
 		
+		if (m_item.hasKey(NavigatorKey.StageXYZ)) {
+			Vector3<Float> stageXYZ = (Vector3<Float>) m_item.getValue(NavigatorKey.StageXYZ);
+			setStageZ(stageXYZ.z);
+		}
 	}
 	
 	public int getId() {

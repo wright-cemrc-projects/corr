@@ -24,6 +24,9 @@ public class Registration {
 	@XmlElement(name="regis")
 	private int m_regis;
 	
+	@XmlElement(name="stageZ")
+	private float m_stageZ;
+	
 	public Registration() {
 	}
 	
@@ -112,9 +115,19 @@ public class Registration {
 		rv.setRegisterMapId(reference.getMapId());
 		rv.setRegis(reference.getMap().getRegis());
 		
-		// Should get registration id here.
-		// rv.setRegis(reference.get);
+		// Record a stageZ
+		if (reference.getMap() != null) {
+			rv.setStageZ(reference.getMap().getStageZ());
+		}
 		
 		return rv;
+	}
+	
+	public float getStageZ() {
+		return m_stageZ;
+	}
+	
+	public void setStageZ(float z) {
+		m_stageZ = z;
 	}
 }
