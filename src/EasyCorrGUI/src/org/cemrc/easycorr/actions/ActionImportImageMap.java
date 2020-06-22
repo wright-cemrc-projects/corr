@@ -44,7 +44,7 @@ public class ActionImportImageMap {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open an image file (.tif, .png)");
     	
-    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.tif, *.png)", "*.tif, *.png");
+    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.tif, *.png)", "*.tif", "*.png");
     	fileChooser.getExtensionFilters().add(extFilter);
     	
     	Stage dialogStage = new Stage();

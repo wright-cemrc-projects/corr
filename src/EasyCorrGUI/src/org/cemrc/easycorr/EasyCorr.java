@@ -9,6 +9,7 @@ import org.cemrc.data.EasyCorrDocument;
 import org.cemrc.data.EasyCorrState;
 import org.cemrc.easycorr.actions.ActionExportAutodoc;
 import org.cemrc.easycorr.actions.ActionImportAutodoc;
+import org.cemrc.easycorr.actions.ActionImportImageMap;
 import org.cemrc.easycorr.actions.ActionImportPoints;
 import org.cemrc.easycorr.controllers.ProjectController;
 import org.cemrc.easycorr.wizard.WizardController;
@@ -211,12 +212,23 @@ public class EasyCorr extends Application {
 	private Menu createImportMenu() {
         // create import menu
         Menu menuImport = new Menu("Import");
+        MenuItem importImage = new MenuItem("Import Image file (.tif)");
         MenuItem importNav = new MenuItem("Import Navigator File (.nav)");
         MenuItem importPoints = new MenuItem("Import Pixel Positions (.csv)");
+        menuImport.getItems().add(importImage);
         menuImport.getItems().add(importNav);
         menuImport.getItems().add(importPoints);
         
         // setup EventHandler(s)
+        EventHandler<ActionEvent> importImageEvent = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e) 
+            { 
+            	ActionImportImageMap action = new ActionImportImageMap(m_state.getDocument());
+            	action.doAction();
+            } 
+        };
+        importImage.setOnAction(importImageEvent);
+        
         EventHandler<ActionEvent> importNavEvent = new EventHandler<ActionEvent>() { 
             public void handle(ActionEvent e) 
             { 
