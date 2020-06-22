@@ -1,19 +1,5 @@
 package org.cemrc.easycorr;
 
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
-import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -26,6 +12,19 @@ import org.cemrc.easycorr.actions.ActionImportAutodoc;
 import org.cemrc.easycorr.actions.ActionImportPoints;
 import org.cemrc.easycorr.controllers.ProjectController;
 import org.cemrc.easycorr.wizard.WizardController;
+
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 
 /**
@@ -60,7 +59,7 @@ public class EasyCorr extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		
 		// Stage is where visual parts of JavaFX application are displayed.
-        primaryStage.setTitle("EasyCorr");
+        primaryStage.setTitle(EasyCorrConfig.AppName);
         
         // JavaFX Stage == a window
         // JavaFX Scene is the root of a JavaFX Scene graph

@@ -9,14 +9,18 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+import org.cemrc.autodoc.Vector2;
 import org.cemrc.data.EasyCorrDocument;
 import org.cemrc.data.IMap;
+import org.cemrc.data.IPositionDataset;
+import org.cemrc.data.NavigatorColorEnum;
 import org.cemrc.easycorr.EasyCorrConfig;
 
 import javafx.beans.value.ChangeListener;
@@ -24,6 +28,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
@@ -38,6 +43,8 @@ import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -53,11 +60,9 @@ public class AlignedImageViewerController {
 	@FXML
 	TextField zoomField;
 	
-	/*
 	@FXML
 	TextField rotationAngleEntry;
-	*/
-	
+
 	@FXML
 	TableView<PointsTableController.PointsDatasetTableItem> pointsTableView;
 	PointsTableController m_pointsTableController;
@@ -300,7 +305,6 @@ public class AlignedImageViewerController {
 		}
 	}
 	
-	/*
 	@FXML
 	public void rotateChanged() {
 		String text = rotationAngleEntry.getText();
@@ -318,7 +322,6 @@ public class AlignedImageViewerController {
 		} catch (NumberFormatException ex) {
 		}
 	}
-	*/
 	
     /**
      * Sets the transform for the GraphicsContext to rotate around a pivot point.
@@ -328,9 +331,9 @@ public class AlignedImageViewerController {
      * @param px the x pivot co-ordinate for the rotation (in canvas co-ordinates).
      * @param py the y pivot co-ordinate for the rotation (in canvas co-ordinates).
      */
-    private void rotate(GraphicsContext gc, double angle, double px, double py) {
+    private Rotate getRotate(GraphicsContext gc, double angle, double px, double py) {
         Rotate r = new Rotate(angle, px, py);
-        gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+        return r;
     }
 	
 	
@@ -338,15 +341,14 @@ public class AlignedImageViewerController {
 		GraphicsContext gc = m_zoomCanvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, m_zoomCanvas.getWidth(), m_zoomCanvas.getHeight());
 
-		// TODO: apply a rotation transform for each image?
-		// Rotate r = new Rotate(m_currentRotation, m_currentRotation, m_zoomCanvas.getWidth() / 2.0, m_zoomCanvas.getHeight() / 2.0);
-		
-		// Set the rotation
-		rotate(gc, m_currentRotation, m_zoomCanvas.getWidth() / 2.0 , m_zoomCanvas.getHeight() / 2.0);
-	
+		// Create an affine transformation from a rotation.
+		Rotate r = getRotate(gc, m_currentRotation, m_zoomCanvas.getWidth() / 2.0 , m_zoomCanvas.getHeight() / 2.0);
+		//Affine t = new Affine(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+		Affine t = new Affine(r.getMxx(), r.getMxy(), r.getTx(), r.getMyx(), r.getMyy(), r.getTy());
 		
 		if (m_referenceImage != null && m_showReference) {
 			gc.save();
+			gc.setTransform(t);
 
 			// Set color effects
 			gc.setEffect(bottomColor);
@@ -356,9 +358,17 @@ public class AlignedImageViewerController {
 			gc.restore();
 		}
 		
+		// Draw each checked off points set.
+		List<IPositionDataset> referencePoints = m_pointsTableController.getVisible(m_referenceMap);
+		
+		for (IPositionDataset item : referencePoints) {
+			drawPixels(gc, item, item.getColor(), t);
+		}
+		
+		Affine t2 = new Affine(1, 0, 0, 0, 1, 0);
+		
 		// The aligned image should be drawn transformed and with transparency.
 		// How do I apply the 3x3 matrix or as 2x2 matrix /w translation component?
-		
 		if (m_alignedImage != null && m_showActive) {
 			gc.save();
 			
@@ -371,20 +381,30 @@ public class AlignedImageViewerController {
 			// Is there a transform to apply?
 			if (m_alignmentMatrix != null) {
 				double mxx = m_alignmentMatrix[0][0];
-				double mxy = m_alignmentMatrix[1][0];
-				double myx = m_alignmentMatrix[0][1];
+				double myx = m_alignmentMatrix[1][0];
+				double mxy = m_alignmentMatrix[0][1];
 				double myy = m_alignmentMatrix[1][1];
 				double tx = m_alignmentMatrix[0][2];
 				double ty = m_alignmentMatrix[1][2];
 				
-				gc.setTransform(mxx, mxy, myx, myy, tx, ty);
+				t2 = new Affine(mxx, mxy, tx, myx, myy, ty);
 			}
+			
+			t.append(t2);
+			gc.setTransform(t);
 			
 	        gc.drawImage(m_alignedImage, 0, 0);
 	        
 	        gc.setEffect(null);
 	        
 	        gc.restore();
+		}
+		
+		// Draw each checked off points set.
+		List<IPositionDataset> targetPoints = m_pointsTableController.getVisible(m_activeMap);
+		
+		for (IPositionDataset item : targetPoints) {
+			drawPixels(gc, item, item.getColor(), t);
 		}
 	}
 	
@@ -464,4 +484,67 @@ public class AlignedImageViewerController {
             }
         }
 	}
+	
+    /**
+     * Draw crosshair pixel positions in a color on the canvas.
+     * @param gc
+     * @param pixelPositions
+     * @param colorId
+     */
+    private void drawPixels(GraphicsContext gc, IPositionDataset positions, NavigatorColorEnum color, Affine t) {
+    	
+    	if (positions == null) return;
+    	
+    	Point2D offset = new Point2D(-10f, -5f);
+    	int i = 1;
+    	
+		Color c;
+		switch (color) {
+		case Black:
+			c = Color.BLACK;
+			break;
+		case Red:
+			c = Color.RED;
+			break;
+		case Blue:
+			c = Color.BLUE;
+			break;
+		case Green:
+			c = Color.GREEN;
+			break;
+		case Yellow:
+			c = Color.YELLOW;
+			break;
+		case Magenta:
+			c = Color.MAGENTA;
+			break;
+		default:
+			c = Color.RED;
+			break;
+		}
+    	
+    	gc.beginPath();
+    	for (Vector2<Float> pixel : positions.getPixelPositions()) {
+    		
+    		Point2D pt = new Point2D(pixel.x, pixel.y);
+    		Point2D movedPt = t.transform(pt);
+    		
+    		gc.setStroke(c);
+    		gc.setFill(c);
+            gc.moveTo(movedPt.getX() + 2, movedPt.getY());
+            gc.lineTo(movedPt.getX() - 2, movedPt.getY());
+            gc.moveTo(movedPt.getX(), movedPt.getY() + 2);
+            gc.lineTo(movedPt.getX(), movedPt.getY() - 2);
+            gc.stroke();
+            
+            // TODO, make this optional.
+            drawLabelText(gc, movedPt, offset, Integer.toString(i));
+            i++;
+    	}	
+    	gc.closePath();
+    }
+    
+    private void drawLabelText(GraphicsContext gc, Point2D pixel, Point2D offset, String text) {
+    	gc.fillText(text, pixel.getX() + offset.getX(), pixel.getY() + offset.getY());
+    }
 }

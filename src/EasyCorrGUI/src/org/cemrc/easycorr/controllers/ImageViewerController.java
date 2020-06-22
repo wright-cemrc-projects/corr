@@ -33,6 +33,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
@@ -51,6 +52,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -303,9 +305,9 @@ public class ImageViewerController {
      * @param px the x pivot co-ordinate for the rotation (in canvas co-ordinates).
      * @param py the y pivot co-ordinate for the rotation (in canvas co-ordinates).
      */
-    private void rotate(GraphicsContext gc, double angle, double px, double py) {
+    private Rotate getRotate(GraphicsContext gc, double angle, double px, double py) {
         Rotate r = new Rotate(angle, px, py);
-        gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+        return r;
     }
 	
     /**
@@ -314,11 +316,11 @@ public class ImageViewerController {
      * @param pixelPositions
      * @param colorId
      */
-    private void drawPixels(GraphicsContext gc, IPositionDataset positions, NavigatorColorEnum color) {
+    private void drawPixels(GraphicsContext gc, IPositionDataset positions, NavigatorColorEnum color, Affine t) {
     	
     	if (positions == null) return;
     	
-    	Vector2<Float> offset = new Vector2<Float>(-10f, -5f);
+    	Point2D offset = new Point2D(-10f, -5f);
     	int i = 1;
     	
 		Color c;
@@ -349,47 +351,55 @@ public class ImageViewerController {
     	gc.beginPath();
     	for (Vector2<Float> pixel : positions.getPixelPositions()) {
     		
+    		Point2D pt = new Point2D(pixel.x, pixel.y);
+    		Point2D movedPt = t.transform(pt);
     		
     		gc.setStroke(c);
     		gc.setFill(c);
-            gc.moveTo(pixel.x + 2, pixel.y);
-            gc.lineTo(pixel.x - 2, pixel.y);
-            gc.moveTo(pixel.x, pixel.y + 2);
-            gc.lineTo(pixel.x, pixel.y - 2);
+            gc.moveTo(movedPt.getX() + 2, movedPt.getY());
+            gc.lineTo(movedPt.getX() - 2, movedPt.getY());
+            gc.moveTo(movedPt.getX(), movedPt.getY() + 2);
+            gc.lineTo(movedPt.getX(), movedPt.getY() - 2);
             gc.stroke();
             
             // TODO, make this optional.
-            drawLabelText(gc, pixel, offset, Integer.toString(i));
+            drawLabelText(gc, movedPt, offset, Integer.toString(i));
             i++;
     	}	
     	gc.closePath();
     }
     
-    private void drawLabelText(GraphicsContext gc, Vector2<Float> pixel, Vector2<Float> offset, String text) {
-    	gc.fillText(text, pixel.x + offset.x, pixel.y + offset.y);
+    private void drawLabelText(GraphicsContext gc, Point2D pixel, Point2D offset, String text) {
+    	gc.fillText(text, pixel.getX() + offset.getX(), pixel.getY() + offset.getY());
     }
 	
 	public void updateZoomCanvas() {
 		GraphicsContext gc = m_zoomCanvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, m_zoomCanvas.getWidth(), m_zoomCanvas.getHeight());
 
-		// Set the rotation
-		rotate(gc, m_currentRotation, m_zoomCanvas.getWidth() / 2.0 , m_zoomCanvas.getHeight() / 2.0);
+		// Create an affine transformation from a rotation.
+		Rotate r = getRotate(gc, m_currentRotation, m_zoomCanvas.getWidth() / 2.0 , m_zoomCanvas.getHeight() / 2.0);
+		//Affine t = new Affine(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+		Affine t = new Affine(r.getMxx(), r.getMxy(), r.getTx(), r.getMyx(), r.getMyy(), r.getTy());
 		
+		// Save the transform state
 		gc.save();
+        gc.setTransform(t);
+		
 		// Set color effects
 		gc.setEffect(colorAdjust);
 		for (Image i : m_imageLayers.values()) {
 			// drawRotatedImage(gc, i, 0, 0, 0);
 	        gc.drawImage(i, 0, 0);
 		}
+		// Restore transform state
 		gc.restore();
 		
 		// Draw each checked off points set.
 		List<IPositionDataset> drawPoints = m_pointsTableController.getVisible(m_activeMap);
 		
 		for (IPositionDataset item : drawPoints) {
-			drawPixels(gc, item, item.getColor());
+			drawPixels(gc, item, item.getColor(), t);
 		}
 	}
 	

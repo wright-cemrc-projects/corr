@@ -35,6 +35,12 @@
                         <Insets top="5.0" />
                      </VBox.margin>
                   </TextField>
+                  <Label text="Rotation (°)">
+                     <padding>
+                        <Insets top="25.0" />
+                     </padding>
+                  </Label>
+                  <TextField fx:id="rotationAngleEntry" onAction="#rotateChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="0.0" />
                   <ToggleButton fx:id="showReference" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onReferencePressed" selected="true" text="Show Reference">
                      <VBox.margin>
                         <Insets top="25.0" />
