@@ -5,8 +5,10 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -189,6 +191,27 @@ public class NavData {
 		}
 		
 		return rv;
+	}
+	
+	/**
+	 * Find a unique identifer.
+	 * @return
+	 */
+	public Integer getUniqueMapId() {
+		
+		// Starting block of IDs
+		int baseInteger = 10000;
+		
+		Set<Integer> existing = new HashSet<Integer>();
+		
+		for (IMap i : m_maps) {
+			existing.add(i.getId());
+		}
+		
+		while (existing.contains(baseInteger)) {
+			baseInteger++;
+		}
+		return baseInteger;
 	}
 	
 	/**

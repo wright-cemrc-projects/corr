@@ -30,7 +30,7 @@ public class AutodocPositionDataset extends AbstractPositionDataset implements I
 	 * @author larso
 	 *
 	 */
-	public class AutodocPosition {
+	public static class AutodocPosition {
 		
 		@XmlElement(name="autodocItem")
 		private GenericItem m_item;

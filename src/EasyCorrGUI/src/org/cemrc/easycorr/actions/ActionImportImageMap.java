@@ -1,12 +1,9 @@
 package org.cemrc.easycorr.actions;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -15,9 +12,10 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
-import org.cemrc.autodoc.AutodocParser;
 import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
+import org.cemrc.autodoc.Vector2;
+import org.cemrc.autodoc.Vector4;
 import org.cemrc.data.EasyCorrDocument;
 import org.cemrc.easycorr.EasyCorrConfig;
 
@@ -99,14 +97,15 @@ public class ActionImportImageMap {
 					    wr= SwingFXUtils.toFXImage(bf, null);   //convert bufferedImage (awt) into Writable Image(fx)
 					}
 					
-					Double width = wr.getWidth();
-					Double height = wr.getHeight();
-					
-					String widthHeight = String.format("%d %d", width, height);
-					
+					double width = wr.getWidth();
+					double height = wr.getHeight();
+
 					mapItem.addNavigatorField(NavigatorKey.MapFile, file.getPath());
-					mapItem.addNavigatorField(NavigatorKey.MapWidthHeight, widthHeight);
-					mapItem.addNavigatorField(NavigatorKey.MapScaleMat, "10 0 0 -10");
+					mapItem.addNavigatorField(NavigatorKey.MapWidthHeight, new Vector2<Integer>((int) width, (int) height));
+					mapItem.addNavigatorField(NavigatorKey.MapScaleMat, new Vector4<Float>(10f, 0f, 0f, -10f));
+					mapItem.addNavigatorField(NavigatorKey.Regis, 0);
+					int uniqueId = m_document.getData().getUniqueMapId();
+					mapItem.addNavigatorField(NavigatorKey.MapID, uniqueId);
 				}
 			}
 			
