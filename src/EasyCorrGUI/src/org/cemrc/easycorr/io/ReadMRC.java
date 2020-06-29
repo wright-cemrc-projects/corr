@@ -8,7 +8,6 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
-import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
@@ -24,17 +23,6 @@ import javafx.scene.image.Image;
  *
  */
 public class ReadMRC {
-	
-	private static BufferedImage getGrayscale(int width, int height, byte[] buffer, int bitwidth) {
-		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-		int[] nBits = { bitwidth };
-		ColorModel cm = new ComponentColorModel(cs, nBits, false, true, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
-		SampleModel sm = cm.createCompatibleSampleModel(width, height);
-		DataBufferByte db = new DataBufferByte(buffer, width * height);
-		WritableRaster raster = Raster.createWritableRaster(sm, db, null);
-		BufferedImage result = new BufferedImage(cm, raster, false, null);
-		return result;
-	}
 	
 	/**
 	 * Parse the SerialEM (.st) file format into an Image.
@@ -106,30 +94,17 @@ public class ReadMRC {
 			
 			long imageByteSize = nx * ny * modeBytes;
 			byte [] imageByteBuffer = new byte[(int)imageByteSize]; 
-			byte [] flippedByteBuffer = new byte[(int)imageByteSize];
 			
 			// Read the expected image data
 			in.read(imageByteBuffer);
+	
+			// Normalize to 8-bit greyscale
+			byte [] normalizedValues = getNormalizedByteArray(imageByteBuffer, nx, ny, modeBytes, true);
 			
-			// Flip the byte order
-			for (int i =0; i < imageByteSize; i+=modeBytes) {
-				for (int j = 0; j < modeBytes; j++) {
-					flippedByteBuffer[i+j] = imageByteBuffer[i + (modeBytes - j - 1)];
-				}
-			}
-			
-			// TODO:
-			// Flipping the byte-order (little endian) may be necessary
-			// However the below is still likely incorrectly only using 1 byte, not 2 or 4 bytes.
-			// Another idea might be to create an Int array and correctly handle the bytes to make a grayscale
-			// with the correct dynamic range?
-			
-			// How to convert 8-bit grayscale in a bytearray to JavaFX Image?
-			BufferedImage image = new BufferedImage(nx, ny, BufferedImage.TYPE_BYTE_GRAY);
-			image.getRaster().setDataElements(0,  0, nx, ny, imageByteBuffer);
-			
+			// Create 8-bit greyscale
 			ColorModel cm = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_GRAY), false, false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
-			WritableRaster raster = Raster.createInterleavedRaster(new DataBufferByte(flippedByteBuffer, imageByteBuffer.length), nx, ny, nx*modeBytes, modeBytes, new int[] {0}, null);
+			int byteSize = 1;
+			WritableRaster raster = Raster.createInterleavedRaster(new DataBufferByte(normalizedValues, normalizedValues.length), nx, ny, nx*byteSize, 1, new int[] {0}, null);
 			BufferedImage bImage = new BufferedImage(cm, raster, cm.isAlphaPremultiplied(), null);
 			
 			rv = SwingFXUtils.toFXImage(bImage, null);
@@ -142,4 +117,54 @@ public class ReadMRC {
 		return rv;
 	}
 	
+	private static byte [] getNormalizedByteArray(byte [] bytes, int nx, int ny, int modeBytes, boolean flip) {
+		byte [] rv = new byte[nx*ny];
+		
+		// High value to scale by.
+		int maxValue = 1;
+		int buffersize = nx * ny * modeBytes;
+		
+		byte [] buffer = new byte[4];
+		
+		// Pass #1 to find max sized integer in little-endian
+		for (int i =0; i < buffersize; i+=modeBytes) {
+			
+			for (int j = 0; j < modeBytes; j++) {
+				buffer[modeBytes - j - 1] = bytes[i + j];
+			}
+			
+			// Get integer
+			int result = ByteBuffer.wrap(buffer).getInt();
+			if (result > maxValue) maxValue = result;
+		}
+		
+		// Pass #2 normalize to 8-bit image.
+		
+		int deltaY = flip ? -1 : 1;
+		
+		int x = 0;
+		int y = flip ? ny - 1 : 0;
+		
+		for (int i = 0; i < buffersize; i+=modeBytes) {
+			
+			for (int j = 0; j < modeBytes; j++) {
+				buffer[modeBytes - j - 1] = bytes[i + j];
+			}
+			
+			// Get integer
+			int result = ByteBuffer.wrap(buffer).getInt();
+			byte resultByte = new Integer( (int)(255.0f * ((float) result / (float) maxValue)) ).byteValue();
+			
+			int index = nx * y + x;
+			rv[index] = resultByte;
+			
+			x++;
+			if (x >= nx) {
+				x = 0;
+				y += deltaY;
+			}
+		}
+		
+		return rv;
+	}
 }
