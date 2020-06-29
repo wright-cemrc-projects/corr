@@ -4,19 +4,13 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector3;
@@ -26,6 +20,7 @@ import org.cemrc.data.IPositionDataset;
 import org.cemrc.data.NavigatorColorEnum;
 import org.cemrc.data.PixelPositionDataset;
 import org.cemrc.easycorr.EasyCorrConfig;
+import org.cemrc.easycorr.io.ReadImage;
 import org.cemrc.math.MatrixMath;
 
 import javafx.beans.value.ChangeListener;
@@ -36,8 +31,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
@@ -128,10 +121,7 @@ public class ImageViewerController {
 	// The backing data.
 	private EasyCorrDocument m_document;
 	private IMap m_activeMap;
-	
-	// Eventually can include transformations here.
-	// These are the images that will be drawn as layers.
-	private Map<Integer, Image> m_imageLayers = new HashMap<Integer, Image>();
+	private Image m_image = null;
 	
 	public void setDocument(EasyCorrDocument doc) {
 		m_document = doc;
@@ -240,61 +230,27 @@ public class ImageViewerController {
 	
 	private void loadImage(File file) {
 		
-		// Method with ImagoIO (JAI core extension for TIFF)
-		ImageInputStream is;
-		try {
-			is = ImageIO.createImageInputStream(file);  //read tiff using imageIO (JAI component)
-		if (is == null || is.length() == 0) {
-			Alert errorAlert = new Alert(AlertType.ERROR);
-			errorAlert.setHeaderText("Input not valid");
-			errorAlert.setContentText("Cannot find image at this location: " + file.getAbsolutePath());
-			errorAlert.showAndWait();
-		} else {
+		m_image = ReadImage.readImage(file);
 		
-			Iterator<ImageReader> iterator = ImageIO.getImageReaders(is);
-			if (iterator == null || !iterator.hasNext()) {
-			    throw new IOException("Image file format not supported by ImageIO: " + file.getAbsolutePath());
+		if (m_image != null) {
+			imageViewFull.setImage(m_image);
+		
+			if (width < m_image.getWidth()) {
+				width = m_image.getWidth();
 			}
-			ImageReader reader = (ImageReader) iterator.next();
-			reader.setInput(is);
 			
-			int nbPages = reader.getNumImages(true);
-			
-			if (nbPages > 0) {
-				BufferedImage bf = reader.read(0);   //1st page of tiff file
-				WritableImage wr = null;
-				if (bf != null) {
-				    wr= SwingFXUtils.toFXImage(bf, null);   //convert bufferedImage (awt) into Writable Image(fx)
-				}
-				// imageView.setImage(wr);
-				m_imageLayers.put(1, wr);
-				
-				// TODO: might work, but what about multiple layers?
-				imageViewFull.setImage(wr);
-				
-				if (width < wr.getWidth()) {
-					width = wr.getWidth();
-				}
-				
-				if (height < wr.getHeight()) {
-					height = wr.getHeight();
-				}
+			if (height < m_image.getHeight()) {
+				height = m_image.getHeight();
 			}
+			
+			// Setup the zoom view
+			m_zoomCanvas.setWidth(width);
+			m_zoomCanvas.setHeight(height);
+			zoomPane.setPrefViewportWidth(600);
+			zoomPane.setPrefViewportHeight(300);
+			
+			updateZoomCanvas();
 		}
-
-		// Setup the zoom view
-		m_zoomCanvas.setWidth(width);
-		m_zoomCanvas.setHeight(height);
-		zoomPane.setPrefViewportWidth(600);
-		zoomPane.setPrefViewportHeight(300);
-		
-		} catch (FileNotFoundException ex) {
-		        ex.printStackTrace();
-		} catch (IOException ex) {
-		        ex.printStackTrace();
-		}
-		
-		updateZoomCanvas();
 	}
 	
     /**
@@ -388,10 +344,8 @@ public class ImageViewerController {
 		
 		// Set color effects
 		gc.setEffect(colorAdjust);
-		for (Image i : m_imageLayers.values()) {
-			// drawRotatedImage(gc, i, 0, 0, 0);
-	        gc.drawImage(i, 0, 0);
-		}
+		gc.drawImage(m_image,  0,  0);
+
 		// Restore transform state
 		gc.restore();
 		

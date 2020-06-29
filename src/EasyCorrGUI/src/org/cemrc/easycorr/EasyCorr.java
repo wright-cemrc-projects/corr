@@ -212,7 +212,7 @@ public class EasyCorr extends Application {
 	private Menu createImportMenu() {
         // create import menu
         Menu menuImport = new Menu("Import");
-        MenuItem importImage = new MenuItem("Import Image file (.tif)");
+        MenuItem importImage = new MenuItem("Import Image File");
         MenuItem importNav = new MenuItem("Import Navigator File (.nav)");
         MenuItem importPoints = new MenuItem("Import Pixel Positions (.csv)");
         menuImport.getItems().add(importImage);

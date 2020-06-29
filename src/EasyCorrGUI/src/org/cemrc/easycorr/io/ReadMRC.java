@@ -1,18 +1,22 @@
 package org.cemrc.easycorr.io;
 
-import java.io.ByteArrayInputStream;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
-import com.sun.prism.PixelFormat;
-
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
-import javafx.scene.image.WritablePixelFormat;
 
 /**
  * A parser for SerialEM (.st/.mrc) file format.
@@ -20,7 +24,18 @@ import javafx.scene.image.WritablePixelFormat;
  *
  */
 public class ReadMRC {
-
+	
+	private static BufferedImage getGrayscale(int width, int height, byte[] buffer, int bitwidth) {
+		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+		int[] nBits = { bitwidth };
+		ColorModel cm = new ComponentColorModel(cs, nBits, false, true, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
+		SampleModel sm = cm.createCompatibleSampleModel(width, height);
+		DataBufferByte db = new DataBufferByte(buffer, width * height);
+		WritableRaster raster = Raster.createWritableRaster(sm, db, null);
+		BufferedImage result = new BufferedImage(cm, raster, false, null);
+		return result;
+	}
+	
 	/**
 	 * Parse the SerialEM (.st) file format into an Image.
 	 * This is a variant of the MRC file format.
@@ -29,36 +44,35 @@ public class ReadMRC {
 	 * @return
 	 */
 	public static Image parseSerialEM(File file) {
-		WritableImage rv = null;
-		
-		// TODO: this is a basic example for parsing a binary image format.
-		// With the MRC we would parse the 1024 byte header
-		// -> Get the correct dimensions, etc
-		// -> Use this to create Image correctly.
-		// -> Not sure how to handle mode and multiple layers
+		Image rv = null;
 		
 		try (RandomAccessFile in = new RandomAccessFile(file, "r")) {
+			
 			// MRC header size.
 			byte [] buffer = new byte[1024];
 			in.read(buffer);
 			
 			ByteBuffer bb = ByteBuffer.wrap(buffer);
 			
+			//ByteBuffer bb = new ByteBuffer(1024);
+			
 			// Set endianness, if needed.
 			
 			// MRC 2014 file format header description
 			// (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4642651/)
+			// https://bio3d.colorado.edu/imod/doc/mrc_format.txt
 			
-			// MRC header consists of 4 byte long words.
+			// MRC header consists of 4 byte words.
+			// Endianness is likely a problem here, as well as unsigned vs signed.
 			
-			int numberOfColumns = bb.getInt(); // Long word # 1
-			int numberOfRows = bb.getInt(); // Long word #2
-			int numberOfSections = bb.getInt(); // Long word #3
-			int mode = bb.getInt(); // Long word #4
+			Integer nx = Integer.reverseBytes(bb.getInt());
+			Integer ny = Integer.reverseBytes(bb.getInt());
+			Integer ns = Integer.reverseBytes(bb.getInt());
+			Integer nmode = Integer.reverseBytes(bb.getInt());
 			
 			// Determine mode bytes.
 			int modeBytes;
-			switch (mode) {
+			switch (nmode) {
 			case 0:
 				modeBytes = 1;
 				break;
@@ -79,6 +93,8 @@ public class ReadMRC {
 				break;
 			}
 			
+			int nBits = modeBytes * 4;
+			
 			// Mode 0 represents 1-byte integers
 			// Mode 1 represents 2-byte integers 
 			// Mode 2 represents 4-byte real
@@ -88,20 +104,35 @@ public class ReadMRC {
 			// After 1024 bytes read from input stream,
 			// Next determine the image size in bytes and read that in.
 			
-			int imageByteSize = numberOfColumns * numberOfRows * modeBytes;
-			byte [] imageByteBuffer = new byte[imageByteSize]; 
+			long imageByteSize = nx * ny * modeBytes;
+			byte [] imageByteBuffer = new byte[(int)imageByteSize]; 
+			byte [] flippedByteBuffer = new byte[(int)imageByteSize];
 			
 			// Read the expected image data
 			in.read(imageByteBuffer);
 			
-			rv = new WritableImage(numberOfColumns, numberOfRows);
-			PixelWriter pw = rv.getPixelWriter();
-			WritablePixelFormat<IntBuffer> pf = WritablePixelFormat.getIntArgbInstance();
+			// Flip the byte order
+			for (int i =0; i < imageByteSize; i+=modeBytes) {
+				for (int j = 0; j < modeBytes; j++) {
+					flippedByteBuffer[i+j] = imageByteBuffer[i + (modeBytes - j - 1)];
+				}
+			}
 			
-			// TODO: pause here Matt
-			// IntBuffer imageIntBuffer = new IntBuffer(imageByteBuffer);	
-			// pw.setPixels(0, 0, numberOfColumns, numberOfRows, pf, buffer, numberOfColumns);
+			// TODO:
+			// Flipping the byte-order (little endian) may be necessary
+			// However the below is still likely incorrectly only using 1 byte, not 2 or 4 bytes.
+			// Another idea might be to create an Int array and correctly handle the bytes to make a grayscale
+			// with the correct dynamic range?
 			
+			// How to convert 8-bit grayscale in a bytearray to JavaFX Image?
+			BufferedImage image = new BufferedImage(nx, ny, BufferedImage.TYPE_BYTE_GRAY);
+			image.getRaster().setDataElements(0,  0, nx, ny, imageByteBuffer);
+			
+			ColorModel cm = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_GRAY), false, false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
+			WritableRaster raster = Raster.createInterleavedRaster(new DataBufferByte(flippedByteBuffer, imageByteBuffer.length), nx, ny, nx*modeBytes, modeBytes, new int[] {0}, null);
+			BufferedImage bImage = new BufferedImage(cm, raster, cm.isAlphaPremultiplied(), null);
+			
+			rv = SwingFXUtils.toFXImage(bImage, null);
 			
 		} catch (IOException e) {
 			e.printStackTrace();

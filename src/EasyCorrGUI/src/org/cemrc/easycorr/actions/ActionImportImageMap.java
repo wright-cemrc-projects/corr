@@ -18,11 +18,12 @@ import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector4;
 import org.cemrc.data.EasyCorrDocument;
 import org.cemrc.easycorr.EasyCorrConfig;
+import org.cemrc.easycorr.io.ReadMRC;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -40,9 +41,9 @@ public class ActionImportImageMap {
 	 */
 	public void doAction() {
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Open an image file (.tif, .png)");
+		fileChooser.setTitle("Open an image file (.st, .tif, .png)");
     	
-    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.tif, *.png)", "*.tif", "*.png");
+    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.st, *.tif, *.png)", "*.st", "*.tif", "*.png");
     	fileChooser.getExtensionFilters().add(extFilter);
     	
     	Stage dialogStage = new Stage();
@@ -70,6 +71,12 @@ public class ActionImportImageMap {
 		
 		mapItem.addNavigatorField(NavigatorKey.Type, 2);
 		
+		Image mapImage = null;
+		
+		if (file.getName().endsWith(".st")) {
+			mapImage = ReadMRC.parseSerialEM(file);
+		} else {
+		
 		// Method with ImagoIO (JAI core extension for TIFF)
 		ImageInputStream is;
 		try {
@@ -92,20 +99,9 @@ public class ActionImportImageMap {
 				
 				if (nbPages > 0) {
 					BufferedImage bf = reader.read(0);   //1st page of tiff file
-					WritableImage wr = null;
 					if (bf != null) {
-					    wr= SwingFXUtils.toFXImage(bf, null);   //convert bufferedImage (awt) into Writable Image(fx)
+					    mapImage = SwingFXUtils.toFXImage(bf, null);   //convert bufferedImage (awt) into Writable Image(fx)
 					}
-					
-					double width = wr.getWidth();
-					double height = wr.getHeight();
-
-					mapItem.addNavigatorField(NavigatorKey.MapFile, file.getPath());
-					mapItem.addNavigatorField(NavigatorKey.MapWidthHeight, new Vector2<Integer>((int) width, (int) height));
-					mapItem.addNavigatorField(NavigatorKey.MapScaleMat, new Vector4<Float>(10f, 0f, 0f, -10f));
-					mapItem.addNavigatorField(NavigatorKey.Regis, 0);
-					int uniqueId = m_document.getData().getUniqueMapId();
-					mapItem.addNavigatorField(NavigatorKey.MapID, uniqueId);
 				}
 			}
 			
@@ -113,6 +109,22 @@ public class ActionImportImageMap {
 	        ex.printStackTrace();
 		} catch (IOException ex) {
 		        ex.printStackTrace();
+		}
+		}
+		
+		if (mapImage != null) {
+		
+			double width = mapImage.getWidth();
+			double height = mapImage.getHeight();
+	
+			mapItem.addNavigatorField(NavigatorKey.MapFile, file.getPath());
+			mapItem.addNavigatorField(NavigatorKey.MapWidthHeight, new Vector2<Integer>((int) width, (int) height));
+			mapItem.addNavigatorField(NavigatorKey.MapScaleMat, new Vector4<Float>(10f, 0f, 0f, -10f));
+			mapItem.addNavigatorField(NavigatorKey.Regis, 0);
+			int uniqueId = m_document.getData().getUniqueMapId();
+			mapItem.addNavigatorField(NavigatorKey.MapID, uniqueId);
+		} else {
+			// TODO : error message
 		}
 		
 		return mapItem;

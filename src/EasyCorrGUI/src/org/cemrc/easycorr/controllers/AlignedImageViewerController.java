@@ -4,17 +4,13 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.data.EasyCorrDocument;
@@ -22,6 +18,7 @@ import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
 import org.cemrc.data.NavigatorColorEnum;
 import org.cemrc.easycorr.EasyCorrConfig;
+import org.cemrc.easycorr.io.ReadImage;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -31,8 +28,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableView;
@@ -130,8 +125,7 @@ public class AlignedImageViewerController {
 			}
 		}
 		
-		m_alignedImage = loadImage(imageLocation);
-		
+		m_alignedImage = ReadImage.readImage(imageLocation);
 		m_pointsTableController.addMap(map);
 		m_pointsTableController.updatePointsTableView();
 	}
@@ -151,8 +145,7 @@ public class AlignedImageViewerController {
 			}
 		}
 		
-		m_referenceImage = loadImage(imageLocation);
-		
+		m_referenceImage = ReadImage.readImage(imageLocation);
 		double height = m_referenceImage.getHeight();
 		double width = m_referenceImage.getWidth();
 		
@@ -406,47 +399,6 @@ public class AlignedImageViewerController {
 		for (IPositionDataset item : targetPoints) {
 			drawPixels(gc, item, item.getColor(), t);
 		}
-	}
-	
-	private Image loadImage(File file) {
-		
-		// Method with ImagoIO (JAI core extension for TIFF)
-		ImageInputStream is;
-		try {
-			is = ImageIO.createImageInputStream(file);  //read tiff using imageIO (JAI component)
-			
-			if (is == null || is.length() == 0) {
-				Alert errorAlert = new Alert(AlertType.ERROR);
-				errorAlert.setHeaderText("Input not valid");
-				errorAlert.setContentText("Cannot find image at this location: " + file.getAbsolutePath());
-				errorAlert.showAndWait();
-			} else {
-			
-				Iterator<ImageReader> iterator = ImageIO.getImageReaders(is);
-				if (iterator == null || !iterator.hasNext()) {
-				    throw new IOException("Image file format not supported by ImageIO: " + file.getAbsolutePath());
-				}
-				ImageReader reader = (ImageReader) iterator.next();
-				reader.setInput(is);
-				
-				int nbPages = reader.getNumImages(true);
-				
-				if (nbPages > 0) {
-					BufferedImage bf = reader.read(0);   //1st page of tiff file
-					WritableImage wr = null;
-					if (bf != null) {
-					    wr= SwingFXUtils.toFXImage(bf, null);   //convert bufferedImage (awt) into Writable Image(fx)
-					}
-					return wr;
-				}
-			}  
-		} catch (FileNotFoundException ex) {
-	        ex.printStackTrace();
-		} catch (IOException ex) {
-		        ex.printStackTrace();
-		}
-		
-		return null;
 	}
 	
 	@FXML
