@@ -9,7 +9,7 @@ import javafx.scene.image.Image;
  */
 public class EasyCorrConfig {
 	
-	public static String VersionName = "0.11.6";
+	public static String VersionName = "0.11.7";
 	
 	public static String AppName = "Correlator";
 	
