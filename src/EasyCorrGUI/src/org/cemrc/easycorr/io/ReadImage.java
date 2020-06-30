@@ -26,7 +26,7 @@ public class ReadImage {
 	public static Image readImage(File file) {
 		Image rv = null;
 		
-		if (file.getName().endsWith(".st")) {
+		if (file.getName().endsWith(".st") || file.getName().endsWith(".mrc")) {
 			rv = ReadMRC.parseSerialEM(file);
 		} else {
 				

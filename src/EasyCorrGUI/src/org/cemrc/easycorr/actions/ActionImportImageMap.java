@@ -41,9 +41,9 @@ public class ActionImportImageMap {
 	 */
 	public void doAction() {
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Open an image file (.st, .tif, .png)");
+		fileChooser.setTitle("Open an image file (.mrc, .st, .tif, .png)");
     	
-    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.st, *.tif, *.png)", "*.st", "*.tif", "*.png");
+    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.mrc, *.st, *.tif, *.png)", "*.mrc", "*.st", "*.tif", "*.png");
     	fileChooser.getExtensionFilters().add(extFilter);
     	
     	Stage dialogStage = new Stage();
@@ -73,7 +73,7 @@ public class ActionImportImageMap {
 		
 		Image mapImage = null;
 		
-		if (file.getName().endsWith(".st")) {
+		if (file.getName().endsWith(".st") || file.getName().endsWith(".mrc")) {
 			mapImage = ReadMRC.parseSerialEM(file);
 		} else {
 		
