@@ -25,6 +25,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 
 public class PointsTableController {
 	
@@ -108,8 +109,7 @@ public class PointsTableController {
 		}
 		
 		public void setName(String name) {
-			// TODO
-			// m_dataset.setName(name);
+			m_dataset.setName(name);
 		}
 		
 		public int getPoints() {
@@ -147,6 +147,7 @@ public class PointsTableController {
 		// http://tutorials.jenkov.com/javafx/tableview.html#tableview-selection-model
 		
 	    TableColumn<PointsDatasetTableItem, String> column1 = new TableColumn<>("Name");
+	    column1.setCellFactory(TextFieldTableCell.forTableColumn());
 	    column1.setCellValueFactory(new PropertyValueFactory<>("name"));
 	    column1.setOnEditCommit(evt -> evt.getRowValue().setName(evt.getNewValue()));
 	    column1.setMaxWidth(100);

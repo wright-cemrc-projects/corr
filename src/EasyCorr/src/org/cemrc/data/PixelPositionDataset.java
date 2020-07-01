@@ -6,16 +6,11 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.QRDecomposition;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.cemrc.autodoc.FloatList;
 import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector3;
-import org.cemrc.autodoc.Vector4;
-import org.cemrc.math.MatrixMath;
 
 /**
  * Get the logic from 
@@ -207,11 +202,6 @@ public class PixelPositionDataset extends AbstractPositionDataset implements IPo
 	@Override
 	public int getNumberPositions() {
 		return m_pixelPositions.size();
-	}
-	
-	@Override
-	public String getName() {
-		return "Dataset containing : " + getNumberPositions() + " positions";
 	}
 	
 	@Override

@@ -136,11 +136,6 @@ public class AutodocPositionDataset extends AbstractPositionDataset implements I
 	}
 	
 	@Override
-	public String getName() {
-		return "Dataset containing : " + m_itemList.size() + " positions";
-	}
-	
-	@Override
 	public void addPixelPosition(double x, double y) {
 		
 		// TODO

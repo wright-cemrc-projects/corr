@@ -54,6 +54,12 @@ public class NavData {
 	@XmlElementWrapper(name="positions")
     private List<IPositionDataset> m_positionData = new ArrayList<IPositionDataset>();
 	
+	@XmlElement(name="uniqueCount")
+	int m_uniqueID = 1;
+	public int getUniquePointsID() {
+		return m_uniqueID++;
+	}
+	
 	/**
 	 * This property listener can alert when some values have updated.
 	 * @param listener
@@ -144,6 +150,7 @@ public class NavData {
 						if (! positions.containsKey(key)) {
 							AutodocPositionDataset points = new AutodocPositionDataset();
 							positions.put(key, points);
+							points.setName("Point Set " + getUniquePointsID());
 							
 							// Associate with it's parent map.
 							for (IMap map : m_maps) {

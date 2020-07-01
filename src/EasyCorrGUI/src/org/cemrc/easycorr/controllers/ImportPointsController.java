@@ -3,7 +3,6 @@ package org.cemrc.easycorr.controllers;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -12,7 +11,6 @@ import java.util.List;
 import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
 import org.cemrc.autodoc.Vector2;
-import org.cemrc.autodoc.Vector4;
 import org.cemrc.data.EasyCorrDocument;
 import org.cemrc.data.IMap;
 import org.cemrc.data.NavigatorColorEnum;
@@ -249,6 +247,7 @@ public class ImportPointsController {
 		PixelPositionDataset pixelPositions = new PixelPositionDataset();
 		pixelPositions.setPixelPositions(parsedPositions);
 		pixelPositions.setColor(colorId);
+		pixelPositions.setName("Point Set " + m_document.getData().getUniquePointsID());
 
 		// Get useful values from the map.
 		if (selectedMap != null) {

@@ -152,6 +152,7 @@ public class ImageViewerController {
 		dataset.setMap(m_activeMap);
 		dataset.setDrawnID(m_activeMap.getId());
 		dataset.setRegisID(m_activeMap.getRegis());
+		dataset.setName("Point Set " + m_document.getData().getUniquePointsID());
 		
 		m_document.getData().addPositionData(dataset);		
 		m_pointsTableController.updatePointsTableView();

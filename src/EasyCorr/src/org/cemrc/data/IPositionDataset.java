@@ -51,6 +51,12 @@ public interface IPositionDataset {
 	public String getName();
 	
 	/**
+	 * Set a name for the dataset.
+	 * @param name  
+	 */
+	public void setName(String name);
+	
+	/**
 	 * Set the parent map this position set belongs to.
 	 * @param map
 	 */

@@ -19,6 +19,9 @@ public class AbstractPositionDataset {
 	@XmlElement(name="Id")
 	private int m_Id;
 	
+	@XmlElement(name="name")
+	private String m_name;
+	
 	@XmlElement(name="color")
 	private NavigatorColorEnum m_color = NavigatorColorEnum.Black;
 	
@@ -61,5 +64,13 @@ public class AbstractPositionDataset {
 	
 	public NavigatorColorEnum getColor() {
 		return m_color;
+	}
+	
+	public String getName() {
+		return m_name;
+	}
+	
+	public void setName(String name) {
+		m_name = name;
 	}
 }
