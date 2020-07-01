@@ -34,7 +34,7 @@ public class ActionAlignMaps {
 			controller.setDocument(m_document);
 			
 			// create a stage
-	    	Scene importScene = new Scene(importView, 600, 450);
+	    	Scene importScene = new Scene(importView, 400, 250);
 	    	Stage dialogStage = new Stage();
 	    	controller.setStage(dialogStage);
 	    	
