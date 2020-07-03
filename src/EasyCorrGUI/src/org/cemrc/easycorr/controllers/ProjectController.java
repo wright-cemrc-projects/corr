@@ -10,6 +10,7 @@ import org.cemrc.data.EasyCorrDocument;
 import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
 import org.cemrc.easycorr.actions.ActionAlignMaps;
+import org.cemrc.easycorr.actions.ActionUnalignMaps;
 import org.cemrc.easycorr.actions.ActionViewAlignedImage;
 import org.cemrc.easycorr.actions.ActionViewImage;
 
@@ -80,16 +81,23 @@ public class ProjectController {
                 
                 MenuItem alignItem = new MenuItem("Align to Map");
                 alignItem.setOnAction(event -> {
-                	ActionAlignMaps alignAction = new ActionAlignMaps(m_document);
-                	alignAction.doAction();
-                	
-                	// TODO: chance the TreeItem to a better type.
-                	
+                	if (cell.getItem().type == ProjectNodeItem.NodeType.Map) {
+	                	IMap mapItem = cell.getItem().getMapItem();  
+	                	ActionAlignMaps alignAction = new ActionAlignMaps(m_document, mapItem);
+	                	alignAction.doAction();
+	                	// TODO: should update Project TreeItem with an Icon
+                	}
                 });
                 
                 MenuItem unalignItem = new MenuItem("Un-Align Map");
                 unalignItem.setOnAction(event -> {
-                	// TODO: clear the alignment matrix on the map.
+                	if (cell.getItem().type == ProjectNodeItem.NodeType.Map) {
+	                	IMap mapItem = cell.getItem().getMapItem();  
+	                	ActionUnalignMaps unalignAction = new ActionUnalignMaps(m_document, mapItem);
+	                	unalignAction.doAction();
+	                	
+	                	// TODO: should update Project TreeItem with an Icon
+                	}
                 });
                 
                 MenuItem viewAlignedMapItem = new MenuItem("View Aligned Maps");

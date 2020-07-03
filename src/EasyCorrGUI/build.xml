@@ -6,6 +6,8 @@
 	<property name="EasyCorr" value="EasyCorr" />
 	<property name="EasyCorrGUI" value="EasyCorrGUI" />
 	
+	<property name="ProductName" value="Correlator" />
+	
 	<!-- Java sources -->
 	<property name="src.dir" location="src" />
 	
@@ -52,7 +54,7 @@
 		<mkdir dir="${dist.dir}" />
 
 		<!-- Put everything in ${build} into the {$projectName}-${DSTAMP}.jar file -->
-		<jar jarfile="${dist.dir}/${EasyCorrGUI}.jar" basedir="${build.dir}" >
+		<jar jarfile="${dist.dir}/${ProductName}.jar" basedir="${build.dir}" >
 		    <manifest>
 			<!-- create an executable Jar -->
 			<attribute name="Main-Class" value="org.cemrc.easycorr.EasyCorr" />

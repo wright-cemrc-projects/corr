@@ -29,7 +29,7 @@ import javafx.stage.Stage;
 
 
 /**
- * Main application class for EasyCorr, built with JavaFX framework.
+ * Main application class built with JavaFX framework.
  * @author larso
  *
  * note: https://stackoverflow.com/questions/860187/access-restriction-on-class-due-to-restriction-on-required-library-rt-jar
@@ -167,9 +167,9 @@ public class EasyCorr extends Application {
 	
 	private void handleOpenProject() {
 	    FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Open an existing EasyCorr project (.xml)");
+		fileChooser.setTitle("Open an existing " + EasyCorrConfig.AppName + " project (.xml)");
     	
-    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("EasyCorr (*.xml)", "*.xml");
+    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(EasyCorrConfig.AppName + " (*.xml)", "*.xml");
     	fileChooser.getExtensionFilters().add(extFilter);
     	
     	Stage dialogStage = new Stage();
@@ -189,7 +189,7 @@ public class EasyCorr extends Application {
 	    FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Save EasyCorr project (.xml)");
     	
-    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("EasyCorr (*.xml)", "*.xml");
+    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(EasyCorrConfig.AppName + " (*.xml)", "*.xml");
     	fileChooser.getExtensionFilters().add(extFilter);
     	
     	Stage dialogStage = new Stage();
@@ -257,7 +257,7 @@ public class EasyCorr extends Application {
 	private Menu createHelpMenu() {
         // create help menu
         Menu menuHelp = new Menu("Help");
-        MenuItem aboutMenu = new MenuItem("About EasyCorr");
+        MenuItem aboutMenu = new MenuItem("About " + EasyCorrConfig.AppName);
         menuHelp.getItems().add(aboutMenu);
         
         EventHandler<ActionEvent> aboutWindowEvent = new EventHandler<ActionEvent>() { 

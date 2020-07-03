@@ -1,6 +1,7 @@
 package org.cemrc.easycorr.actions;
 
 import org.cemrc.data.EasyCorrDocument;
+import org.cemrc.data.IMap;
 import org.cemrc.easycorr.EasyCorr;
 import org.cemrc.easycorr.EasyCorrConfig;
 import org.cemrc.easycorr.controllers.AlignMapsController;
@@ -14,9 +15,11 @@ import javafx.stage.Stage;
 public class ActionAlignMaps {
 
 	private EasyCorrDocument m_document;
+	private IMap m_target;
 	
-	public ActionAlignMaps(EasyCorrDocument doc) {
+	public ActionAlignMaps(EasyCorrDocument doc, IMap target) {
 		m_document = doc;
+		m_target = target;
 	}
 	
 	/**
@@ -32,6 +35,7 @@ public class ActionAlignMaps {
 			// Get the controller, provide the required components.
 			AlignMapsController controller = loader.getController();
 			controller.setDocument(m_document);
+			controller.setTargetMap(m_target);
 			
 			// create a stage
 	    	Scene importScene = new Scene(importView, 400, 250);

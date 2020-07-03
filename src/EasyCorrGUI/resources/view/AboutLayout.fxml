@@ -13,7 +13,7 @@
          <children>
             <ImageView fx:id="imageView" fitHeight="249.0" fitWidth="339.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@EasyCorr.png" />
+                  <Image url="@CorrelatorLogo.png" />
                </image>
             </ImageView>
          </children>
