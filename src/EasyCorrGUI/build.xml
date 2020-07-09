@@ -6,7 +6,7 @@
 	<property name="EasyCorr" value="EasyCorr" />
 	<property name="EasyCorrGUI" value="EasyCorrGUI" />
 	
-	<property name="ProductName" value="Correlator" />
+	<property name="ProductName" value="CorRelator" />
 	
 	<!-- Java sources -->
 	<property name="src.dir" location="src" />
