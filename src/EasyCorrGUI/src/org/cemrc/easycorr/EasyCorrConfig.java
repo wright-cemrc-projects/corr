@@ -9,9 +9,9 @@ import javafx.scene.image.Image;
  */
 public class EasyCorrConfig {
 	
-	public static String VersionName = "0.11.9";
+	public static String VersionName = "0.11.10";
 	
-	public static String AppName = "Correlator";
+	public static String AppName = "CorRelator";
 	
 	private static Image ApplicationIcon = new Image(EasyCorrConfig.class.getResourceAsStream("/view/EasyCorr_App.png"));
 	

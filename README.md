@@ -1,15 +1,15 @@
-# Correlator
-Correlator provides easy TEM and FLM correlation as a Java desktop application for On-The-Fly processing.
+# CorRelator
+CorRelator provides easy TEM and FLM correlation as a Java desktop application for On-The-Fly processing.
 
 
-## About Correlator
-Correlator supports both on-the-fly and post-acquisition two dimensional (2D) cryo-correlation. The on-the-fly correlation by Correlator can perform image registration, transformation and correlation between EM and FM.
+## About CorRelator
+CorRelator supports both on-the-fly and post-acquisition two dimensional (2D) cryo-correlation. The on-the-fly correlation integrates image registration, transformation and correlation between EM and FM.
 
 The output is ready for SerialEM automated data collection at transformed fluorescent targets of interest (TOIs) on registered EM images. 
 
 ![Map View](images/mapview.png)
 
-## Correlator Features
+## CorRelator Features
 
 1. Import and Export of .nav Autodoc format provided by SerialEM
 2. Import and Viewing of PNG/TIF/JPG image maps
@@ -23,7 +23,7 @@ The output is ready for SerialEM automated data collection at transformed fluore
 
 ## References
 
-1. Correlator: A toolkit for high-precision cryo-correlative light 
+1. CorRelator: A toolkit for high-precision cryo-correlative light 
 and electron microscopy (UNPUBLISHED REFERENCE)
 
 	Jie E. Yang1, Matthew R. Larson (1,2), Bryan S. Sibert (1,2), Samantha Shrum (3), and Elizabeth R. Wright (1,2,3,4) 
