@@ -1,6 +1,8 @@
 package org.cemrc.easycorr.controllers;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -121,7 +123,9 @@ public class ImageViewerController {
 	// The backing data.
 	private EasyCorrDocument m_document;
 	private IMap m_activeMap;
-	private Image m_image = null;
+	
+	// An image with software-based brightness/contrast
+	private AdjustableImage m_image = null;
 	
 	public void setDocument(EasyCorrDocument doc) {
 		m_document = doc;
@@ -231,27 +235,26 @@ public class ImageViewerController {
 	
 	private void loadImage(File file) {
 		
-		m_image = ReadImage.readImage(file);
+		m_image = new AdjustableImage(ReadImage.readImage(file));
+		Image fxImage = m_image.getImage();
 		
-		if (m_image != null) {
-			imageViewFull.setImage(m_image);
+		imageViewFull.setImage(m_image.getImage());
 		
-			if (width < m_image.getWidth()) {
-				width = m_image.getWidth();
-			}
-			
-			if (height < m_image.getHeight()) {
-				height = m_image.getHeight();
-			}
-			
-			// Setup the zoom view
-			m_zoomCanvas.setWidth(width);
-			m_zoomCanvas.setHeight(height);
-			zoomPane.setPrefViewportWidth(600);
-			zoomPane.setPrefViewportHeight(300);
-			
-			updateZoomCanvas();
+		if (width < fxImage.getWidth()) {
+			width = fxImage.getWidth();
 		}
+		
+		if (height < fxImage.getHeight()) {
+			height = fxImage.getHeight();
+		}
+		
+		// Setup the zoom view
+		m_zoomCanvas.setWidth(width);
+		m_zoomCanvas.setHeight(height);
+		zoomPane.setPrefViewportWidth(600);
+		zoomPane.setPrefViewportHeight(300);
+		
+		updateZoomCanvas();
 	}
 	
     /**
@@ -344,8 +347,9 @@ public class ImageViewerController {
         gc.setTransform(t);
 		
 		// Set color effects
-		gc.setEffect(colorAdjust);
-		gc.drawImage(m_image,  0,  0);
+		if (m_image != null) {
+			gc.drawImage(m_image.getImage(),  0,  0);
+		}
 
 		// Restore transform state
 		gc.restore();
@@ -456,6 +460,9 @@ public class ImageViewerController {
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				if (m_image != null) {
+					m_image.adjustImage((float)colorAdjust.getBrightness(), (float)colorAdjust.getContrast());
+				}
 				updateZoomCanvas();
 			}
 			

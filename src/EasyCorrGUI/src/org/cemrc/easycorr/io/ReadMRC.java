@@ -31,8 +31,8 @@ public class ReadMRC {
 	 * @param file
 	 * @return
 	 */
-	public static Image parseSerialEM(File file) {
-		Image rv = null;
+	public static BufferedImage parseSerialEM(File file) {
+		BufferedImage rv = null;
 		
 		try (RandomAccessFile in = new RandomAccessFile(file, "r")) {
 			
@@ -106,8 +106,8 @@ public class ReadMRC {
 			int byteSize = 1;
 			WritableRaster raster = Raster.createInterleavedRaster(new DataBufferByte(normalizedValues, normalizedValues.length), nx, ny, nx*byteSize, 1, new int[] {0}, null);
 			BufferedImage bImage = new BufferedImage(cm, raster, cm.isAlphaPremultiplied(), null);
-			
-			rv = SwingFXUtils.toFXImage(bImage, null);
+			rv = bImage;
+			// rv = SwingFXUtils.toFXImage(bImage, null);
 			
 		} catch (IOException e) {
 			e.printStackTrace();

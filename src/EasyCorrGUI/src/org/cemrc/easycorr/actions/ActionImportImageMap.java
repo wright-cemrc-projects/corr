@@ -71,7 +71,7 @@ public class ActionImportImageMap {
 		
 		mapItem.addNavigatorField(NavigatorKey.Type, 2);
 		
-		Image mapImage = null;
+		BufferedImage mapImage = null;
 		
 		if (file.getName().endsWith(".st") || file.getName().endsWith(".mrc")) {
 			mapImage = ReadMRC.parseSerialEM(file);
@@ -99,9 +99,12 @@ public class ActionImportImageMap {
 				
 				if (nbPages > 0) {
 					BufferedImage bf = reader.read(0);   //1st page of tiff file
+					mapImage = bf;
+					/*
 					if (bf != null) {
 					    mapImage = SwingFXUtils.toFXImage(bf, null);   //convert bufferedImage (awt) into Writable Image(fx)
 					}
+					*/
 				}
 			}
 			

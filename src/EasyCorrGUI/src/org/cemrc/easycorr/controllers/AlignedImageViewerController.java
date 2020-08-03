@@ -85,8 +85,8 @@ public class AlignedImageViewerController {
 	ScrollPane zoomPane;
 	
 	// Image
-	private Image m_referenceImage;
-	private Image m_alignedImage;
+	private AdjustableImage m_referenceImage;
+	private AdjustableImage m_alignedImage;
 	
 	// Our canvas for drawing.
 	private Canvas m_zoomCanvas;
@@ -125,7 +125,9 @@ public class AlignedImageViewerController {
 			}
 		}
 		
-		m_alignedImage = ReadImage.readImage(imageLocation);
+		BufferedImage buffer = ReadImage.readImage(imageLocation);
+		m_alignedImage = new AdjustableImage(buffer);
+		// m_alignedImage = ReadImage.readImage(imageLocation);
 		m_pointsTableController.addMap(map);
 		m_pointsTableController.updatePointsTableView();
 	}
@@ -145,9 +147,11 @@ public class AlignedImageViewerController {
 			}
 		}
 		
-		m_referenceImage = ReadImage.readImage(imageLocation);
-		double height = m_referenceImage.getHeight();
-		double width = m_referenceImage.getWidth();
+		BufferedImage buffer = ReadImage.readImage(imageLocation);
+		m_referenceImage = new AdjustableImage(buffer);
+		// m_referenceImage = ReadImage.readImage(imageLocation);
+		double height = m_referenceImage.getImage().getHeight();
+		double width = m_referenceImage.getImage().getWidth();
 		
 		if (height > m_zoomCanvas.getHeight()) {
 			m_zoomCanvas.setHeight(height);
@@ -247,24 +251,34 @@ public class AlignedImageViewerController {
 	}
 	
 	private void setupSliders() {
+		
+		bottomColor = new ColorAdjust();
+		topColor = new ColorAdjust();
+		
 		ChangeListener<Number> updateUI = new ChangeListener<Number>() {
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				if (m_referenceImage != null) {
+					m_referenceImage.adjustImage((float)bottomColor.getBrightness(), (float)bottomColor.getContrast());
+				}
+				
+				if (m_alignedImage != null) {
+					m_alignedImage.adjustImage((float)topColor.getBrightness(), (float)topColor.getContrast());
+				}
+				
 				updateZoomCanvas();
 			}
 			
 		};
 		
 		// Default brightness/contrast options
-		bottomColor = new ColorAdjust();
 		bottomColor.brightnessProperty().bind(brightnessSlider1.valueProperty());
 		bottomColor.contrastProperty().bind(contrastSlider1.valueProperty());
 		bottomColor.brightnessProperty().addListener(updateUI);
 		bottomColor.contrastProperty().addListener(updateUI);
 		
 		// Default brightness/contrast options
-		topColor = new ColorAdjust();
 		topColor.brightnessProperty().bind(brightnessSlider2.valueProperty());
 		topColor.contrastProperty().bind(contrastSlider2.valueProperty());
 		topColor.brightnessProperty().addListener(updateUI);
@@ -342,12 +356,7 @@ public class AlignedImageViewerController {
 		if (m_referenceImage != null && m_showReference) {
 			gc.save();
 			gc.setTransform(t);
-
-			// Set color effects
-			gc.setEffect(bottomColor);
-			
-			gc.drawImage(m_referenceImage, 0, 0);
-			
+			gc.drawImage(m_referenceImage.getImage(), 0, 0);			
 			gc.restore();
 		}
 		
@@ -366,9 +375,6 @@ public class AlignedImageViewerController {
 			gc.save();
 			
 			gc.setGlobalBlendMode(BlendMode.OVERLAY);
-	
-			// Set color effects
-			gc.setEffect(topColor);
 			
 			// This needs to also take into account rotations.
 			// Is there a transform to apply?
@@ -385,11 +391,7 @@ public class AlignedImageViewerController {
 			
 			t.append(t2);
 			gc.setTransform(t);
-			
-	        gc.drawImage(m_alignedImage, 0, 0);
-	        
-	        gc.setEffect(null);
-	        
+	        gc.drawImage(m_alignedImage.getImage(), 0, 0);
 	        gc.restore();
 		}
 		

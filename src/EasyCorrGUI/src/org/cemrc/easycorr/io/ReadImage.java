@@ -23,8 +23,8 @@ public class ReadImage {
 	 * @param file
 	 * @return
 	 */
-	public static Image readImage(File file) {
-		Image rv = null;
+	public static BufferedImage readImage(File file) {
+		BufferedImage rv = null;
 		
 		if (file.getName().endsWith(".st") || file.getName().endsWith(".mrc")) {
 			rv = ReadMRC.parseSerialEM(file);
@@ -52,11 +52,14 @@ public class ReadImage {
 				
 				if (nbPages > 0) {
 					BufferedImage bf = reader.read(0);   //1st page of tiff file
+					rv = bf;
+					/*
 					WritableImage wr = null;
 					if (bf != null) {
 					    wr= SwingFXUtils.toFXImage(bf, null);   //convert bufferedImage (awt) into Writable Image(fx)
 					}
 					rv = wr;
+					*/
 				}
 			}
 			
