@@ -1,5 +1,5 @@
 # CorRelator
-CorRelator provides easy TEM and FLM correlation as a Java desktop application for On-The-Fly processing.
+CorRelator provides easy TEM and FLM correlation for On-The-Fly processing.
 
 
 ## About CorRelator
@@ -18,19 +18,24 @@ The output is ready for SerialEM automated data collection at transformed fluore
 5. Affine alignment of pixel positions to align TEM and FLM images
 6. Image overlay and image export.
 
+## Installation and Requirements
+CorRelator is a cross-platform Java application which is built on JavaFX.
 
+It requires an installation of the [Java SE Runtime Environment 8](https://www.oracle.com/java/technologies/javase-jre8-downloads.html), to run the application.
 
+The application is distributed as a single Java ARchive (JAR) file which can be run by Java or directly on Mac/Windows by double-clicking on the Correlator.jar.
+
+Note: OpenJDK does not contain the Java standard library JavaFX and cannot be used for running Correlator. The official Oracle JRE is required for JavaFX.
 
 ## References
 
-1. CorRelator: A toolkit for high-precision cryo-correlative light 
-and electron microscopy (UNPUBLISHED REFERENCE)
+CorRelator: An interactive and flexible toolkit for high-precision cryo-correlative light and electron microscopy.
 
-	Jie E. Yang1, Matthew R. Larson (1,2), Bryan S. Sibert (1,2), Samantha Shrum (3), and Elizabeth R. Wright (1,2,3,4) 
+Jie E. Yang1, Matthew R. Larson (1,2), Bryan S. Sibert (1,2), Samantha Shrum (3), and Elizabeth R. Wright (1,2,3,4) 
 
-	1. Department of Biochemistry, University of Wisconsin, Madison, WI 53706
-	2. Cryo-Electron Microscopy Research Center, Department of Biochemistry, University of Wisconsin, Madison, WI 53706
-	3. Biophysics Graduate Program, University of Wisconsin, Madison, WI 53706
-	4. Morgridge Institute for Research, Madison, WI, 53715
+1. Department of Biochemistry, University of Wisconsin, Madison, WI 53706
+2. Cryo-Electron Microscopy Research Center, Department of Biochemistry, University of Wisconsin, Madison, WI 53706
+3. Biophysics Graduate Program, University of Wisconsin, Madison, WI 53706
+4. Morgridge Institute for Research, Madison, WI, 53715
 
 
