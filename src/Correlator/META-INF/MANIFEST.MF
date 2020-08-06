@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EasyCorr
+Bundle-SymbolicName: EasyCorr
+Bundle-Version: 1.0.0.0
+Bundle-Vendor: UW-Madison
+Automatic-Module-Name: EasyCorr
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.cemrc.autodoc,
+ org.cemrc.data,
+ org.cemrc.math

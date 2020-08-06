@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EasyCorrGUI
+Bundle-SymbolicName: EasyCorrGUI
+Bundle-Version: 1.0.0.0
+Automatic-Module-Name: EasyCorrGUI
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.cemrc.autodoc,
+ org.cemrc.data
+Require-Bundle: EasyCorr;bundle-version="1.0.0"
