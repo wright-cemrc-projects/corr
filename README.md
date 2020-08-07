@@ -11,11 +11,11 @@ The output is ready for SerialEM automated data collection at transformed fluore
 
 ## CorRelator Features
 
-1. Import and Export of .nav Autodoc format provided by SerialEM
-2. Import and Viewing of PNG/TIF/JPG image maps
-3. Import of user-provided pixel positions (.csv)
-4. Manual annotation of pixel positions on maps
-5. Affine alignment of pixel positions to align TEM and FLM images
+1. Import and Export of .nav Autodoc format provided by SerialEM.
+2. Import and Viewing of PNG/TIF/JPG image maps.
+3. Import of user-provided pixel positions (.csv).
+4. Manual annotation of pixel positions on maps.
+5. Affine alignment of pixel positions to align cryo-EM and (cryo)FLM images.
 6. Image overlay and image export.
 
 ## Installation and Requirements
@@ -23,7 +23,7 @@ CorRelator is a cross-platform Java application which is built on JavaFX.
 
 It requires an installation of the [Java SE Runtime Environment 8](https://www.oracle.com/java/technologies/javase-jre8-downloads.html), to run the application.
 
-The application is distributed as a single Java ARchive (JAR) file which can be run by Java or directly on Mac/Windows by double-clicking on the Correlator.jar.
+The application is distributed as a single Java ARchive (JAR) file which can be launched from the command line with `java -jar CorRelator.jar` or on Mac/Windows by double-clicking on the Correlator.jar from programs like File Explorer or Finder.
 
 Note: OpenJDK does not contain the Java standard library JavaFX and cannot be used for running Correlator. The official Oracle JRE is required for JavaFX.
 
