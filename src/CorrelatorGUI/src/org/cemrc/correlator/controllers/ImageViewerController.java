@@ -1,8 +1,6 @@
 package org.cemrc.correlator.controllers;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -68,6 +66,7 @@ import javafx.stage.Stage;
  */
 public class ImageViewerController {
 	
+	// 1.0 = 100%
 	double MIN_SCALE = 0.0001;
 	double MAX_SCALE = 100;
 	
@@ -168,11 +167,10 @@ public class ImageViewerController {
 		String text = zoomField.getText();
 		
 		try {
-			float value = Float.parseFloat(text);
-
-			if (value >= 0.0f && value <= 100.0f) {
-				double scale = value /= 100.0;
-				
+			// Convert from percentage back to 1.0 scale.
+			float scale = Float.parseFloat(text) / 100.0f;
+			
+			if (scale >= 0.0f && scale <= MAX_SCALE) {			
 				m_zoomCanvas.setScaleX(scale);
 				m_zoomCanvas.setScaleY(scale);
 			}

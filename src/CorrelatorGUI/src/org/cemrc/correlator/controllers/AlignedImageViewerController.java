@@ -35,7 +35,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.ColorAdjust;
-import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
@@ -299,11 +298,10 @@ public class AlignedImageViewerController {
 		String text = zoomField.getText();
 		
 		try {
-			float value = Float.parseFloat(text);
-
-			if (value >= 0.0f && value <= 100.0f) {
-				double scale = value /= 100.0;
-				
+			// Convert from percentage back to 1.0 scale.
+			float scale = Float.parseFloat(text) / 100.0f;
+			
+			if (scale >= 0.0f && scale <= MAX_SCALE) {			
 				m_zoomCanvas.setScaleX(scale);
 				m_zoomCanvas.setScaleY(scale);
 			}
