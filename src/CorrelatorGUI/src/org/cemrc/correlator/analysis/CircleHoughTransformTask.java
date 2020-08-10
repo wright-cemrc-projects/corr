@@ -62,6 +62,8 @@ public class CircleHoughTransformTask {
 		// Create accumulator -> A[x,y,r]
 		int width = image.getWidth();
 		int height = image.getHeight();
+		
+		int radiusMin = 6;
 		int radiusMax = 50;
 		
 		int accumulator [][][] = new int[width][height][radiusMax]; 
@@ -93,18 +95,22 @@ public class CircleHoughTransformTask {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				// Pixel x,y
-				for (int r = 0; r < radiusMax; r++) {
+				for (int r = radiusMin; r < radiusMax; r++) {
 					
-					int value = image.getRGB(x, y);
+					int value = new Color( image.getRGB(x, y)).getRed();
 					if (value > 128) {
 						// Is this an edge?
+						System.out.println("[" + x + ", " + y + "]");
 					
-						for (int theta = 0; theta < 360; theta++) {  // the possible  theta 0 to 360 
+						for (int theta = 0; theta < 360; theta += 10) {  // the possible  theta 0 to 360 
 							// get polar coordinates for center of a center with edge at this pixel x,y
 							int a = x - (int) (r * Math.cos(theta * Math.PI / 180)); 
 							int b = y - (int) (r * Math.sin(theta * Math.PI / 180));  
-							// add a vote
-							accumulator[a][b][r] +=1;
+							
+							if (a >= 0 && a < width && b >= 0 && b < height ) {
+								// add a vote
+								accumulator[a][b][r] +=1;
+							}
 						}
 					}
 				}
@@ -117,8 +123,9 @@ public class CircleHoughTransformTask {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				// Pixel x,y
-				for (int r = 0; r < radiusMax; r++) {
-					if (accumulator[x][y][r] > minVote) {
+				for (int r = radiusMin; r < radiusMax; r++) {
+					int value = accumulator[x][y][r];
+					if (value > minVote) {
 						rv.add(new Vector2<Integer>(x,y));
 						break;
 					}
@@ -149,21 +156,21 @@ public class CircleHoughTransformTask {
 	 * @return edge detection image
 	 */
 	private BufferedImage getSobel(BufferedImage src) {
-		float[] edgeKernel = {
-			     0.0f, -1.0f, 0.0f,
-			     -1.0f, 4.0f, -1.0f,
-			     0.0f, -1.0f, 0.0f
+		float[] sobelKernel = {
+			     -1.0f, -1.0f, -1.0f,
+			     -1.0f, 8.0f, -1.0f,
+			     -1.0f, -1.0f, -1.0f
 			 };
-		BufferedImageOp edge = new ConvolveOp(new Kernel(3, 3, edgeKernel));
+		BufferedImageOp edge = new ConvolveOp(new Kernel(3, 3, sobelKernel));
 		
 		BufferedImage image = new BufferedImage(src.getWidth(), src.getHeight(),  
 			    BufferedImage.TYPE_BYTE_GRAY); 
 		
         Graphics2D g2 = image.createGraphics();
-        g2.setBackground(Color.WHITE);
-        g2.drawImage(image, edge, 0, 0);
-        g2.setColor(Color.BLACK);
+        g2.drawImage(src, 0, 0, src.getWidth(), src.getHeight(), null);
 		g2.dispose();
+	
+		image = edge.filter(image, null);
 		
 		return image;
 	}

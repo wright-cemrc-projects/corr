@@ -9,6 +9,7 @@ import org.cemrc.correlator.actions.ActionExportAutodoc;
 import org.cemrc.correlator.actions.ActionImportAutodoc;
 import org.cemrc.correlator.actions.ActionImportImageMap;
 import org.cemrc.correlator.actions.ActionImportPoints;
+import org.cemrc.correlator.controllers.FindHolesController;
 import org.cemrc.correlator.controllers.ProjectController;
 import org.cemrc.correlator.wizard.WizardController;
 import org.cemrc.data.CorrelatorDocument;
@@ -71,6 +72,7 @@ public class Correlator extends Application {
         // add menus to menubar
         mb.getMenus().add(createFileMenu());
         mb.getMenus().add(createImportMenu());
+        mb.getMenus().add(createAnalysisMenu());
         mb.getMenus().add(createHelpMenu());
         
         // create a VBox
@@ -270,6 +272,47 @@ public class Correlator extends Application {
         menuHelp.setOnAction(aboutWindowEvent);
         
         return menuHelp;
+	}
+	
+	/**
+	 * Create the help menu and callbacks.
+	 * @return
+	 */
+	private Menu createAnalysisMenu() {
+        // create help menu
+        Menu menuAnalysis = new Menu("Analysis");
+        MenuItem findHoles = new MenuItem("Find Holes");
+        menuAnalysis.getItems().add(findHoles);
+        
+        EventHandler<ActionEvent> aboutWindowEvent = new EventHandler<ActionEvent>() { 
+            public void handle(ActionEvent e) 
+            { 
+            	findHolesDialog();
+            } 
+        };
+        
+        menuAnalysis.setOnAction(aboutWindowEvent);
+        return menuAnalysis;
+	}
+	
+	private void findHolesDialog() {
+    	Stage stage = new Stage();
+    	stage.getIcons().add(CorrelatorConfig.getApplicationIcon());
+    	
+        // load in the project view.
+    	try {
+			FXMLLoader loader = new FXMLLoader(Correlator.class.getResource("/view/FindHolesDialog.fxml"));
+			Parent dialog = loader.load();
+			FindHolesController holesController = (FindHolesController) loader.getController();
+			holesController.setDocument(m_state.getDocument());
+			holesController.setStage(stage);
+			
+	    	Scene wizardScene = new Scene(dialog, 300, 250);
+			stage.setScene(wizardScene);
+	    	stage.show();
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
 	}
 	
 	/**
