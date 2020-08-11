@@ -16,12 +16,15 @@ import org.cemrc.data.IPositionDataset;
 import org.cemrc.data.PixelPositionDataset;
 import org.cemrc.data.Registration;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -29,6 +32,8 @@ import javafx.util.Callback;
 public class FindHolesController {
 	// The active document.
 	private CorrelatorDocument m_document;
+	
+	private CircleHoughTransformTask m_task;
 	
 	// The target and reference map.
 	private IMap m_targetMap = null;
@@ -44,6 +49,9 @@ public class FindHolesController {
 	
 	@FXML
 	private Button holesButton;
+	
+	@FXML
+	private ImageView imageView;
 	
 	@FXML
 	public void initialize() {
@@ -88,6 +96,8 @@ public class FindHolesController {
 	@FXML
 	private void updateTargetMap() {
 		m_targetMap = targetMapCombo.getValue();
+		setTask();
+		
 		updateButton();
 	}
 	
@@ -98,8 +108,7 @@ public class FindHolesController {
 		}
 	}
 	
-	@FXML
-	public void doCircleHoughTransform() {
+	private void setTask() {
 		if (m_targetMap == null) return;
 		
 		File imageLocation = m_targetMap.getImage();
@@ -112,9 +121,17 @@ public class FindHolesController {
 		
 		BufferedImage buffer = ReadImage.readImage(imageLocation);
 		
-		CircleHoughTransformTask task = new CircleHoughTransformTask(buffer);
+		m_task = new CircleHoughTransformTask(buffer);
+		BufferedImage proc = m_task.getProcessed();
+		Image show =  SwingFXUtils.toFXImage(proc, null);
 		
-		List<Vector2<Integer>> points = task.findCircles();
+		imageView.setImage(show);
+	}
+	
+	@FXML
+	public void doCircleHoughTransform() {
+		
+		List<Vector2<Integer>> points = m_task.findCircles();
 		
 		if (points.size() > 0) {
 			addPoints(points, m_targetMap);
