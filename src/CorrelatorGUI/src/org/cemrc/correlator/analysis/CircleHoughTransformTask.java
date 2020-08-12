@@ -26,6 +26,7 @@ public class CircleHoughTransformTask {
 	private BufferedImage m_src;
 	private BufferedImage m_greyScale;
 	private float m_scale = 1.0f;
+	private int m_binarization = 240;
 	
 	public CircleHoughTransformTask(BufferedImage src) {
 		m_src = src;
@@ -55,6 +56,11 @@ public class CircleHoughTransformTask {
 		return m_greyScale;
 	}
 	
+	public void setBinarizationCutoff(int level) {
+		m_binarization = level;
+		m_greyScale = preprocess(m_src);
+	}
+	
 	/**
 	 * Do the steps of the CHT algorithm
 	 */
@@ -63,7 +69,7 @@ public class CircleHoughTransformTask {
 			return null;
 		}
 		
-		m_scale = 512.0f / src.getWidth();
+		m_scale = 2048.0f / src.getWidth();
 		
 		// 1. Convert to scale and greyscale
 		// BufferedImage image = getGreyscale(src);
@@ -73,12 +79,10 @@ public class CircleHoughTransformTask {
 		image = getBlurred(image);
 		
 		// 3. Binarize image;
-		binarize(image, 200);
-		
-		return image;
+		binarize(image, m_binarization);
 		
 		// 4. Perform Sobel edge detection transform on image
-		// return getSobel(image);
+		return getSobel(image);
 	}
 	
 	private List<Vector2<Integer>> CHT(BufferedImage image) {
@@ -88,8 +92,8 @@ public class CircleHoughTransformTask {
 		int width = image.getWidth();
 		int height = image.getHeight();
 		
-		int radiusMin = 6;
-		int radiusMax = 50;
+		int radiusMin = 8;
+		int radiusMax = 16;
 		
 		int accumulator [][][] = new int[width][height][radiusMax]; 
 		
@@ -129,8 +133,8 @@ public class CircleHoughTransformTask {
 					
 						for (int theta = 0; theta < 360; theta += 10) {  // the possible  theta 0 to 360 
 							// get polar coordinates for center of a center with edge at this pixel x,y
-							int a = x - (int) (r * Math.cos(theta * Math.PI / 180)); 
-							int b = y - (int) (r * Math.sin(theta * Math.PI / 180));  
+							int a = x - (int) Math.round(r * Math.cos(theta * Math.PI / 180)); 
+							int b = y - (int) Math.round(r * Math.sin(theta * Math.PI / 180));  
 							
 							if (a >= 0 && a < width && b >= 0 && b < height ) {
 								// add a vote
@@ -142,25 +146,107 @@ public class CircleHoughTransformTask {
 			}
 		}
 		
-		float scale_x = m_src.getWidth() / width;
-		float scale_y = m_src.getHeight() / height;
+		float scale_x = (float) m_src.getWidth() / (float) width;
+		float scale_y = (float) m_src.getHeight() / (float) height;
 		
 		//  -> Save the list of the (X,Y) centers.
+		List<Vector2<Integer>> maximum = findLocalMaximum(accumulator, width, height, radiusMax);
+		
+		// Rescale to match original image dimensions.
 		List<Vector2<Integer>> rv = new ArrayList<Vector2<Integer>>();
-		int minVote = 16;
+		for (Vector2<Integer> m : maximum) rv.add(new Vector2<Integer>(Math.round(m.x * scale_x), Math.round(m.y * scale_y)));
+		return rv;
+	}
+	
+	private List<Vector2<Integer>> findLocalMaximum(int [][][] values, int width, int height, int radiusMax) {
+		
+		// First we fill these in.
+		int [][] highestScores = new int[width][height];
+		int [][] selectedRadius = new int[width][height];
+		
+		// Find the biggest scoring circle in each x, y.
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				// Pixel x,y
-				for (int r = radiusMin; r < radiusMax; r++) {
-					int value = accumulator[x][y][r];
-					if (value > minVote) {
-						rv.add(new Vector2<Integer>(Math.round(x * scale_x), Math.round(y * scale_y)));
+				int max = 0;
+				for (int r = 0; r < radiusMax; r++) {
+					if (values[x][y][r] >= max) {
+						highestScores[x][y] = values[x][y][r];
+						selectedRadius[x][y] = r;
+					}
+				}
+			}
+		}
+		
+		List<Vector2<Integer>> rv = new ArrayList<Vector2<Integer>>();
+		
+		class ClusterMinima {
+			public Vector2<Integer> center;
+			public int radius;
+			public int score;
+			
+			public ClusterMinima(Vector2<Integer> center, int radius, int score) {
+				this.radius = radius;
+				this.score = score;
+				this.center = center;
+			}
+			
+			/**
+			 * Compare two circle centers and their radius. If they are overlapping, report true.
+			 * @param x
+			 * @param y
+			 * @param radius
+			 * @return
+			 */
+			public boolean isOverlap(int x, int y, int radius) {
+				int dx = this.center.x - x;
+				int dy = this.center.y - y;
+				int dr = this.radius + radius;
+				
+				return dx * dx + dy * dy <= dr*dr;
+			}
+		}
+		
+		// Add any clusters that are above the cutoff.
+		int cutoff = 10;
+		
+		// We will find the local minima via clustering
+		List<ClusterMinima> existingClusters = new ArrayList<ClusterMinima>();
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				int score = highestScores[x][y];
+				int radius = selectedRadius[x][y];
+				
+				if (score < cutoff) continue;
+				
+				// Search for a cluster overlapping this spot.
+				ClusterMinima currentMinima = null;
+				
+				for (ClusterMinima m : existingClusters) {
+					if (m.isOverlap(x, y, radius)) {
+						currentMinima = m;
 						break;
 					}
 				}
 				
+				if (currentMinima != null) {
+					if (currentMinima.score < score) {
+						// Update the circle.
+						currentMinima.score = score;
+						currentMinima.radius = radius;
+						currentMinima.center.x = x;
+						currentMinima.center.y = y;
+					}
+				} else {
+					existingClusters.add(new ClusterMinima(new Vector2<Integer>(x, y), radius, score));
+				}
 			}
 		}
+		
+		// Add any clusters that are above the cutoff.
+		for (ClusterMinima m : existingClusters) {
+			rv.add(m.center);
+		}
+		
 		return rv;
 	}
 	
@@ -177,13 +263,15 @@ public class CircleHoughTransformTask {
 	}
 	
 	private BufferedImage getBlurred(BufferedImage src) {
-		float frac = 1.0f / 9.0f;
+		float frac = 1.0f / 15.0f;
 		float[] blurKernel = {
-				frac, frac, frac,
-				frac, frac, frac,
-				frac, frac, frac
+				frac, frac, frac, frac, frac,
+				frac, frac, frac, frac, frac,
+				frac, frac, frac, frac, frac,
+				frac, frac, frac, frac, frac,
+				frac, frac, frac, frac, frac
 		};
-		BufferedImageOp blur = new ConvolveOp(new Kernel(3, 3, blurKernel));
+		BufferedImageOp blur = new ConvolveOp(new Kernel(5, 5, blurKernel));
 		
 		BufferedImage image = new BufferedImage(src.getWidth(), src.getHeight(),  
 			    BufferedImage.TYPE_BYTE_GRAY); 

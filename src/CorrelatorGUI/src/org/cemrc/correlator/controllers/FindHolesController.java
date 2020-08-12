@@ -16,6 +16,8 @@ import org.cemrc.data.IPositionDataset;
 import org.cemrc.data.PixelPositionDataset;
 import org.cemrc.data.Registration;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -23,6 +25,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.Alert.AlertType;
@@ -54,6 +57,9 @@ public class FindHolesController {
 	private ImageView imageView;
 	
 	@FXML
+	private Slider binarizationSlider;
+	
+	@FXML
 	public void initialize() {
 		updateButton();
 		
@@ -78,6 +84,22 @@ public class FindHolesController {
 		};
 		targetMapCombo.setButtonCell(cellFactory.call(null));
 		targetMapCombo.setCellFactory(cellFactory);
+		
+		ChangeListener<Number> updateUI = new ChangeListener<Number>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				if (m_task != null) {
+					m_task.setBinarizationCutoff(newValue.intValue());
+					BufferedImage proc = m_task.getProcessed();
+					Image show =  SwingFXUtils.toFXImage(proc, null);
+					imageView.setImage(show);
+				}
+			}
+			
+		};
+		binarizationSlider.setValue(240);
+		binarizationSlider.valueProperty().addListener(updateUI);
 	}
 	
 	/**
@@ -149,7 +171,7 @@ public class FindHolesController {
 		PixelPositionDataset pixelPositions = new PixelPositionDataset();
 		pixelPositions.setPixelPositions(parsedPositions);
 		// pixelPositions.setColor(Color.RE);
-		pixelPositions.setName("Point Set " + m_document.getData().getUniquePointsID());
+		pixelPositions.setName("Point set " + m_document.getData().getUniquePointsID() + " - Found Holes [ " + points.size() + "]");
 
 		// Get useful values from the map.
 		if (map != null) {
