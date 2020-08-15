@@ -5,18 +5,19 @@ CorRelator provides easy TEM and FLM correlation for On-The-Fly processing.
 ## About CorRelator
 CorRelator supports both on-the-fly and post-acquisition two dimensional (2D) cryo-correlation. The on-the-fly correlation integrates image registration, transformation and correlation between EM and FM.
 
-The output is ready for SerialEM automated data collection at transformed fluorescent targets of interest (TOIs) on registered EM images. 
+The output is ready for SerialEM automated data collection at transformed fluorescent targets of interest (TOIs) on registered EM images. To get started and gain supports, visit Wiki for more details.
 
 ![Map View](images/mapview.png)
 
-## CorRelator Features
+## CorRelator Features 
 
 1. Import and Export of .nav Autodoc format provided by SerialEM.
-2. Import and Viewing of PNG/TIF/JPG image maps.
+2. Import and Perform correlation of MRC/PNG/TIF(8-bit greyscale and 32/8-bit RBG)/JPG image maps.
 3. Import of user-provided pixel positions (.csv).
 4. Manual annotation of pixel positions on maps.
 5. Affine alignment of pixel positions to align cryo-EM and (cryo)FLM images.
 6. Image overlay and image export.
+7. Identify hole center coordinates algorithmically. 
 
 ## Installation and Requirements
 CorRelator is a cross-platform Java application which is built on JavaFX.
