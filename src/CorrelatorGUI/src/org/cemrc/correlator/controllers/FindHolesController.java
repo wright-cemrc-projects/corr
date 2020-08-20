@@ -18,6 +18,8 @@ import org.cemrc.data.Registration;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -25,6 +27,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -48,6 +51,9 @@ public class FindHolesController {
 	private ComboBox<IMap> targetMapCombo;
 	
 	@FXML
+	private ComboBox<String> edgeAlgorithmCombo;
+	
+	@FXML
 	private Button cancelButton;
 	
 	@FXML
@@ -58,6 +64,9 @@ public class FindHolesController {
 	
 	@FXML
 	private Slider binarizationSlider;
+	
+	@FXML
+	private ProgressBar findProgressBar;
 	
 	@FXML
 	public void initialize() {
@@ -91,7 +100,7 @@ public class FindHolesController {
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				if (m_task != null) {
 					m_task.setBinarizationCutoff(newValue.intValue());
-					BufferedImage proc = m_task.getProcessed();
+					BufferedImage proc = m_task.getProcessed(false);
 					Image show =  SwingFXUtils.toFXImage(proc, null);
 					imageView.setImage(show);
 				}
@@ -100,6 +109,8 @@ public class FindHolesController {
 		};
 		binarizationSlider.setValue(240);
 		binarizationSlider.valueProperty().addListener(updateUI);
+		
+		edgeAlgorithmCombo.setItems(FXCollections.observableArrayList("Laplacian_1", "Laplacian_2", "Laplacian_3"));
 	}
 	
 	/**
@@ -144,7 +155,7 @@ public class FindHolesController {
 		BufferedImage buffer = ReadImage.readImage(imageLocation);
 		
 		m_task = new CircleHoughTransformTask(buffer);
-		BufferedImage proc = m_task.getProcessed();
+		BufferedImage proc = m_task.getProcessed(false);
 		Image show =  SwingFXUtils.toFXImage(proc, null);
 		
 		imageView.setImage(show);
@@ -153,13 +164,24 @@ public class FindHolesController {
 	@FXML
 	public void doCircleHoughTransform() {
 		
-		List<Vector2<Integer>> points = m_task.findCircles();
+		m_task.setProgressBar(findProgressBar);
 		
-		if (points.size() > 0) {
-			addPoints(points, m_targetMap);
-		}
+		Task<Void> task = new Task<Void>() {
+			@Override public Void call()
+			{
+				List<Vector2<Integer>> points = m_task.findCircles();
+				
+				if (points.size() > 0) {
+					addPoints(points, m_targetMap);
+				}
+				
+				return null;
+			}
+		};
 		
-		m_stage.close();
+	    Thread thread = new Thread(task);
+	    thread.setDaemon(true);
+	    thread.start();
 	}
 	
 	private void addPoints(List<Vector2<Integer>> points, IMap map) {
@@ -236,5 +258,15 @@ public class FindHolesController {
 	 */
 	public void setTargetMap(IMap selected) {
 		m_targetMap = selected;
+	}
+	
+	/**
+	 * Should switch the edge detection filter.
+	 */
+	public void updateEdgeDetection() {
+		m_task.setEdgeFilter(edgeAlgorithmCombo.getValue());
+		BufferedImage proc = m_task.getProcessed(true);
+		Image show =  SwingFXUtils.toFXImage(proc, null);
+		imageView.setImage(show);
 	}
 }

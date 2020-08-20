@@ -13,6 +13,14 @@ import java.util.List;
 
 import org.cemrc.autodoc.Vector2;
 
+import javafx.application.Platform;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.control.ProgressBar;
+
 /**
  * This class will represent a hole-finding task
  * Input: a BufferedImage and parameters (radius range, cutoff)
@@ -28,8 +36,26 @@ public class CircleHoughTransformTask {
 	private float m_scale = 1.0f;
 	private int m_binarization = 240;
 	
+	private String m_edgeFilter = "Laplacian_1";
+	
+	private ProgressBar m_progress;
+
+	public void setProgressBar(ProgressBar bar) {
+		m_progress = bar;
+	}
+	
+	private void updateProgress(float value) {
+		if (m_progress != null) {
+			Platform.runLater(() -> m_progress.setProgress(value) );
+		}
+	}
+	
 	public CircleHoughTransformTask(BufferedImage src) {
 		m_src = src;
+	}
+	
+	public void setEdgeFilter(String value) {
+		m_edgeFilter = value;
 	}
 	
 	/**
@@ -48,8 +74,8 @@ public class CircleHoughTransformTask {
 	 * Get the preprocessed image for display.
 	 * @return
 	 */
-	public BufferedImage getProcessed() {
-		if (m_greyScale == null) {
+	public BufferedImage getProcessed(boolean force) {
+		if (m_greyScale == null || force) {
 			m_greyScale = preprocess(m_src);
 		}
 		
@@ -120,6 +146,9 @@ public class CircleHoughTransformTask {
 			}
 		}
 		
+		float progress = 0f;
+		updateProgress(progress);
+		
 		// Accumulate the votes.
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
@@ -128,8 +157,6 @@ public class CircleHoughTransformTask {
 					
 					int value = new Color( image.getRGB(x, y)).getRed();
 					if (value > 128) {
-						// Is this an edge?
-						System.out.println("[" + x + ", " + y + "]");
 					
 						for (int theta = 0; theta < 360; theta += 10) {  // the possible  theta 0 to 360 
 							// get polar coordinates for center of a center with edge at this pixel x,y
@@ -144,6 +171,8 @@ public class CircleHoughTransformTask {
 					}
 				}
 			}
+			progress += (1.0f / width);
+			updateProgress(progress);
 		}
 		
 		float scale_x = (float) m_src.getWidth() / (float) width;
@@ -328,19 +357,36 @@ public class CircleHoughTransformTask {
 	 * @return edge detection image
 	 */
 	private BufferedImage getSobel(BufferedImage src) {
-		float[] edgeKernel = {
+		float[] Laplacian_1 = {
 				0.0f, -1.0f, 0.0f,
 				-1.0f, 4.0f, -1.0f,
 				0.0f, -1.0f, 0.0f
 				};
 		
-		float[] sobelKernel = {
+		float[] Laplacian_2 = {
 			     -1.0f, -1.0f, -1.0f,
 			     -1.0f, 8.0f, -1.0f,
 			     -1.0f, -1.0f, -1.0f
 			 };
 		
-		BufferedImageOp edge = new ConvolveOp(new Kernel(3, 3, sobelKernel));
+		float[] Laplacian_3 = {
+				-1.0f, 2.0f, -1.0f,
+				2.0f, -4.0f, 2.0f,
+				-1.0f, 2.0f, -1.0f
+				};
+		
+		float[] filter;
+		
+		switch (m_edgeFilter) {
+			case "Laplacian_1" : filter = Laplacian_1; break;
+			case "Laplacian_2" : filter = Laplacian_2; break;
+			case "Laplacian_3" : filter = Laplacian_3; break;
+			default:
+				filter = Laplacian_2;
+				break;
+		}
+		
+		BufferedImageOp edge = new ConvolveOp(new Kernel(3, 3, filter));
 		
 		BufferedImage image = new BufferedImage(src.getWidth(), src.getHeight(),  
 			    BufferedImage.TYPE_BYTE_GRAY); 
