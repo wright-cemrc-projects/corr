@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
@@ -45,32 +46,44 @@
                         <Insets top="10.0" />
                      </VBox.margin>
                   </HBox>
-                  <Label text="Zoom (%)">
-                     <VBox.margin>
-                        <Insets top="25.0" />
-                     </VBox.margin>
-                  </Label>
-                  <TextField fx:id="zoomField" onAction="#zoomChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="100.0">
-                     <VBox.margin>
-                        <Insets top="5.0" />
-                     </VBox.margin>
-                  </TextField>
-                  <Label layoutX="20.0" layoutY="214.0" text="Rotation (°)">
-                     <padding>
-                        <Insets top="25.0" />
-                     </padding>
-                  </Label>
-                  <TextField fx:id="rotationAngleEntry" layoutX="20.0" layoutY="240.0" onAction="#rotateChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="0.0">
-                     <VBox.margin>
-                        <Insets top="5.0" />
-                     </VBox.margin>
-                  </TextField>
                   <VBox>
                      <children>
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <CheckBox fx:id="flipx" mnemonicParsing="false" text="Flip X">
+                                 <HBox.margin>
+                                    <Insets right="10.0" />
+                                 </HBox.margin>
+                              </CheckBox>
+                              <CheckBox fx:id="flipy" mnemonicParsing="false" text="Flip Y" />
+                           </children>
+                           <padding>
+                              <Insets top="10.0" />
+                           </padding>
+                        </HBox>
+                        <Label text="Zoom (%)">
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="zoomField" onAction="#zoomChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="100.0">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label text="Rotation (°)" />
+                        <TextField fx:id="rotationAngleEntry" onAction="#rotateChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="0.0">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </TextField>
                         <Label text="Brightness">
                            <padding>
                               <Insets top="5.0" />
                            </padding>
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
                         </Label>
                         <Slider fx:id="brightnessSlider1" max="1.0" min="-1.0" />
                         <Label layoutX="10.0" layoutY="10.0" text="Contrast">

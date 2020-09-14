@@ -71,6 +71,7 @@ public class Correlator extends Application {
         // add menus to menubar
         mb.getMenus().add(createFileMenu());
         mb.getMenus().add(createImportMenu());
+        mb.getMenus().add(createExportMenu());
         mb.getMenus().add(createHelpMenu());
         
         // create a VBox
@@ -110,14 +111,12 @@ public class Correlator extends Application {
         MenuItem newProjectMenu = new MenuItem("New Project");
         MenuItem openProjectMenu = new MenuItem("Open Project");
         MenuItem saveProjectMenu = new MenuItem("Save Project");
-        MenuItem exportProject = new MenuItem("Export to Navigator");
         
         // add to the menu
         fileMenu.getItems().add(projectWizardMenu);
         fileMenu.getItems().add(newProjectMenu);
         fileMenu.getItems().add(openProjectMenu);
         fileMenu.getItems().add(saveProjectMenu);
-        fileMenu.getItems().add(exportProject);
         
         // setup EventHandler(s)
         EventHandler<ActionEvent> newProjectEvent = new EventHandler<ActionEvent>() { 
@@ -152,15 +151,6 @@ public class Correlator extends Application {
             } 
         };
         saveProjectMenu.setOnAction(saveProjectEvent);
-        
-        EventHandler<ActionEvent> exportEvent = new EventHandler<ActionEvent>() { 
-            public void handle(ActionEvent e) 
-            { 
-            	ActionExportAutodoc exporter = new ActionExportAutodoc(m_state.getDocument());
-            	exporter.doAction();
-            } 
-        };
-        exportProject.setOnAction(exportEvent);
         
         return fileMenu;
 	}
@@ -248,6 +238,25 @@ public class Correlator extends Application {
         importPoints.setOnAction(importPointsEvent);
         
         return menuImport;
+	}
+	
+	private Menu createExportMenu() {
+		Menu menu = new Menu("Export");
+	    MenuItem exportProject = new MenuItem("Export to Navigator");
+	        
+	    // add to the menu
+	    menu.getItems().add(exportProject);
+	        
+        EventHandler<ActionEvent> exportEvent = new EventHandler<ActionEvent>() { 
+            public void handle(ActionEvent e) 
+            { 
+            	ActionExportAutodoc exporter = new ActionExportAutodoc(m_state.getDocument());
+            	exporter.doAction();
+            } 
+        };
+        exportProject.setOnAction(exportEvent);
+        
+        return menu;
 	}
 	
 	/**

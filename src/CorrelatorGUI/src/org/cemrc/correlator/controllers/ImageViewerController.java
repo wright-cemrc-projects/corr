@@ -32,6 +32,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableView;
@@ -92,6 +93,12 @@ public class ImageViewerController {
 	@FXML
 	TableView<PointsTableController.PointsDatasetTableItem> pointsTableView;
 	PointsTableController m_pointsTableController;
+	
+	@FXML
+	CheckBox flipx;
+	
+	@FXML
+	CheckBox flipy;
 	
 	@FXML
 	Button newPoints;
@@ -164,6 +171,7 @@ public class ImageViewerController {
 	
 	@FXML
 	public void zoomChanged() {
+	
 		String text = zoomField.getText();
 		
 		try {
@@ -334,11 +342,18 @@ public class ImageViewerController {
 	public void updateZoomCanvas() {
 		GraphicsContext gc = m_zoomCanvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, m_zoomCanvas.getWidth(), m_zoomCanvas.getHeight());
-
+		
 		// Create an affine transformation from a rotation.
 		Rotate r = getRotate(gc, m_currentRotation, m_zoomCanvas.getWidth() / 2.0 , m_zoomCanvas.getHeight() / 2.0);
-		//Affine t = new Affine(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+		
+		// Rotation transformation.
 		Affine t = new Affine(r.getMxx(), r.getMxy(), r.getTx(), r.getMyx(), r.getMyy(), r.getTy());
+		
+		// Flip transformation
+		float xFlipTrans = flipx.isSelected() ? -1.0f : 1.0f;
+		float yFlipTrans = flipy.isSelected() ? -1.0f : 1.0f;
+		Affine t2 = new Affine(xFlipTrans, 0f, flipx.isSelected() ? m_zoomCanvas.getWidth() : 0f, 0f, yFlipTrans, flipy.isSelected() ? m_zoomCanvas.getHeight() : 0f);
+		t.append(t2);
 		
 		// Save the transform state
 		gc.save();
@@ -436,6 +451,17 @@ public class ImageViewerController {
 			}
 			
 		});
+	
+		ChangeListener checkChange = new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				updateZoomCanvas();
+			}
+		};
+		
+		// Add properties for changes.
+		flipx.selectedProperty().addListener(checkChange);
+		flipy.selectedProperty().addListener(checkChange);
 		
 		// zoomPane.setMaxSize(m_zoomCanvas.getWidth(), m_zoomCanvas.getHeight());
 		zoomPane.setFitToHeight(true);
@@ -493,6 +519,15 @@ public class ImageViewerController {
 		// add back the pivot point
 		rv.x = rv.x + (float) center_x;
 		rv.y = rv.y + (float) center_y;
+		
+		// check flips
+		if (flipx.isSelected()) {
+			rv.x = (float) m_zoomCanvas.getWidth() - rv.x;
+		}
+		
+		if (flipy.isSelected()) {
+			rv.y = (float) m_zoomCanvas.getHeight() - rv.y;
+		}
 		
 		return rv;
 	}
