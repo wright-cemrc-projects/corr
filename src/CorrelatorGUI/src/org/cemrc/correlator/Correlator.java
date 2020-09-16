@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 
+import org.cemrc.correlator.actions.ActionAlignMaps;
 import org.cemrc.correlator.actions.ActionExportAutodoc;
 import org.cemrc.correlator.actions.ActionImportAutodoc;
 import org.cemrc.correlator.actions.ActionImportImageMap;
@@ -72,6 +73,7 @@ public class Correlator extends Application {
         mb.getMenus().add(createFileMenu());
         mb.getMenus().add(createImportMenu());
         mb.getMenus().add(createExportMenu());
+        mb.getMenus().add(createAlignmentMenu());
         mb.getMenus().add(createHelpMenu());
         
         // create a VBox
@@ -243,6 +245,7 @@ public class Correlator extends Application {
 	private Menu createExportMenu() {
 		Menu menu = new Menu("Export");
 	    MenuItem exportProject = new MenuItem("Export to Navigator");
+	    
 	        
 	    // add to the menu
 	    menu.getItems().add(exportProject);
@@ -257,6 +260,21 @@ public class Correlator extends Application {
         exportProject.setOnAction(exportEvent);
         
         return menu;
+	}
+	
+	private Menu createAlignmentMenu() {
+		Menu menu = new Menu("Alignment");
+        MenuItem alignItem = new MenuItem("Align to Map");
+        alignItem.setOnAction(event -> {
+            	ActionAlignMaps alignAction = new ActionAlignMaps(m_state.getDocument(), null);
+            	alignAction.doAction();
+        	}
+        );
+		
+	    // add to the menu
+	    menu.getItems().add(alignItem);
+
+		return menu;
 	}
 	
 	/**
