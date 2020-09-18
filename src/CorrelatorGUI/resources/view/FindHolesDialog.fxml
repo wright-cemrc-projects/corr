@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cemrc.correlator.controllers.FindHolesController">
+   <children>
+      <Canvas fx:id="previewCanvas" height="400.0" width="768.0">
+         <VBox.margin>
+            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+         </VBox.margin>
+      </Canvas>
+      <HBox alignment="CENTER">
+         <children>
+            <VBox alignment="TOP_CENTER">
+               <children>
+                  <Label text="Target map :" wrapText="true">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="25.0" />
+                     </VBox.margin>
+                  </Label>
+                  <ComboBox fx:id="targetMapCombo" onAction="#updateTargetMap" prefWidth="150.0">
+                     <VBox.margin>
+                        <Insets bottom="25.0" top="5.0" />
+                     </VBox.margin>
+                  </ComboBox>
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <HBox.margin>
+                  <Insets left="25.0" right="25.0" />
+               </HBox.margin>
+            </VBox>
+            <VBox alignment="TOP_CENTER" layoutX="319.0" layoutY="10.0">
+               <children>
+                  <Label text="Edge Detection :" wrapText="true">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="25.0" />
+                     </VBox.margin>
+                  </Label>
+                  <ComboBox fx:id="edgeAlgorithmCombo" onAction="#updateEdgeDetection" prefWidth="150.0">
+                     <VBox.margin>
+                        <Insets bottom="25.0" top="5.0" />
+                     </VBox.margin>
+                  </ComboBox>
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets left="25.0" right="25.0" />
+               </padding>
+            </VBox>
+            <VBox alignment="CENTER" layoutX="419.0" layoutY="10.0">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets left="25.0" right="25.0" />
+               </padding>
+               <children>
+                  <Button fx:id="holesButton" mnemonicParsing="false" onAction="#doCircleHoughTransform" text="Find Holes!" />
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+      <HBox alignment="TOP_RIGHT">
+         <children>
+            <Label text="Binarization Level:">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+               </HBox.margin>
+            </Label>
+            <Slider fx:id="binarizationSlider" max="255.0">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+               </HBox.margin>
+            </Slider>
+            <VBox>
+               <children>
+                  <HBox>
+                     <children>
+                        <Button fx:id="acceptButton" layoutX="35.0" layoutY="35.0" mnemonicParsing="false" onAction="#doAccept" text="Accept">
+                           <HBox.margin>
+                              <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#doCancel" text="Cancel">
+                           <HBox.margin>
+                              <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <ProgressBar fx:id="findProgressBar" prefWidth="250.0" progress="0.0">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </ProgressBar>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</VBox>

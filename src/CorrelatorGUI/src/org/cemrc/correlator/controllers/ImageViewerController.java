@@ -232,6 +232,7 @@ public class ImageViewerController {
 		loadImage(imageLocation);
 		m_pointsTableController.addMap(map);
 		m_pointsTableController.updatePointsTableView();
+		updateZoomCanvas();
 	}
 	
 	@FXML
