@@ -45,7 +45,7 @@
             </VBox>
             <VBox alignment="TOP_CENTER" layoutX="319.0" layoutY="10.0">
                <children>
-                  <Label text="Edge Detection :" wrapText="true">
+                  <Label text="Edge Detection" wrapText="true">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
@@ -66,17 +66,25 @@
                   <Insets left="25.0" right="25.0" />
                </padding>
             </VBox>
-            <VBox alignment="CENTER" layoutX="419.0" layoutY="10.0">
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-               <padding>
-                  <Insets left="25.0" right="25.0" />
-               </padding>
+            <HBox alignment="BOTTOM_LEFT">
                <children>
-                  <Button fx:id="holesButton" mnemonicParsing="false" onAction="#doCircleHoughTransform" text="Find Holes!" />
+                  <Button fx:id="holesButton" mnemonicParsing="false" onAction="#doCircleHoughTransform" prefWidth="100.0" text="Find Holes!">
+                     <HBox.margin>
+                        <Insets left="10.0" right="10.0" top="10.0" />
+                     </HBox.margin></Button>
+                  <ProgressBar fx:id="findProgressBar" prefWidth="150.0" progress="0.0">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                     <HBox.margin>
+                        <Insets left="10.0" right="10.0" top="10.0" />
+                     </HBox.margin>
+                  </ProgressBar>
                </children>
-            </VBox>
+               <HBox.margin>
+                  <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+               </HBox.margin>
+            </HBox>
          </children>
       </HBox>
       <HBox alignment="TOP_RIGHT">
@@ -107,11 +115,6 @@
                         </Button>
                      </children>
                   </HBox>
-                  <ProgressBar fx:id="findProgressBar" prefWidth="250.0" progress="0.0">
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
-                  </ProgressBar>
                </children>
             </VBox>
          </children>
