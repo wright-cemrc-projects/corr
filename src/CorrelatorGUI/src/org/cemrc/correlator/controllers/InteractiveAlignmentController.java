@@ -57,6 +57,40 @@ public class InteractiveAlignmentController {
 	
 	@FXML
 	public RadioButton radioPt3;
+
+	/**
+	 * CanvasState describes the rotation, flip state for a Canvas.
+	 * @author mrlarson2
+	 *
+	 */
+	public class CanvasState {
+
+		private Canvas canvas = null;
+		
+		public double rotation = 0;
+		public boolean flipX = false;
+		public boolean flipY = false;
+		
+		/**
+		 * Provide a canvas to track state.
+		 * @param c
+		 */
+		public CanvasState(Canvas c) {
+			canvas = c;
+		}
+		
+		public Canvas getCanvas() {
+			return canvas;
+		}
+		
+		public double getCanvasWidth() {
+			return canvas.getWidth();
+		}
+		
+		public double getCanvasHeight() {
+			return canvas.getHeight();
+		}
+	}
 	
 	/**
 	 * 
@@ -253,4 +287,67 @@ public class InteractiveAlignmentController {
     	}	
     	gc.closePath();
     }
+    
+	/**
+	 * Rotation
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private Vector3<Float> getActualPixelPosition(double x, double y) {
+		/*
+		double center_x = m_zoomCanvas.getWidth() / 2.0;
+		double center_y = m_zoomCanvas.getHeight() / 2.0;
+		
+		// subtract by pivot point
+		double pixel_x = x - center_x;
+		double pixel_y = y - center_y;
+		
+		// rotate by rotation matrix
+		double rotationRadians = -m_currentRotation * Math.PI / 180.0;
+		double [][] rotationMatrix = MatrixMath.getRotation(rotationRadians);
+		Vector3<Float> rv = MatrixMath.multiply(rotationMatrix, new Vector3<Float>((float) pixel_x, (float) pixel_y, 0f));
+		
+		// add back the pivot point
+		rv.x = rv.x + (float) center_x;
+		rv.y = rv.y + (float) center_y;
+		
+		// check flips
+		if (flipx.isSelected()) {
+			rv.x = (float) m_zoomCanvas.getWidth() - rv.x;
+		}
+		
+		if (flipy.isSelected()) {
+			rv.y = (float) m_zoomCanvas.getHeight() - rv.y;
+		}
+		*/
+		
+		return null;
+	}
+    
+	public void canvasClickedCallback(double x, double y) {
+		double near = 5;
+		
+		/*
+		Vector3<Float> actualPosition = getActualPixelPosition(x, y);
+		
+		IPositionDataset activePoints = m_pointsTableController.getSelected();
+		
+		if (activePoints != null) {
+			switch (mode) {
+			case Add:
+				activePoints.addPixelPosition(actualPosition.x, actualPosition.y);
+				break;
+			case Remove:
+				activePoints.removePixelPositionNear(actualPosition.x, actualPosition.y, near);
+				break;
+			default:
+				break;
+			}
+		}
+		
+		updateZoomCanvas();
+		pointsTableView.refresh();
+		*/
+	}
 }
