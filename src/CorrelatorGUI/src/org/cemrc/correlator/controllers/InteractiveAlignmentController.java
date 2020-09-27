@@ -1,6 +1,8 @@
 package org.cemrc.correlator.controllers;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector3;
@@ -8,13 +10,18 @@ import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
 import org.cemrc.data.NavigatorColorEnum;
+import org.cemrc.math.MatrixMath;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
@@ -27,14 +34,10 @@ import javafx.scene.transform.Rotate;
  */
 public class InteractiveAlignmentController {
 	
-	IPositionDataset m_referencePoints, m_targetPoints;
+	//IPositionDataset m_referencePoints, m_targetPoints;
 	IMap m_referenceMap, m_targetMap;
-	Image m_referenceImage, m_targetImage;
+	//Image m_referenceImage, m_targetImage;
 	
-	// We can have user select 3 points for each.
-	private Vector3<Float>[] m_pt1 = new Vector3[3];
-	private Vector3<Float>[] m_pt2 = new Vector3[3];
-
 	@FXML 
 	public ScrollPane targetPane;
 	
@@ -59,6 +62,14 @@ public class InteractiveAlignmentController {
 	public RadioButton radioPt3;
 
 	/**
+	 * Structure tracking Canvas transforms.
+	 */
+	private CanvasState m_targetCanvasState, m_referenceCanvasState;
+	
+	// These state track what point we are currently selecting in the canvas.
+	private int m_currentPoint = 0;
+	
+	/**
 	 * CanvasState describes the rotation, flip state for a Canvas.
 	 * @author mrlarson2
 	 *
@@ -66,10 +77,15 @@ public class InteractiveAlignmentController {
 	public class CanvasState {
 
 		private Canvas canvas = null;
+		private Image image = null;
 		
 		public double rotation = 0;
 		public boolean flipX = false;
 		public boolean flipY = false;
+		
+		// Selected points.
+		private Map<Integer, Vector3<Float>> m_selectedPoints = new HashMap<Integer, Vector3<Float>>();
+		private IPositionDataset m_registrationPoints = null;
 		
 		/**
 		 * Provide a canvas to track state.
@@ -90,6 +106,26 @@ public class InteractiveAlignmentController {
 		public double getCanvasHeight() {
 			return canvas.getHeight();
 		}
+		
+		public Map<Integer, Vector3<Float>> getPoints() {
+			return m_selectedPoints;
+		}
+		
+		public void setRegistrationPoints(IPositionDataset points) {
+			m_registrationPoints = points;
+		}
+		
+		public IPositionDataset getRegistrationPoints() {
+			return m_registrationPoints;
+		}
+		
+		public void setImage(Image im) {
+			image = im;
+		}
+		
+		private Image getImage() {
+			return image;
+		}
 	}
 	
 	/**
@@ -97,13 +133,15 @@ public class InteractiveAlignmentController {
 	 * @param referencePoints
 	 */
 	public void setReferencePoints(IPositionDataset referencePoints) {
-		m_referencePoints = referencePoints;
 		
-		if (m_referencePoints != null) {
-			m_referenceMap = m_referencePoints.getMap();
+		CanvasState state = m_referenceCanvasState;
+		state.setRegistrationPoints(referencePoints);
+		
+		if (referencePoints != null) {
+			m_referenceMap = referencePoints.getMap();
 			if (m_referenceMap != null) {
-				m_referenceImage = getImage(m_referenceMap);
-				setupCanvas(m_referenceImage, referencePoints, m_referenceCanvas, referencePane);
+				state.setImage(getImage(m_referenceMap));
+				setupCanvas(state.getImage(), referencePoints, m_referenceCanvasState, referencePane);
 			}
 		}
 	}
@@ -113,13 +151,15 @@ public class InteractiveAlignmentController {
 	 * @param targetPoints
 	 */
 	public void setTargetPoints(IPositionDataset targetPoints) {
-		m_targetPoints = targetPoints;
 		
-		if (m_targetPoints != null) {
-			m_targetMap = m_targetPoints.getMap();
+		CanvasState state = m_targetCanvasState;
+		state.setRegistrationPoints(targetPoints);
+		
+		if (targetPoints != null) {
+			m_targetMap = targetPoints.getMap();
 			if (m_targetMap != null) {
-				m_targetImage = getImage(m_targetMap);
-				setupCanvas(m_targetImage, targetPoints, m_targetCanvas, targetPane);
+				state.setImage( getImage(m_targetMap) );
+				setupCanvas(state.getImage(), targetPoints, m_targetCanvasState, targetPane);
 			}
 		}
 	}
@@ -145,10 +185,10 @@ public class InteractiveAlignmentController {
 	/**
 	 * Set the image on a JavaFX Canvas
 	 * @param fxImage
-	 * @param canvas
+	 * @param state
 	 * @param pane
 	 */
-	private void setupCanvas(Image fxImage, IPositionDataset points, Canvas canvas, ScrollPane pane) {
+	private void setupCanvas(Image fxImage, IPositionDataset points, CanvasState state, ScrollPane pane) {
 		double height = pane.getPrefViewportHeight();
 		double width = pane.getPrefViewportWidth();
 		
@@ -161,12 +201,11 @@ public class InteractiveAlignmentController {
 		}
 		
 		// Setup the zoom view
-		canvas.setWidth(width);
-		canvas.setHeight(height);
+		state.getCanvas().setWidth(width);
+		state.getCanvas().setHeight(height);
 		pane.setPrefViewportWidth(600);
 		pane.setPrefViewportHeight(300);
-		
-		updateCanvas(canvas, fxImage, points, 0);
+		updateCanvas(state);
 	}
 
 	@FXML
@@ -180,45 +219,90 @@ public class InteractiveAlignmentController {
 		targetPane.setFitToHeight(true);
 		targetPane.setFitToWidth(true);
 		targetPane.setContent(m_targetCanvas);
+		m_targetCanvasState = new CanvasState(m_targetCanvas);
 		
 		// Setup a Canvas and make this drawable.
 		m_referenceCanvas = new Canvas(width, height);
 		referencePane.setFitToHeight(true);
 		referencePane.setFitToWidth(true);
 		referencePane.setContent(m_referenceCanvas);
+		m_referenceCanvasState = new CanvasState(m_referenceCanvas);
+		
+		m_targetCanvas.setOnMouseClicked(event -> {
+			targetClickedCallback(event.getX(), event.getY());
+		});
+		
+		m_referenceCanvas.setOnMouseClicked(event -> {
+			referenceClickedCallback(event.getX(), event.getY());
+		});
+		
+		// Setup button toggle grouping
+		ToggleGroup group = new ToggleGroup();
+		radioPt1.setToggleGroup(group);
+		radioPt2.setToggleGroup(group);
+		radioPt3.setToggleGroup(group);
+		
+		group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+			@Override
+			public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
+				// Has selection.
+				if (group.getSelectedToggle() != null) {
+					RadioButton button = (RadioButton) group.getSelectedToggle();
+					if (button == radioPt1) {
+						m_currentPoint = 1;
+					} else if (button == radioPt2) {
+						m_currentPoint = 2;
+					} else if (button == radioPt3) {
+						m_currentPoint = 3;
+					}
+				}
+			}
+		});
 	}
 	
-	private void updateCanvas(Canvas canvas, Image image, IPositionDataset item, double rotation) {
-		GraphicsContext gc = canvas.getGraphicsContext2D();
-		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+	private void updateCanvas(CanvasState state) {
+		GraphicsContext gc = state.getCanvas().getGraphicsContext2D();
+		gc.clearRect(0, 0, state.getCanvasWidth(), state.getCanvasHeight());
 		
 		// Create an affine transformation from a rotation.
-		Rotate r = getRotate(gc, rotation, canvas.getWidth() / 2.0 , canvas.getHeight() / 2.0);
+		Rotate r = getRotate(gc, state.rotation, state.getCanvasWidth() / 2.0 , state.getCanvasHeight() / 2.0);
 		
 		// Rotation transformation.
 		Affine t = new Affine(r.getMxx(), r.getMxy(), r.getTx(), r.getMyx(), r.getMyy(), r.getTy());		
 		
 		// Flip transformation
-		//float xFlipTrans = flipx.isSelected() ? -1.0f : 1.0f;
-		//float yFlipTrans = flipy.isSelected() ? -1.0f : 1.0f;
-		//Affine t2 = new Affine(xFlipTrans, 0f, flipx.isSelected() ? m_zoomCanvas.getWidth() : 0f, 0f, yFlipTrans, flipy.isSelected() ? m_zoomCanvas.getHeight() : 0f);
-		//t.append(t2);
+		float xFlipTrans = state.flipX ? -1.0f : 1.0f;
+		float yFlipTrans = state.flipY ? -1.0f : 1.0f;
+		Affine t2 = new Affine(xFlipTrans, 0f, state.flipX ? state.getCanvasWidth() : 0f, 0f, yFlipTrans, state.flipY ? state.getCanvasHeight() : 0f);
+		t.append(t2);
 		
 		// Save the transform state
 		gc.save();
-        //gc.setTransform(t);
+        gc.setTransform(t);
 		
 		// Set color effects
-		if (image != null) {
-			gc.drawImage(image,  0,  0);
+		if (state.getImage() != null) {
+			gc.drawImage(state.getImage(),  0,  0);
 		}
 
 		// Restore transform state
 		gc.restore();
 		
-
-		drawPixels(gc, item, item.getColor(), t);
+		drawPixels(gc, state.getRegistrationPoints(), state.getRegistrationPoints().getColor(), t);
+		
+		Point2D offset = new Point2D(-10f, -5f);
+		
+		for (Integer i : state.getPoints().keySet()) {
+			// For each of these registration points draw a label
+    		Point2D pt = new Point2D(state.getPoints().get(i).x, state.getPoints().get(i).y);
+    		Point2D movedPt = t.transform(pt);
+    		drawLabelText(gc, movedPt, offset, i.toString());
+		}
 	}
+	
+    private void drawLabelText(GraphicsContext gc, Point2D pixel, Point2D offset, String text) {
+    	gc.fillText(text, pixel.getX() + offset.getX(), pixel.getY() + offset.getY());
+    }
 	
     /**
      * Sets the transform for the GraphicsContext to rotate around a pivot point.
@@ -242,9 +326,6 @@ public class InteractiveAlignmentController {
     private void drawPixels(GraphicsContext gc, IPositionDataset positions, NavigatorColorEnum color, Affine t) {
     	
     	if (positions == null) return;
-    	
-    	Point2D offset = new Point2D(-10f, -5f);
-    	int i = 1;
     	
 		Color c;
 		switch (color) {
@@ -294,17 +375,17 @@ public class InteractiveAlignmentController {
 	 * @param y
 	 * @return
 	 */
-	private Vector3<Float> getActualPixelPosition(double x, double y) {
-		/*
-		double center_x = m_zoomCanvas.getWidth() / 2.0;
-		double center_y = m_zoomCanvas.getHeight() / 2.0;
+	private Vector3<Float> getActualPixelPosition(double x, double y, CanvasState state) {
+
+		double center_x = state.getCanvasWidth() / 2.0;
+		double center_y = state.getCanvasHeight() / 2.0;
 		
 		// subtract by pivot point
 		double pixel_x = x - center_x;
 		double pixel_y = y - center_y;
 		
 		// rotate by rotation matrix
-		double rotationRadians = -m_currentRotation * Math.PI / 180.0;
+		double rotationRadians = -state.rotation * Math.PI / 180.0;
 		double [][] rotationMatrix = MatrixMath.getRotation(rotationRadians);
 		Vector3<Float> rv = MatrixMath.multiply(rotationMatrix, new Vector3<Float>((float) pixel_x, (float) pixel_y, 0f));
 		
@@ -313,41 +394,34 @@ public class InteractiveAlignmentController {
 		rv.y = rv.y + (float) center_y;
 		
 		// check flips
-		if (flipx.isSelected()) {
-			rv.x = (float) m_zoomCanvas.getWidth() - rv.x;
+		if (state.flipX) {
+			rv.x = (float) state.getCanvasWidth() - rv.x;
 		}
 		
-		if (flipy.isSelected()) {
-			rv.y = (float) m_zoomCanvas.getHeight() - rv.y;
+		if (state.flipY) {
+			rv.y = (float) state.getCanvasHeight() - rv.y;
 		}
-		*/
-		
-		return null;
+
+		return rv;
+	}
+	
+	public void targetClickedCallback(double x, double y) {
+		canvasClickedCallback(x, y, m_targetCanvasState);
+	}
+	
+	public void referenceClickedCallback(double x, double y) {
+		canvasClickedCallback(x, y, m_referenceCanvasState);
 	}
     
-	public void canvasClickedCallback(double x, double y) {
+	public void canvasClickedCallback(double x, double y, CanvasState state) {
 		double near = 5;
+		Vector3<Float> actualPosition = getActualPixelPosition(x, y, state);
 		
-		/*
-		Vector3<Float> actualPosition = getActualPixelPosition(x, y);
-		
-		IPositionDataset activePoints = m_pointsTableController.getSelected();
-		
-		if (activePoints != null) {
-			switch (mode) {
-			case Add:
-				activePoints.addPixelPosition(actualPosition.x, actualPosition.y);
-				break;
-			case Remove:
-				activePoints.removePixelPositionNear(actualPosition.x, actualPosition.y, near);
-				break;
-			default:
-				break;
-			}
+		if (m_currentPoint > 0) {
+			// TODO: should snap to an existing registration point.
+			state.getPoints().put(m_currentPoint, actualPosition);
 		}
-		
-		updateZoomCanvas();
-		pointsTableView.refresh();
-		*/
+
+		updateCanvas(state);
 	}
 }
