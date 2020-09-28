@@ -165,6 +165,7 @@ public class ImageViewerController {
 		dataset.setName("Point Set " + m_document.getData().getUniquePointsID());
 		
 		m_document.getData().addPositionData(dataset);		
+		m_document.setDirt(true);
 		m_pointsTableController.updatePointsTableView();
 		m_pointsTableController.select(dataset);
 	}
@@ -544,9 +545,11 @@ public class ImageViewerController {
 			switch (mode) {
 			case Add:
 				activePoints.addPixelPosition(actualPosition.x, actualPosition.y);
+				m_document.setDirt(true);
 				break;
 			case Remove:
 				activePoints.removePixelPositionNear(actualPosition.x, actualPosition.y, near);
+				m_document.setDirt(true);
 				break;
 			default:
 				break;

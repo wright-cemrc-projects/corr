@@ -54,6 +54,7 @@ public class ActionImportAutodoc {
 			
 			// Get a NavData from the flat autodoc list.
 			m_document.getData().mergeAutodoc(docItems, file);
+			m_document.setDirt(true);
 
 		} catch (IOException e) {
 			System.err.println("Unable to open " + file.getName() + " " + e.getMessage());

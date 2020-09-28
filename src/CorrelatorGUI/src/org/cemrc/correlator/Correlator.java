@@ -22,12 +22,16 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 
 /**
@@ -37,6 +41,8 @@ import javafx.stage.Stage;
  * note: https://stackoverflow.com/questions/860187/access-restriction-on-class-due-to-restriction-on-required-library-rt-jar
  */
 public class Correlator extends Application {
+	
+	Stage m_primaryStage;
 
 	// The application data state.
 	CorrelatorState m_state;
@@ -56,6 +62,19 @@ public class Correlator extends Application {
 			}
 			
 		});
+	}
+	
+	/**
+	 * Gracefully handle close-with-save
+	 * @param event
+	 */
+	private void closeWindowEvent(WindowEvent event) {
+		if (checkExisting()) {
+			// Yes (and save) or No, we can continue exiting...
+		} else {
+			// Cancel means abort exiting...
+			event.consume();
+		}
 	}
 	
 	@Override
@@ -101,6 +120,42 @@ public class Correlator extends Application {
         
         // Makes application visible in a window
         primaryStage.show();
+        
+        primaryStage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
+        m_primaryStage = primaryStage;
+	}
+	
+	/**
+	 * When a document is dirty, ask to save.
+	 * @return
+	 */
+	private boolean checkExisting() {
+		
+		if (m_state.getDocument().isDirty()) {
+		
+			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+			alert.setTitle("Current project is modified");
+			alert.setContentText("Save?");
+			ButtonType okButton = new ButtonType("Yes", ButtonData.YES);
+			ButtonType noButton = new ButtonType("No", ButtonData.NO);
+			ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+			alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
+
+			alert.showAndWait();
+			
+			ButtonType type = alert.getResult();
+			if (type == okButton) {
+				handleSaveProject();
+				return true;
+			} else if (type == noButton) {
+				return true;
+			} else {
+				alert.close();
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -126,8 +181,9 @@ public class Correlator extends Application {
         EventHandler<ActionEvent> newProjectEvent = new EventHandler<ActionEvent>() { 
             public void handle(ActionEvent e) 
             { 
-            	m_state.setDocument(new CorrelatorDocument());
-				// m_projectController.updateTreeView(m_state.getDocument());
+            	if (checkExisting()) {
+            		m_state.setDocument(new CorrelatorDocument());
+            	}
             } 
         };
         newProjectMenu.setOnAction(newProjectEvent);
@@ -135,7 +191,9 @@ public class Correlator extends Application {
         EventHandler<ActionEvent> startWizardEvent = new EventHandler<ActionEvent>() { 
             public void handle(ActionEvent e) 
             { 
-            	handleProjectWizard();
+            	if (checkExisting()) {
+            		handleProjectWizard();
+            	}
             } 
         };
         projectWizardMenu.setOnAction(startWizardEvent);
@@ -143,7 +201,9 @@ public class Correlator extends Application {
         EventHandler<ActionEvent> openProjectEvent = new EventHandler<ActionEvent>() { 
             public void handle(ActionEvent e) 
             { 
-            	handleOpenProject();
+            	if (checkExisting() ) {
+            		handleOpenProject();
+            	}
             } 
         };
         openProjectMenu.setOnAction(openProjectEvent);
@@ -160,6 +220,7 @@ public class Correlator extends Application {
 	}
 	
 	private void handleOpenProject() {
+		
 	    FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open an existing " + CorrelatorConfig.AppName + " project (.xml)");
     	
