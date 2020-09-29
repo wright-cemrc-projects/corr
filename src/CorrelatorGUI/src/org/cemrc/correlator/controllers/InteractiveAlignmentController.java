@@ -14,15 +14,18 @@ import org.cemrc.math.MatrixMath;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
@@ -33,6 +36,10 @@ import javafx.scene.transform.Rotate;
  *
  */
 public class InteractiveAlignmentController {
+	
+	// 1.0 = 100%
+	double MIN_SCALE = 0.0001;
+	double MAX_SCALE = 100;
 	
 	//IPositionDataset m_referencePoints, m_targetPoints;
 	IMap m_referenceMap, m_targetMap;
@@ -60,6 +67,18 @@ public class InteractiveAlignmentController {
 	
 	@FXML
 	public RadioButton radioPt3;
+	
+	@FXML
+	public TextField tZoom;
+	
+	@FXML
+	public TextField rZoom;
+	
+	@FXML
+	public TextField tRotate;
+	
+	@FXML
+	public TextField rRotate;
 
 	/**
 	 * Structure tracking Canvas transforms.
@@ -79,7 +98,7 @@ public class InteractiveAlignmentController {
 		private Canvas canvas = null;
 		private Image image = null;
 		
-		public double rotation = 0;
+		private double rotation = 0;
 		public boolean flipX = false;
 		public boolean flipY = false;
 		
@@ -125,6 +144,51 @@ public class InteractiveAlignmentController {
 		
 		private Image getImage() {
 			return image;
+		}
+		
+		/**
+		 * Set the scale
+		 * @param x
+		 * @param y
+		 * @param z
+		 */
+		private void setZoom(double x, double y, double z) {
+			canvas.setScaleX(x);
+			canvas.setScaleY(y);
+			canvas.setScaleY(z);
+		}
+		
+		/**
+		 * Get the scale
+		 * @return
+		 */
+		private Vector3<Double> getZoom() {
+			return new Vector3<Double>(canvas.getScaleX(), canvas.getScaleY(), canvas.getScaleZ());
+		}
+		
+		/**
+		 * Handle scroll changes to scale state
+		 * @param event
+		 */
+		public void updateZoom(ScrollEvent event) {
+			double delta = 1.2;
+            double scale = getZoom().x;
+		
+            if (event.getDeltaY() < 0)
+                scale /= delta;
+            else
+                scale *= delta;
+
+            scale = clamp( scale, MIN_SCALE, MAX_SCALE);
+            setZoom(scale, scale, scale);
+		}
+		
+		public void setRotation(double r) {
+			rotation = r;
+		}
+		
+		public double getRotation() {
+			return rotation;
 		}
 	}
 	
@@ -258,7 +322,96 @@ public class InteractiveAlignmentController {
 				}
 			}
 		});
+		
+		// Rotate and Zoom controls
+		tZoom.textProperty().addListener((observable, oldValue, newValue) -> {
+			String text = tZoom.getText();
+			
+			try {
+				// Convert from percentage back to 1.0 scale.
+				float scale = Float.parseFloat(text) / 100.0f;
+				
+				if (scale >= 0.0f && scale <= MAX_SCALE) {	
+					m_targetCanvasState.setZoom(scale, scale, scale);
+				}
+				
+			} catch (NumberFormatException ex) {
+			}
+        });
+		
+		tRotate.textProperty().addListener((observable, oldValue, newValue) -> {
+			String text = tRotate.getText();
+			try {
+				double value = Double.parseDouble(text);
+				if (value < -360.0f || value > 360.0f) {
+					tRotate.setText(Double.toString(m_targetCanvasState.getRotation()));
+				} else {
+					m_targetCanvasState.setRotation(value);
+					updateCanvas(m_targetCanvasState);
+				}
+			} catch (NumberFormatException ex) {}
+		});
+		
+		rZoom.textProperty().addListener((observable, oldValue, newValue) -> {
+			String text = rZoom.getText();
+			
+			try {
+				// Convert from percentage back to 1.0 scale.
+				float scale = Float.parseFloat(text) / 100.0f;
+				
+				if (scale >= 0.0f && scale <= MAX_SCALE) {	
+					m_referenceCanvasState.setZoom(scale, scale, scale);
+				}
+				
+			} catch (NumberFormatException ex) {
+			}
+        });
+		
+		rRotate.textProperty().addListener((observable, oldValue, newValue) -> {
+			String text = rRotate.getText();
+			try {
+				double value = Double.parseDouble(text);
+				if (value < -360.0f || value > 360.0f) {
+					rRotate.setText(Double.toString(m_referenceCanvasState.getRotation()));
+				} else {
+					m_referenceCanvasState.setRotation(value);
+					updateCanvas(m_referenceCanvasState);
+				}
+			} catch (NumberFormatException ex) {}
+		});
+		
+		m_targetCanvas.addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+			final CanvasState state = m_targetCanvasState;
+			
+			@Override
+			public void handle(ScrollEvent event) {
+				state.updateZoom(event);
+	            event.consume();
+			}
+		});
+		
+		m_referenceCanvas.addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+			final CanvasState state = m_referenceCanvasState;
+			
+			@Override
+			public void handle(ScrollEvent event) {
+				state.updateZoom(event);
+	            event.consume();
+			}
+		});
+		
+		
 	}
+	
+    private double clamp( double value, double min, double max) {
+        if( Double.compare(value, min) < 0)
+            return min;
+
+        if( Double.compare(value, max) > 0)
+            return max;
+
+        return value;
+    }
 	
 	private void updateCanvas(CanvasState state) {
 		GraphicsContext gc = state.getCanvas().getGraphicsContext2D();
