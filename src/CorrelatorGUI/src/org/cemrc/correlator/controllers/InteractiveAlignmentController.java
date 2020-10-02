@@ -48,11 +48,6 @@ public class InteractiveAlignmentController {
 	private Canvas m_targetCanvas, m_referenceCanvas;
 	
 	@FXML
-	public void zoomChanged() {
-		// TODO: may need one for each canvas.
-	}
-	
-	@FXML
 	public RadioButton radioPt1;
 	
 	@FXML

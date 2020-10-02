@@ -22,7 +22,7 @@
          <children>
             <SplitPane dividerPositions="0.75" orientation="VERTICAL" prefHeight="200.0" prefWidth="400.0" HBox.hgrow="ALWAYS">
               <items>
-                  <ScrollPane fx:id="zoomPane" />
+                  <ScrollPane fx:id="scrollPane" />
                   <StackPane fx:id="fullPane">
                      <children>
                         <ImageView fx:id="imageViewFull" fitHeight="300.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" />
