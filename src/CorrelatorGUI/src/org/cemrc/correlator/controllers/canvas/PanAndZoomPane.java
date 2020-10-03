@@ -17,6 +17,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -44,6 +45,8 @@ public class PanAndZoomPane extends Pane {
 	private double m_rotation = 0;
 	public BooleanProperty flipX = new SimpleBooleanProperty(false);
 	public BooleanProperty flipY = new SimpleBooleanProperty(false);
+	
+	public static final Affine IDENTITY = new Affine(1, 0, 0, 0, 1, 0);
 	
 	/**
 	 * Mouse drag context used for scene and nodes.
@@ -201,12 +204,12 @@ public class PanAndZoomPane extends Pane {
 			break;
 		}
     	
-    	gc.beginPath();
     	for (Vector2<Float> pixel : positions.getPixelPositions()) {
     		
     		Point2D pt = new Point2D(pixel.x, pixel.y);
     		Point2D movedPt = t.transform(pt);
     		
+    		gc.beginPath();
     		gc.setStroke(c);
     		gc.setFill(c);
             gc.moveTo(movedPt.getX() + 2, movedPt.getY());
@@ -214,8 +217,9 @@ public class PanAndZoomPane extends Pane {
             gc.moveTo(movedPt.getX(), movedPt.getY() + 2);
             gc.lineTo(movedPt.getX(), movedPt.getY() - 2);
             gc.stroke();
+            gc.closePath();
+
     	}	
-    	gc.closePath();
     }
     
 	/**
@@ -263,10 +267,10 @@ public class PanAndZoomPane extends Pane {
 	}
 	
 	/**
-	 * Image to be drawn on the canvas.
-	 * @param image
+	 * Calculate affine transform matrix based on rotation and flips.
+	 * @return
 	 */
-	public void drawImage(Image image) {
+	public Affine getMat() {
 		GraphicsContext gc = m_canvas.getGraphicsContext2D();
 		
 		// Create an affine transformation from a rotation.
@@ -280,10 +284,25 @@ public class PanAndZoomPane extends Pane {
 		float yFlipTrans = flipY.get() ? -1.0f : 1.0f;
 		Affine t2 = new Affine(xFlipTrans, 0f, flipX.get() ? getCanvasWidth() : 0f, 0f, yFlipTrans, flipY.get() ? getCanvasHeight() : 0f);
 		t.append(t2);
+		return t;
+	}
+	
+	/**
+	 * Image to be drawn on the canvas.
+	 * @param image
+	 */
+	public void drawImage(Image image, Affine mat, boolean transparent) {
+		GraphicsContext gc = m_canvas.getGraphicsContext2D();
+		
+		if (transparent) {
+			gc.setGlobalBlendMode(BlendMode.OVERLAY);
+		} else {
+			gc.setGlobalBlendMode(null);
+		}
 		
 		// Save the transform state
 		gc.save();
-        gc.setTransform(t);
+        gc.setTransform(mat);
 		
 		// Set color effects
 		if (image != null) {
@@ -298,51 +317,33 @@ public class PanAndZoomPane extends Pane {
 	 * Crosshair points to be drawn on the canvas
 	 * @param points
 	 */
-	public void drawPositions(IPositionDataset points) {
+	public void drawPositions(IPositionDataset points, Affine mat) {
 		GraphicsContext gc = m_canvas.getGraphicsContext2D();
-
-		// Create an affine transformation from a rotation.
-		Rotate r = getRotate(gc, m_rotation, getCanvasWidth() / 2.0 , getCanvasHeight() / 2.0);
 		
-		// Rotation transformation.
-		Affine t = new Affine(r.getMxx(), r.getMxy(), r.getTx(), r.getMyx(), r.getMyy(), r.getTy());	
-		// Flip transformation
-		float xFlipTrans = flipX.get() ? -1.0f : 1.0f;
-		float yFlipTrans = flipY.get() ? -1.0f : 1.0f;
-		Affine t2 = new Affine(xFlipTrans, 0f, flipX.get() ? getCanvasWidth() : 0f, 0f, yFlipTrans, flipY.get() ? getCanvasHeight() : 0f);
-		t.append(t2);
-		
-		
-		drawPixels(gc, points, points.getColor(), t);
+		gc.save();
+		gc.setGlobalBlendMode(null);		
+		drawPixels(gc, points, points.getColor(), mat);
+		gc.restore();
 	}
 	
 	/**
 	 * Text labels to be drawn on the canvas
 	 * @param points
 	 */
-	public void drawLabels(Map<Integer, Vector3<Float>> points) {
+	public void drawLabels(Map<Integer, Vector3<Float>> points, Affine mat) {
 		GraphicsContext gc = m_canvas.getGraphicsContext2D();
 		
-		// Create an affine transformation from a rotation.
-		Rotate r = getRotate(gc, m_rotation, getCanvasWidth() / 2.0 , getCanvasHeight() / 2.0);
-		
-		// Rotation transformation.
-		Affine t = new Affine(r.getMxx(), r.getMxy(), r.getTx(), r.getMyx(), r.getMyy(), r.getTy());	
-		// Flip transformation
-		float xFlipTrans = flipX.get() ? -1.0f : 1.0f;
-		float yFlipTrans = flipY.get() ? -1.0f : 1.0f;
-		Affine t2 = new Affine(xFlipTrans, 0f, flipX.get() ? getCanvasWidth() : 0f, 0f, yFlipTrans, flipY.get() ? getCanvasHeight() : 0f);
-		t.append(t2);
-		
-		
+		gc.save();
+		gc.setGlobalBlendMode(null);
 		Point2D offset = new Point2D(-10f, -5f);
 		
 		for (Integer i : points.keySet()) {
 			// For each of these registration points draw a label
     		Point2D pt = new Point2D(points.get(i).x, points.get(i).y);
-    		Point2D movedPt = t.transform(pt);
+    		Point2D movedPt = mat.transform(pt);
     		drawLabelText(gc, movedPt, offset, i.toString());
 		}
+		gc.restore();
 	}
 	
     private void drawLabelText(GraphicsContext gc, Point2D pixel, Point2D offset, String text) {

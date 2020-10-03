@@ -43,6 +43,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.transform.Affine;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -252,15 +253,18 @@ public class ImageViewerController {
 	public void updateZoomCanvas() {
 		m_zoomPane.clearCanvas();
 		
+		// Calculate the current affine transform based on rotate and flips.
+		Affine mat = m_zoomPane.getMat();
+		
 		if (m_image != null) {
-			m_zoomPane.drawImage(m_image.getImage());
+			m_zoomPane.drawImage(m_image.getImage(), mat, false);
 		}
 		
 		// Draw each checked off points set.
 		List<IPositionDataset> drawPoints = m_pointsTableController.getVisible(m_activeMap);
 
 		for (IPositionDataset item : drawPoints) {
-			m_zoomPane.drawPositions(item);
+			m_zoomPane.drawPositions(item, mat);
 			Map<Integer, Vector3<Float>> points = new HashMap<Integer, Vector3<Float>>();
 			int i = 1;
 			
@@ -268,7 +272,7 @@ public class ImageViewerController {
 				points.put(new Integer(i++), new Vector3<Float>(position.x, position.y, 0f));
 			}
 			
-			m_zoomPane.drawLabels(points);
+			m_zoomPane.drawLabels(points, mat);
 		}
 	}
 	
@@ -393,16 +397,16 @@ public class ImageViewerController {
 			case Add:
 				activePoints.addPixelPosition(actualPosition.x, actualPosition.y);
 				break;
-			case Remove:
+			case Remove: 
 				activePoints.removePixelPositionNear(actualPosition.x, actualPosition.y, near);
 				break;
 			default:
-				break;
+				return;
 			}
+			
+			updateZoomCanvas();
+			pointsTableView.refresh();
 		}
-		
-		updateZoomCanvas();
-		pointsTableView.refresh();
 	}
 	
 	@FXML

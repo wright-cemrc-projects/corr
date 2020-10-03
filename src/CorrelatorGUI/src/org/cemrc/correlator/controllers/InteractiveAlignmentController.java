@@ -20,6 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.transform.Affine;
 
 /**
  * A controller class for an interactive alignment.
@@ -136,12 +137,13 @@ public class InteractiveAlignmentController {
 		public void draw() {
 			m_zoomPane.clearCanvas();
 			
+			Affine mat = m_zoomPane.getMat();
 			if (m_image != null) {
-				m_zoomPane.drawImage(m_image.getImage());
+				m_zoomPane.drawImage(m_image.getImage(), mat, false);
 			}
 			
-			m_zoomPane.drawPositions(getRegistrationPoints());
-			m_zoomPane.drawLabels(getPoints());			
+			m_zoomPane.drawPositions(getRegistrationPoints(), mat);
+			m_zoomPane.drawLabels(getPoints(), mat);			
 		}
 	}
 	
