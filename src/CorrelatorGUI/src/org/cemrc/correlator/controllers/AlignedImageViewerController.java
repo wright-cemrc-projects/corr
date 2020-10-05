@@ -7,13 +7,17 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
 import org.cemrc.autodoc.Vector2;
+import org.cemrc.autodoc.Vector3;
 import org.cemrc.correlator.CorrelatorConfig;
+import org.cemrc.correlator.controllers.canvas.PanAndZoomPane;
 import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
@@ -87,10 +91,6 @@ public class AlignedImageViewerController {
 	private AdjustableImage m_referenceImage;
 	private AdjustableImage m_alignedImage;
 	
-	// Our canvas for drawing.
-	private Canvas m_zoomCanvas;
-	private double m_currentRotation = 0;
-	
 	// The backing data.
 	private CorrelatorDocument m_document; // may not be required
 	
@@ -103,6 +103,9 @@ public class AlignedImageViewerController {
 	
 	private boolean m_showReference = true;
 	private boolean m_showActive = true;
+	
+	// For canvas operations, zoom + pan.
+	PanAndZoomPane m_zoomPane;
 	
 	public void setDocument(CorrelatorDocument doc) {
 		m_document = doc;
@@ -152,13 +155,9 @@ public class AlignedImageViewerController {
 		double height = m_referenceImage.getImage().getHeight();
 		double width = m_referenceImage.getImage().getWidth();
 		
-		if (height > m_zoomCanvas.getHeight()) {
-			m_zoomCanvas.setHeight(height);
-		}
-		
-		if (width > m_zoomCanvas.getWidth()) {
-			m_zoomCanvas.setWidth(width);
-		}
+		Canvas c = m_zoomPane.getCanvas();
+		c.setHeight(height);
+		c.setWidth(width);
 		
 		m_pointsTableController.addMap(map);
 		m_pointsTableController.updatePointsTableView();
@@ -203,34 +202,24 @@ public class AlignedImageViewerController {
             zoomChanged();
         });
 		
-		// Setup a Canvas and make this drawable.
-		m_zoomCanvas = new Canvas(width, height);
+        m_zoomPane = new PanAndZoomPane();
 		
 		// Maybe better PannableCanvas example.
 		// https://stackoverflow.com/questions/29506156/javafx-8-zooming-relative-to-mouse-pointer
-		m_zoomCanvas.addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+		zoomPane.addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
 
 			@Override
 			public void handle(ScrollEvent event) {
 				double delta = 1.2;
 				
-	            double scale = m_zoomCanvas.getScaleY(); // currently we only use Y, same value is used for X
-	            double oldScale = scale;
-				
+	            double scale = m_zoomPane.getScale(); // currently we only use Y, same value is used for X
 	            if (event.getDeltaY() < 0)
 	                scale /= delta;
 	            else
 	                scale *= delta;
 
 	            scale = clamp( scale, MIN_SCALE, MAX_SCALE);
-
-	            double f = (scale / oldScale)-1;
-
-	            double dx = (event.getSceneX() - (m_zoomCanvas.getBoundsInParent().getWidth()/2 + m_zoomCanvas.getBoundsInParent().getMinX()));
-	            double dy = (event.getSceneY() - (m_zoomCanvas.getBoundsInParent().getHeight()/2 + m_zoomCanvas.getBoundsInParent().getMinY()));
-
-	            m_zoomCanvas.setScaleX( scale);
-	            m_zoomCanvas.setScaleY( scale);
+	            m_zoomPane.setScale(scale);
 
 	            // note: pivot value must be untransformed, i. e. without scaling
 	            // m_zoomCanvas.setPivot(f*dx, f*dy);
@@ -244,7 +233,7 @@ public class AlignedImageViewerController {
 		// zoomPane.setMaxSize(m_zoomCanvas.getWidth(), m_zoomCanvas.getHeight());
 		zoomPane.setFitToHeight(true);
 		zoomPane.setFitToWidth(true);
-		zoomPane.setContent(m_zoomCanvas);
+		zoomPane.setContent(m_zoomPane);
 		
 		setupSliders();
 	}
@@ -285,13 +274,12 @@ public class AlignedImageViewerController {
 	}
 	
 	public void updateZoomText() {
-		double currentZoom = m_zoomCanvas.getScaleY();
+		double currentZoom = m_zoomPane.getScale();
 		currentZoom *= 100.0;
 		
 		DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
 		decimalFormat.setMaximumFractionDigits(2);
-		zoomField.setText(decimalFormat.format(currentZoom));
-	}
+		zoomField.setText(decimalFormat.format(currentZoom));	}
 	
 	@FXML
 	public void zoomChanged() {
@@ -301,9 +289,8 @@ public class AlignedImageViewerController {
 			// Convert from percentage back to 1.0 scale.
 			float scale = Float.parseFloat(text) / 100.0f;
 			
-			if (scale >= 0.0f && scale <= MAX_SCALE) {			
-				m_zoomCanvas.setScaleX(scale);
-				m_zoomCanvas.setScaleY(scale);
+			if (scale >= 0.0f && scale <= MAX_SCALE) {		
+				m_zoomPane.setScale(scale);
 			}
 			
 		} catch (NumberFormatException ex) {
@@ -318,51 +305,39 @@ public class AlignedImageViewerController {
 			float value = Float.parseFloat(text);
 
 			if (value < -360.0f || value > 360.0f) {
-				rotationAngleEntry.setText(Double.toString(m_currentRotation));
+				rotationAngleEntry.setText(Double.toString(m_zoomPane.getRotation()));
 			} else {
-				m_currentRotation = value;
+				m_zoomPane.setRotation(value);
 				updateZoomCanvas();
 			}
 			
 		} catch (NumberFormatException ex) {
 		}
-	}
-	
-    /**
-     * Sets the transform for the GraphicsContext to rotate around a pivot point.
-     *
-     * @param gc the graphics context the transform to applied to.
-     * @param angle the angle of rotation.
-     * @param px the x pivot co-ordinate for the rotation (in canvas co-ordinates).
-     * @param py the y pivot co-ordinate for the rotation (in canvas co-ordinates).
-     */
-    private Rotate getRotate(GraphicsContext gc, double angle, double px, double py) {
-        Rotate r = new Rotate(angle, px, py);
-        return r;
-    }
-	
+	}	
 	
 	public void updateZoomCanvas() {
-		GraphicsContext gc = m_zoomCanvas.getGraphicsContext2D();
-		gc.clearRect(0, 0, m_zoomCanvas.getWidth(), m_zoomCanvas.getHeight());
-
-		// Create an affine transformation from a rotation.
-		Rotate r = getRotate(gc, m_currentRotation, m_zoomCanvas.getWidth() / 2.0 , m_zoomCanvas.getHeight() / 2.0);
-		//Affine t = new Affine(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
-		Affine t = new Affine(r.getMxx(), r.getMxy(), r.getTx(), r.getMyx(), r.getMyy(), r.getTy());
+		m_zoomPane.clearCanvas();
+		
+		// Calculate the current affine transform based on rotate and flips.
+		Affine mat = m_zoomPane.getMat();
 		
 		if (m_referenceImage != null && m_showReference) {
-			gc.save();
-			gc.setTransform(t);
-			gc.drawImage(m_referenceImage.getImage(), 0, 0);			
-			gc.restore();
-		}
-		
-		// Draw each checked off points set.
-		List<IPositionDataset> referencePoints = m_pointsTableController.getVisible(m_referenceMap);
-		
-		for (IPositionDataset item : referencePoints) {
-			drawPixels(gc, item, item.getColor(), t);
+			m_zoomPane.drawImage(m_referenceImage.getImage(), mat, false);
+			
+			// Draw each checked off points set.
+			List<IPositionDataset> drawPoints = m_pointsTableController.getVisible(m_referenceMap);
+
+			for (IPositionDataset item : drawPoints) {
+				m_zoomPane.drawPositions(item, mat);
+				Map<Integer, Vector3<Float>> points = new HashMap<Integer, Vector3<Float>>();
+				int i = 1;
+				
+				for (Vector2<Float> position : item.getPixelPositions()) {
+					points.put(new Integer(i++), new Vector3<Float>(position.x, position.y, 0f));
+				}
+				
+				m_zoomPane.drawLabels(points, mat);
+			}
 		}
 		
 		Affine t2 = new Affine(1, 0, 0, 0, 1, 0);
@@ -370,9 +345,6 @@ public class AlignedImageViewerController {
 		// The aligned image should be drawn transformed and with transparency.
 		// How do I apply the 3x3 matrix or as 2x2 matrix /w translation component?
 		if (m_alignedImage != null && m_showActive) {
-			gc.save();
-			
-			gc.setGlobalBlendMode(BlendMode.OVERLAY);
 			
 			// This needs to also take into account rotations.
 			// Is there a transform to apply?
@@ -387,18 +359,26 @@ public class AlignedImageViewerController {
 				t2 = new Affine(mxx, mxy, tx, myx, myy, ty);
 			}
 			
-			t.append(t2);
-			gc.setTransform(t);
-	        gc.drawImage(m_alignedImage.getImage(), 0, 0);
-	        gc.restore();
+			mat.append(t2);
+			
+			m_zoomPane.drawImage(m_alignedImage.getImage(), mat, true);
+			
+			// Draw each checked off points set.
+			List<IPositionDataset> drawPoints = m_pointsTableController.getVisible(m_activeMap);
+			
+			for (IPositionDataset item : drawPoints) {
+				m_zoomPane.drawPositions(item, mat);
+				Map<Integer, Vector3<Float>> points = new HashMap<Integer, Vector3<Float>>();
+				int i = 1;
+				
+				for (Vector2<Float> position : item.getPixelPositions()) {
+					points.put(new Integer(i++), new Vector3<Float>(position.x, position.y, 0f));
+				}
+				
+				m_zoomPane.drawLabels(points, mat);
+			}
 		}
 		
-		// Draw each checked off points set.
-		List<IPositionDataset> targetPoints = m_pointsTableController.getVisible(m_activeMap);
-		
-		for (IPositionDataset item : targetPoints) {
-			drawPixels(gc, item, item.getColor(), t);
-		}
 	}
 	
 	@FXML
@@ -425,8 +405,8 @@ public class AlignedImageViewerController {
     	dialogStage.getIcons().add(CorrelatorConfig.getApplicationIcon());
         File file = fileChooser.showSaveDialog(dialogStage);
         if (file != null) {
-        	WritableImage saveImage = new WritableImage((int) m_zoomCanvas.getWidth(), (int) m_zoomCanvas.getHeight());
-        	m_zoomCanvas.snapshot(null, saveImage);
+        	WritableImage saveImage = new WritableImage((int) m_zoomPane.getCanvasWidth(), (int) m_zoomPane.getCanvasHeight());
+        	m_zoomPane.getCanvas().snapshot(null, saveImage);
         	
             BufferedImage bImage = SwingFXUtils.fromFXImage(saveImage, null);
             try {
@@ -436,67 +416,4 @@ public class AlignedImageViewerController {
             }
         }
 	}
-	
-    /**
-     * Draw crosshair pixel positions in a color on the canvas.
-     * @param gc
-     * @param pixelPositions
-     * @param colorId
-     */
-    private void drawPixels(GraphicsContext gc, IPositionDataset positions, NavigatorColorEnum color, Affine t) {
-    	
-    	if (positions == null) return;
-    	
-    	Point2D offset = new Point2D(-10f, -5f);
-    	int i = 1;
-    	
-		Color c;
-		switch (color) {
-		case Black:
-			c = Color.BLACK;
-			break;
-		case Red:
-			c = Color.RED;
-			break;
-		case Blue:
-			c = Color.BLUE;
-			break;
-		case Green:
-			c = Color.GREEN;
-			break;
-		case Yellow:
-			c = Color.YELLOW;
-			break;
-		case Magenta:
-			c = Color.MAGENTA;
-			break;
-		default:
-			c = Color.RED;
-			break;
-		}
-    	
-    	gc.beginPath();
-    	for (Vector2<Float> pixel : positions.getPixelPositions()) {
-    		
-    		Point2D pt = new Point2D(pixel.x, pixel.y);
-    		Point2D movedPt = t.transform(pt);
-    		
-    		gc.setStroke(c);
-    		gc.setFill(c);
-            gc.moveTo(movedPt.getX() + 2, movedPt.getY());
-            gc.lineTo(movedPt.getX() - 2, movedPt.getY());
-            gc.moveTo(movedPt.getX(), movedPt.getY() + 2);
-            gc.lineTo(movedPt.getX(), movedPt.getY() - 2);
-            gc.stroke();
-            
-            // TODO, make this optional.
-            drawLabelText(gc, movedPt, offset, Integer.toString(i));
-            i++;
-    	}	
-    	gc.closePath();
-    }
-    
-    private void drawLabelText(GraphicsContext gc, Point2D pixel, Point2D offset, String text) {
-    	gc.fillText(text, pixel.getX() + offset.getX(), pixel.getY() + offset.getY());
-    }
 }

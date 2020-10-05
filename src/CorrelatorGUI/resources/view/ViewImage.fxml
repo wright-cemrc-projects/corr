@@ -20,90 +20,97 @@
    <children>
       <HBox alignment="TOP_RIGHT" prefHeight="409.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
          <children>
-            <SplitPane dividerPositions="0.75" orientation="VERTICAL" prefHeight="200.0" prefWidth="400.0" HBox.hgrow="ALWAYS">
+            <SplitPane dividerPositions="0.5">
               <items>
-                  <ScrollPane fx:id="zoomPane" />
-                  <StackPane fx:id="fullPane">
+                  <SplitPane dividerPositions="0.75" orientation="VERTICAL">
+                    <items>
+                        <ScrollPane fx:id="scrollPane" />
+                        <StackPane fx:id="fullPane">
+                           <children>
+                              <ImageView fx:id="imageViewFull" fitHeight="300.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" />
+                           </children>
+                        </StackPane>
+                    </items>
+                  </SplitPane>
+                  <VBox prefHeight="200.0" prefWidth="300.0">
                      <children>
-                        <ImageView fx:id="imageViewFull" fitHeight="300.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" />
-                     </children></StackPane>
-              </items>
-            </SplitPane>
-            <VBox prefHeight="200.0" prefWidth="300.0" HBox.hgrow="NEVER">
-               <children>
-                  <TableView fx:id="pointsTableView" VBox.vgrow="ALWAYS" />
-                  <HBox prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <ToggleButton fx:id="addButton" minWidth="60.0" mnemonicParsing="false" onAction="#addPointsPressed" text="Draw" />
-                        <ToggleButton fx:id="removeButton" minWidth="60.0" mnemonicParsing="false" onAction="#removePointsPressed" text="Erase" />
-                        <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="newPoints" alignment="TOP_RIGHT" maxHeight="32.0" maxWidth="120.0" mnemonicParsing="false" onAction="#createPositionDataset" prefHeight="32.0" prefWidth="32.0" HBox.hgrow="NEVER">
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin></Button>
-                     </children>
-                     <VBox.margin>
-                        <Insets top="10.0" />
-                     </VBox.margin>
-                  </HBox>
-                  <VBox>
-                     <children>
+                        <TableView fx:id="pointsTableView" VBox.vgrow="ALWAYS" />
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
-                              <CheckBox fx:id="flipx" mnemonicParsing="false" text="Flip X">
+                              <ToggleButton fx:id="moveButton" layoutX="10.0" layoutY="10.0" minWidth="60.0" mnemonicParsing="false" onAction="#movePressed" selected="true" text="Move" />
+                              <ToggleButton fx:id="addButton" minWidth="60.0" mnemonicParsing="false" onAction="#addPointsPressed" text="Draw" />
+                              <ToggleButton fx:id="removeButton" minWidth="60.0" mnemonicParsing="false" onAction="#removePointsPressed" text="Erase" />
+                              <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                              <Button fx:id="newPoints" alignment="TOP_RIGHT" maxHeight="32.0" maxWidth="120.0" mnemonicParsing="false" onAction="#createPositionDataset" prefHeight="32.0" prefWidth="32.0" HBox.hgrow="NEVER">
                                  <HBox.margin>
-                                    <Insets right="10.0" />
+                                    <Insets />
                                  </HBox.margin>
-                              </CheckBox>
-                              <CheckBox fx:id="flipy" mnemonicParsing="false" text="Flip Y" />
+                              </Button>
                            </children>
-                           <padding>
+                           <VBox.margin>
                               <Insets top="10.0" />
-                           </padding>
+                           </VBox.margin>
                         </HBox>
-                        <Label text="Zoom (%)">
+                        <VBox>
+                           <children>
+                              <HBox prefHeight="100.0" prefWidth="200.0">
+                                 <children>
+                                    <CheckBox fx:id="flipx" mnemonicParsing="false" text="Flip X">
+                                       <HBox.margin>
+                                          <Insets right="10.0" />
+                                       </HBox.margin>
+                                    </CheckBox>
+                                    <CheckBox fx:id="flipy" mnemonicParsing="false" text="Flip Y" />
+                                 </children>
+                                 <padding>
+                                    <Insets top="10.0" />
+                                 </padding>
+                              </HBox>
+                              <Label text="Zoom (%)">
+                                 <VBox.margin>
+                                    <Insets top="10.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <TextField fx:id="zoomField" onAction="#zoomChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="100.0">
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                              </TextField>
+                              <Label text="Rotation (°)" />
+                              <TextField fx:id="rotationAngleEntry" onAction="#rotateChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="0.0">
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                              </TextField>
+                              <Label text="Brightness">
+                                 <padding>
+                                    <Insets top="5.0" />
+                                 </padding>
+                                 <VBox.margin>
+                                    <Insets top="10.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <Slider fx:id="brightnessSlider1" max="1.0" min="-1.0" />
+                              <Label layoutX="10.0" layoutY="10.0" text="Contrast">
+                                 <padding>
+                                    <Insets top="5.0" />
+                                 </padding>
+                              </Label>
+                              <Slider fx:id="contrastSlider1" layoutX="10.0" layoutY="56.0" max="1.0" min="-1.0" />
+                           </children>
+                        </VBox>
+                        <Button fx:id="saveImageButton" mnemonicParsing="false" onAction="#doSaveImage" prefWidth="120.0" text="Save Image">
                            <VBox.margin>
-                              <Insets top="10.0" />
+                              <Insets bottom="10.0" right="5.0" top="20.0" />
                            </VBox.margin>
-                        </Label>
-                        <TextField fx:id="zoomField" onAction="#zoomChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="100.0">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </TextField>
-                        <Label text="Rotation (°)" />
-                        <TextField fx:id="rotationAngleEntry" onAction="#rotateChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="0.0">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </TextField>
-                        <Label text="Brightness">
-                           <padding>
-                              <Insets top="5.0" />
-                           </padding>
-                           <VBox.margin>
-                              <Insets top="10.0" />
-                           </VBox.margin>
-                        </Label>
-                        <Slider fx:id="brightnessSlider1" max="1.0" min="-1.0" />
-                        <Label layoutX="10.0" layoutY="10.0" text="Contrast">
-                           <padding>
-                              <Insets top="5.0" />
-                           </padding>
-                        </Label>
-                        <Slider fx:id="contrastSlider1" layoutX="10.0" layoutY="56.0" max="1.0" min="-1.0" />
+                        </Button>
                      </children>
+                     <padding>
+                        <Insets bottom="25.0" left="10.0" right="10.0" top="25.0" />
+                     </padding>
                   </VBox>
-                  <Button fx:id="saveImageButton" mnemonicParsing="false" onAction="#doSaveImage" prefWidth="120.0" text="Save Image">
-                     <VBox.margin>
-                        <Insets bottom="10.0" right="5.0" top="20.0" />
-                     </VBox.margin>
-                  </Button>
-               </children>
-               <padding>
-                  <Insets bottom="25.0" left="10.0" right="10.0" top="25.0" />
-               </padding>
-            </VBox>
+              </items>
+            </SplitPane>
          </children>
       </HBox>
    </children>
