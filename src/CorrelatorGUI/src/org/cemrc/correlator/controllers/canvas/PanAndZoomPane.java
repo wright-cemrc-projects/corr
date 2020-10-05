@@ -91,9 +91,31 @@ public class PanAndZoomPane extends Pane {
                 return;
 
             Node node = (Node) event.getSource();
+            
+            double x = nodeDragContext.translateAnchorX + (( event.getSceneX() - nodeDragContext.mouseAnchorX) / m_scale.get());
+            double y = nodeDragContext.translateAnchorY + (( event.getSceneY() - nodeDragContext.mouseAnchorY) / m_scale.get());
+            
+            double border = 10.0;
+            
+            if (x > m_canvas.getWidth() - border) {
+            	x = m_canvas.getWidth() - border;
+            }
+            
+            if (x < -m_canvas.getWidth() + border) {
+            	x = -m_canvas.getWidth() + border;
+            }
 
-            node.setTranslateX(nodeDragContext.translateAnchorX + (( event.getSceneX() - nodeDragContext.mouseAnchorX) / m_scale.get()));
-            node.setTranslateY(nodeDragContext.translateAnchorY + (( event.getSceneY() - nodeDragContext.mouseAnchorY) / m_scale.get()));
+            if (y > m_canvas.getHeight() - border) {
+            	y = m_canvas.getHeight() - border;
+            }
+            
+            if (y < -m_canvas.getHeight() + border) {
+            	y = -m_canvas.getHeight() + border;
+            }
+
+            
+            node.setTranslateX(x);
+            node.setTranslateY(y);
 
             event.consume();
 
@@ -263,7 +285,8 @@ public class PanAndZoomPane extends Pane {
 	 */
 	public void clearCanvas() {
 		GraphicsContext gc = m_canvas.getGraphicsContext2D();
-		gc.clearRect(0, 0, getCanvasWidth(), getCanvasHeight());
+		gc.setGlobalBlendMode(null);
+		gc.clearRect(0, 0, m_canvas.getWidth(), m_canvas.getHeight());
 	}
 	
 	/**

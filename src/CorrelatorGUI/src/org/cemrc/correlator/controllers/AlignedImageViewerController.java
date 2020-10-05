@@ -156,14 +156,8 @@ public class AlignedImageViewerController {
 		double width = m_referenceImage.getImage().getWidth();
 		
 		Canvas c = m_zoomPane.getCanvas();
-		
-		if (height > c.getHeight()) {
-			c.setHeight(height);
-		}
-		
-		if (width > c.getWidth()) {
-			c.setWidth(width);
-		}
+		c.setHeight(height);
+		c.setWidth(width);
 		
 		m_pointsTableController.addMap(map);
 		m_pointsTableController.updatePointsTableView();
@@ -212,7 +206,7 @@ public class AlignedImageViewerController {
 		
 		// Maybe better PannableCanvas example.
 		// https://stackoverflow.com/questions/29506156/javafx-8-zooming-relative-to-mouse-pointer
-		m_zoomPane.getCanvas().addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+		zoomPane.addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
 
 			@Override
 			public void handle(ScrollEvent event) {
@@ -331,7 +325,7 @@ public class AlignedImageViewerController {
 			m_zoomPane.drawImage(m_referenceImage.getImage(), mat, false);
 			
 			// Draw each checked off points set.
-			List<IPositionDataset> drawPoints = m_pointsTableController.getVisible(m_activeMap);
+			List<IPositionDataset> drawPoints = m_pointsTableController.getVisible(m_referenceMap);
 
 			for (IPositionDataset item : drawPoints) {
 				m_zoomPane.drawPositions(item, mat);

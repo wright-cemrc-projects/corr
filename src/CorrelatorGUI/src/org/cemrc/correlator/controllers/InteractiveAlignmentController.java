@@ -307,7 +307,7 @@ public class InteractiveAlignmentController {
 			} catch (NumberFormatException ex) {}
 		});
 		
-		m_targetZoomPane.getCanvas().addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+		targetPane.addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
 			final CanvasState state = m_targetCanvasState;
 			
 			@Override
@@ -317,7 +317,7 @@ public class InteractiveAlignmentController {
 			}
 		});
 		
-		m_referenceZoomPane.getCanvas().addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+		referencePane.addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
 			final CanvasState state = m_referenceCanvasState;
 			
 			@Override

@@ -319,7 +319,7 @@ public class ImageViewerController {
 			
 		// Maybe better PannableCanvas example.
 		// https://stackoverflow.com/questions/29506156/javafx-8-zooming-relative-to-mouse-pointer
-		m_zoomPane.getCanvas().addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+        scrollPane.addEventHandler(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
 
 			@Override
 			public void handle(ScrollEvent event) {
