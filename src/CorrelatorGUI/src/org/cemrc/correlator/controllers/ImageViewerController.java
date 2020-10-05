@@ -73,9 +73,6 @@ public class ImageViewerController {
 	double globalMaxWidth = 400;
 	double globalMaxHeight = 400;
 	double globalFitFactor = 1f;
-
-	public enum PointState { None, Add, Remove };
-	public PointState mode = PointState.None;
 	
 	@FXML
 	ScrollPane scrollPane;
@@ -101,6 +98,9 @@ public class ImageViewerController {
 	
 	@FXML
 	Button newPoints;
+	
+	@FXML
+	ToggleButton moveButton;
 	
 	@FXML
 	ToggleButton addButton;
@@ -132,22 +132,35 @@ public class ImageViewerController {
 		m_document = doc;
 		m_pointsTableController.setDocument(doc);
 	}
+	
+	private void unsetActions() {
+		m_zoomPane.setPointState(PanAndZoomPane.PointState.None);
+	}
+	
+	@FXML
+	public void movePressed() {
+		if (moveButton.isSelected()) {
+			m_zoomPane.setPointState(PanAndZoomPane.PointState.Move);
+		} else {
+			unsetActions();
+		}
+	}
 
 	@FXML
 	public void addPointsPressed() {
 		if (addButton.isSelected()) {
-			mode = PointState.Add;
+			m_zoomPane.setPointState(PanAndZoomPane.PointState.Add);
 		} else {
-			mode = PointState.None;
+			unsetActions();
 		}
 	}
 	
 	@FXML
 	public void removePointsPressed() {
 		if (removeButton.isSelected()) {
-			mode = PointState.Remove;
+			m_zoomPane.setPointState(PanAndZoomPane.PointState.Remove);
 		} else {
-			mode = PointState.None;
+			unsetActions();
 		}
 	}
 	
@@ -302,6 +315,7 @@ public class ImageViewerController {
 		});
 		
 		ToggleGroup group = new ToggleGroup();
+		moveButton.setToggleGroup(group);
 		addButton.setToggleGroup(group);
 		removeButton.setToggleGroup(group);
 		
@@ -393,7 +407,9 @@ public class ImageViewerController {
 		IPositionDataset activePoints = m_pointsTableController.getSelected();
 		
 		if (activePoints != null) {
-			switch (mode) {
+			switch (m_zoomPane.getPointState()) {
+			case Move:
+				break;
 			case Add:
 				activePoints.addPixelPosition(actualPosition.x, actualPosition.y);
 				break;

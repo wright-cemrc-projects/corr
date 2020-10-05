@@ -14,6 +14,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -47,6 +48,26 @@ public class PanAndZoomPane extends Pane {
 	public BooleanProperty flipY = new SimpleBooleanProperty(false);
 	
 	public static final Affine IDENTITY = new Affine(1, 0, 0, 0, 1, 0);
+	
+	// Affects hover cursor on the view.
+	public enum PointState { None, Move, Add, Remove };
+	private PointState mode = PointState.Move;
+	
+	/**
+	 * Set the current zoom pane interaction
+	 * @param state
+	 */
+	public void setPointState(PointState state) {
+		mode = state;
+	}
+	
+	/**
+	 * Get the current zoom pane state
+	 * @return
+	 */
+	public PointState getPointState() {
+		return mode;
+	}
 	
 	/**
 	 * Mouse drag context used for scene and nodes.
@@ -87,7 +108,7 @@ public class PanAndZoomPane extends Pane {
         public void handle(MouseEvent event) {
 
             // left mouse button => dragging
-            if( !event.isPrimaryButtonDown())
+            if( !event.isPrimaryButtonDown() || mode != PointState.Move)
                 return;
 
             Node node = (Node) event.getSource();
@@ -131,6 +152,32 @@ public class PanAndZoomPane extends Pane {
     	
     	m_canvas.addEventFilter( MouseEvent.MOUSE_PRESSED, onMousePressedEventHandler);
     	m_canvas.addEventFilter( MouseEvent.MOUSE_DRAGGED, onMouseDraggedEventHandler);
+    	
+    	
+    	this.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				
+				switch (mode) {
+				case Move:
+					getScene().setCursor(Cursor.HAND); //Change cursor to crosshair
+					break;
+				case Add:
+				case Remove:
+    	        	getScene().setCursor(Cursor.CROSSHAIR); //Change cursor to crosshair
+    	        	break;
+				default:
+    	        	getScene().setCursor(Cursor.DEFAULT); //Change cursor to crosshair
+				}
+			}
+    	});
+    	
+    	this.setOnMouseExited(new EventHandler<MouseEvent>( ) {
+			@Override
+			public void handle(MouseEvent event) {
+    	        getScene().setCursor(Cursor.DEFAULT); //Change cursor to crosshair
+			}
+    	});
     }
      
     public double getScale() {
@@ -317,14 +364,13 @@ public class PanAndZoomPane extends Pane {
 	public void drawImage(Image image, Affine mat, boolean transparent) {
 		GraphicsContext gc = m_canvas.getGraphicsContext2D();
 		
-		if (transparent) {
-			gc.setGlobalBlendMode(BlendMode.OVERLAY);
-		} else {
-			gc.setGlobalBlendMode(null);
-		}
-		
 		// Save the transform state
 		gc.save();
+		
+		if (transparent) {
+			gc.setGlobalBlendMode(BlendMode.OVERLAY);
+		} 
+	
         gc.setTransform(mat);
 		
 		// Set color effects
