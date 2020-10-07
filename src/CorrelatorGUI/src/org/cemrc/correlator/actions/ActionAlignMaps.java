@@ -3,7 +3,6 @@ package org.cemrc.correlator.actions;
 import org.cemrc.correlator.Correlator;
 import org.cemrc.correlator.CorrelatorConfig;
 import org.cemrc.correlator.controllers.AlignMapsController;
-import org.cemrc.correlator.controllers.ImageViewerController;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
 
@@ -38,7 +37,7 @@ public class ActionAlignMaps {
 			controller.setTargetMap(m_target);
 			
 			// create a stage
-	    	Scene importScene = new Scene(importView, 400, 250);
+	    	Scene importScene = new Scene(importView, 450, 250);
 	    	Stage dialogStage = new Stage();
 	    	controller.setStage(dialogStage);
 	    	
