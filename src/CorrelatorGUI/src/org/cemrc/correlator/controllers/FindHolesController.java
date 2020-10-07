@@ -9,13 +9,13 @@ import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.correlator.analysis.CircleHoughTransformTask;
+import org.cemrc.correlator.controllers.analysis.HistogramChartFactory;
 import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
 import org.cemrc.data.NavigatorColorEnum;
 import org.cemrc.data.PixelPositionDataset;
-import org.cemrc.data.Registration;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -26,7 +26,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -34,14 +34,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Affine;
-import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
-import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -80,6 +74,9 @@ public class FindHolesController {
 	
 	@FXML
 	private ProgressBar findProgressBar;
+	
+	@FXML
+	private LineChart imageHistogram;
 	
 	private PixelPositionDataset m_pixelPositions;
 	
@@ -190,6 +187,9 @@ public class FindHolesController {
 		previewCanvas.setWidth(canvasWidth);
 		
 		updateCanvas();
+		
+		// Fill the histogram
+		HistogramChartFactory.buildChart(imageHistogram, SwingFXUtils.toFXImage(m_src, null));
 	}
 	
 	@FXML

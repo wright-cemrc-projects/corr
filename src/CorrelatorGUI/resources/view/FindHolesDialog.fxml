@@ -2,22 +2,34 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cemrc.correlator.controllers.FindHolesController">
    <children>
-      <Canvas fx:id="previewCanvas" height="400.0" width="768.0">
-         <VBox.margin>
-            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
-         </VBox.margin>
-      </Canvas>
+      <SplitPane dividerPositions="0.6050156739811913">
+        <items>
+            <Canvas fx:id="previewCanvas" height="400.0" width="768.0" />
+            <LineChart fx:id="imageHistogram">
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" />
+              </yAxis>
+            </LineChart>
+        </items>
+      </SplitPane>
       <HBox alignment="CENTER">
          <children>
             <VBox alignment="TOP_CENTER">
