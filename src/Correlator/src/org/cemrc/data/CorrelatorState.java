@@ -2,6 +2,7 @@ package org.cemrc.data;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,8 @@ public class CorrelatorState {
 
 	
 	public static String DOCUMENT_CHANGED="DOCUMENT_CHANGED";
+	
+	private File m_saveFile;
 	
 	// Start with an empty document.
 	CorrelatorDocument m_document = new CorrelatorDocument();
@@ -65,5 +68,35 @@ public class CorrelatorState {
         for (PropertyChangeListener l : listeners) {
             l.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
         }
+    }
+    
+    /**
+     * Get a save filename
+     * @param save
+     */
+    public void setSaveFile(File save) {
+    	m_saveFile = save;
+    }
+    
+    /**
+     * Save to a known filename
+     */
+    public void save() {
+        if (m_saveFile != null) {
+        	try {
+        		CorrelatorDocument.serialize(getDocument(), m_saveFile);
+        		getDocument().setDirt(false);
+        	} catch (Exception e) {
+        		e.printStackTrace();
+        	}
+        }
+    }
+    
+    /**
+     * Check whether there is a save file.
+     * @return
+     */
+    public boolean hasSavefile() {
+    	return m_saveFile != null;
     }
 }

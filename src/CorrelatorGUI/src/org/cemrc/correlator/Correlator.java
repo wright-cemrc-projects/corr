@@ -133,9 +133,9 @@ public class Correlator extends Application {
 		
 		if (m_state.getDocument().isDirty()) {
 		
-			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-			alert.setTitle("Current project is modified");
-			alert.setContentText("Save?");
+			Alert alert = new Alert(Alert.AlertType.NONE);
+			alert.setTitle("Save project?");
+			alert.setContentText("The project data has changed, would you like to save?");
 			ButtonType okButton = new ButtonType("Yes", ButtonData.YES);
 			ButtonType noButton = new ButtonType("No", ButtonData.NO);
 			ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
@@ -167,15 +167,17 @@ public class Correlator extends Application {
         
         // create menuitems
         MenuItem projectWizardMenu = new MenuItem("New Project Wizard");
-        MenuItem newProjectMenu = new MenuItem("New Project");
-        MenuItem openProjectMenu = new MenuItem("Open Project");
-        MenuItem saveProjectMenu = new MenuItem("Save Project");
+        MenuItem newProjectMenu = new MenuItem("New");
+        MenuItem openProjectMenu = new MenuItem("Open");
+        MenuItem saveProjectMenu = new MenuItem("Save");
+        MenuItem saveasProjectMenu = new MenuItem("Save As...");
         
         // add to the menu
         fileMenu.getItems().add(projectWizardMenu);
         fileMenu.getItems().add(newProjectMenu);
         fileMenu.getItems().add(openProjectMenu);
         fileMenu.getItems().add(saveProjectMenu);
+        fileMenu.getItems().add(saveasProjectMenu);
         
         // setup EventHandler(s)
         EventHandler<ActionEvent> newProjectEvent = new EventHandler<ActionEvent>() { 
@@ -183,6 +185,7 @@ public class Correlator extends Application {
             { 
             	if (checkExisting()) {
             		m_state.setDocument(new CorrelatorDocument());
+            		m_state.setSaveFile(null);
             	}
             } 
         };
@@ -193,6 +196,7 @@ public class Correlator extends Application {
             { 
             	if (checkExisting()) {
             		handleProjectWizard();
+            		m_state.setSaveFile(null);
             	}
             } 
         };
@@ -216,6 +220,14 @@ public class Correlator extends Application {
         };
         saveProjectMenu.setOnAction(saveProjectEvent);
         
+        EventHandler<ActionEvent> saveasProjectEvent = new EventHandler<ActionEvent>() { 
+            public void handle(ActionEvent e) 
+            { 
+            	handleSaveAsProject();
+            } 
+        };
+        saveasProjectMenu.setOnAction(saveasProjectEvent);
+        
         return fileMenu;
 	}
 	
@@ -234,6 +246,7 @@ public class Correlator extends Application {
         	try {
         		CorrelatorDocument doc = CorrelatorDocument.deserialize(file);
         		m_state.setDocument(doc);
+        		m_state.setSaveFile(file);
         	} catch (Exception e) {
         		e.printStackTrace();
         	}
@@ -241,6 +254,16 @@ public class Correlator extends Application {
 	}
 	
 	private void handleSaveProject() {
+		
+		if (m_state.hasSavefile()) {
+			m_state.save();
+		} else {
+			handleSaveAsProject();
+		}
+		
+	}
+	
+	private void handleSaveAsProject() {
 	    FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Save " + CorrelatorConfig.AppName + " project (.xml)");
     	
