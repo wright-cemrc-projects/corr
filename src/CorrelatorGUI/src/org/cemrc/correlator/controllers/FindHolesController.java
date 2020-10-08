@@ -9,7 +9,7 @@ import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.correlator.analysis.CircleHoughTransformTask;
-import org.cemrc.correlator.controllers.analysis.HistogramChartFactory;
+import org.cemrc.correlator.controllers.analysis.HistogramController;
 import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
@@ -27,13 +27,17 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
@@ -67,7 +71,8 @@ public class FindHolesController {
 	// Our canvas for drawing.
 	@FXML
 	private Canvas previewCanvas;
-	private Image m_image;
+	private Image m_greyScaleImage;
+	private Image m_edgeDetectImage;
 	
 	@FXML
 	private Slider binarizationSlider;
@@ -75,8 +80,16 @@ public class FindHolesController {
 	@FXML
 	private ProgressBar findProgressBar;
 	
+	private LineChart<Number, Number> imageHistogram;
+	
 	@FXML
-	private LineChart imageHistogram;
+	private TextField low;
+	
+	@FXML
+	private TextField high;
+	
+	@FXML
+	private Pane chartPane;
 	
 	private PixelPositionDataset m_pixelPositions;
 	
@@ -112,21 +125,47 @@ public class FindHolesController {
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				if (m_task != null) {
 					m_task.setBinarizationCutoff(newValue.intValue());
-					BufferedImage proc = m_task.getProcessed(false);
-					m_image =  SwingFXUtils.toFXImage(proc, null);
+					m_task.getProcessed(false);
+					m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
+					m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
 					updateCanvas();
 				}
 			}
-			
 		};
 		binarizationSlider.setValue(240);
 		binarizationSlider.valueProperty().addListener(updateUI);
 		
+		ChangeListener<String> lowCallback = new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if (m_task != null) {
+					m_task.setLowCutoff(Integer.parseInt(newValue));
+					m_task.getProcessed(false);
+					m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
+					m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
+					updateCanvas();
+				}
+			}
+		};
+		low.textProperty().addListener(lowCallback);
+		
+		ChangeListener<String> highCallback = new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if (m_task != null) {
+					m_task.setHighCutoff(Integer.parseInt(newValue));
+					m_task.getProcessed(false);
+					m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
+					m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
+					updateCanvas();
+				}
+			}
+		};
+		high.textProperty().addListener(highCallback);
+		
 		edgeAlgorithmCombo.setItems(FXCollections.observableArrayList("Laplacian_1", "Laplacian_2", "Laplacian_3"));
-	
-		// Style the image histogram
-		imageHistogram.setCreateSymbols(false);
-		imageHistogram.setAnimated(false);
 	}
 	
 	/**
@@ -181,20 +220,30 @@ public class FindHolesController {
 		
 		m_src = ReadImage.readImage(imageLocation);
 		m_task = new CircleHoughTransformTask(m_src);
-		BufferedImage proc = m_task.getProcessed(false);
-		m_image =  SwingFXUtils.toFXImage(proc, null);
+		m_task.getProcessed(false);
+		m_greyScaleImage =  SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
+		m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
 		
 		// Update canvas aspect ratio.
 		double canvasHeight = previewCanvas.getHeight();
-		double aspectRatio = (double) proc.getWidth() / (double) proc.getHeight();
+		double aspectRatio = (double) m_greyScaleImage.getWidth() / (double) m_greyScaleImage.getHeight();
 		double canvasWidth = canvasHeight * aspectRatio;
 		previewCanvas.setWidth(canvasWidth);
 		
 		updateCanvas();
 		
 		// Fill the histogram
-		imageHistogram.getData().clear();
-		HistogramChartFactory.buildChart(imageHistogram, SwingFXUtils.toFXImage(m_src, null));
+		final NumberAxis xAxis = new NumberAxis();
+		final NumberAxis yAxis = new NumberAxis();
+		imageHistogram = new LineChart<Number, Number>(xAxis, yAxis);
+		
+		// Style the image histogram
+		imageHistogram.setCreateSymbols(false);
+		imageHistogram.setAnimated(false);
+		
+		chartPane.getChildren().clear();		
+		// Setup a controller class to manage lines
+		HistogramController histogram = new HistogramController(chartPane, imageHistogram, SwingFXUtils.toFXImage(m_src, null));
 	}
 	
 	@FXML
@@ -302,7 +351,7 @@ public class FindHolesController {
 	public void updateEdgeDetection() {
 		m_task.setEdgeFilter(edgeAlgorithmCombo.getValue());
 		BufferedImage proc = m_task.getProcessed(true);
-		m_image =  SwingFXUtils.toFXImage(proc, null);
+		m_edgeDetectImage =  SwingFXUtils.toFXImage(proc, null);
 		updateCanvas();
 	}
 	
@@ -313,14 +362,21 @@ public class FindHolesController {
 		GraphicsContext gc = previewCanvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, previewCanvas.getWidth(), previewCanvas.getHeight());
 		
-		double mxx = width / m_image.getWidth();
-		double myy = height / m_image.getHeight();
+		double mxx = width / m_edgeDetectImage.getWidth();
+		double myy = height / m_edgeDetectImage.getHeight();
 		
 		gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
+		
+		if (m_greyScaleImage != null) {
+			gc.drawImage(m_greyScaleImage,  0,  0);
+		}
 
 		// Set color effects
-		if (m_image != null) {
-			gc.drawImage(m_image,  0,  0);
+		if (m_edgeDetectImage != null) {
+			gc.save();
+			gc.setGlobalBlendMode(BlendMode.OVERLAY);
+			gc.drawImage(m_edgeDetectImage,  0,  0);
+			gc.restore();
 		}
 		
 		mxx = width / m_src.getWidth();

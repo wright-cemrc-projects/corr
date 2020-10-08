@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.TextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
@@ -12,6 +10,7 @@
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -19,15 +18,12 @@
    <children>
       <SplitPane dividerPositions="0.6050156739811913">
         <items>
-            <Canvas fx:id="previewCanvas" height="400.0" width="768.0" />
-            <LineChart fx:id="imageHistogram" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" prefWidth="200.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
-              <xAxis>
-                <CategoryAxis animated="false" side="BOTTOM" tickLabelsVisible="false" />
-              </xAxis>
-              <yAxis>
-                <NumberAxis animated="false" side="LEFT" tickLabelsVisible="false" />
-              </yAxis>
-            </LineChart>
+            <Canvas fx:id="previewCanvas" height="400.0" width="400.0" />
+            <Pane fx:id="chartPane">
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </Pane>
         </items>
       </SplitPane>
       <HBox alignment="CENTER">
@@ -101,6 +97,16 @@
       </HBox>
       <HBox alignment="TOP_RIGHT">
          <children>
+            <TextField fx:id="low" prefWidth="64.0" text="0">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+               </HBox.margin>
+            </TextField>
+            <TextField fx:id="high" prefWidth="64.0" text="256">
+               <HBox.margin>
+                  <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+               </HBox.margin>
+            </TextField>
             <Label text="Binarization Level:">
                <HBox.margin>
                   <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />

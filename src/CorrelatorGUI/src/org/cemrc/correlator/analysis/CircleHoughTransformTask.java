@@ -33,8 +33,12 @@ public class CircleHoughTransformTask {
 
 	private BufferedImage m_src;
 	private BufferedImage m_greyScale;
+	private BufferedImage m_sobel;
 	private float m_scale = 1.0f;
 	private int m_binarization = 240;
+	
+	private int m_cutoffLow = 0;
+	private int m_cutoffHigh = 256;
 	
 	private String m_edgeFilter = "Laplacian_1";
 	
@@ -63,11 +67,11 @@ public class CircleHoughTransformTask {
 	 * @return
 	 */
 	public List<Vector2<Integer>> findCircles() {
-		if (m_greyScale == null) {
-			m_greyScale = preprocess(m_src);
+		if (m_sobel == null) {
+			updateImages();
 		}
 		
-		return CHT(m_greyScale);
+		return CHT(m_sobel);
 	}
 	
 	/**
@@ -76,15 +80,37 @@ public class CircleHoughTransformTask {
 	 */
 	public BufferedImage getProcessed(boolean force) {
 		if (m_greyScale == null || force) {
-			m_greyScale = preprocess(m_src);
-		}
-		
+			updateImages();
+		}	
+		return m_sobel;
+	}
+	
+	public BufferedImage getGreyscale() {
 		return m_greyScale;
+	}
+	
+	public BufferedImage getSobel() {
+		return m_sobel;
 	}
 	
 	public void setBinarizationCutoff(int level) {
 		m_binarization = level;
+		updateImages();
+	}
+	
+	public void setLowCutoff(int level) {
+		m_cutoffLow = level;
+		updateImages();
+	}
+	
+	public void setHighCutoff(int level) {
+		m_cutoffHigh = level;
+		updateImages();
+	}
+	
+	private void updateImages() {
 		m_greyScale = preprocess(m_src);
+		m_sobel = preBinarize(m_greyScale);
 	}
 	
 	/**
@@ -102,13 +128,20 @@ public class CircleHoughTransformTask {
 		BufferedImage image = getScaled(src, Math.round(m_scale * src.getWidth()), Math.round(m_scale * src.getHeight()));
 		
 		// 2. Blur the image
-		image = getBlurred(image);
+		BufferedImage prebinarization = getBlurred(image);
+		
+		// 3. Rescale the image histogram (This could be drawn on the canvas also)
+		//  Should be affected by histogram controls.
+		return getRescaled(prebinarization);	
+	}
+	
+	private BufferedImage preBinarize(BufferedImage rescaled) {
 		
 		// 3. Binarize image;
-		binarize(image, m_binarization);
+		BufferedImage binarized = binarize(rescaled, m_binarization);
 		
 		// 4. Perform Sobel edge detection transform on image
-		return getSobel(image);
+		return getSobel(binarized);
 	}
 	
 	private List<Vector2<Integer>> CHT(BufferedImage image) {
@@ -314,6 +347,33 @@ public class CircleHoughTransformTask {
 		return image;
 	}
 	
+	private BufferedImage getRescaled(BufferedImage image) {
+		BufferedImage rv = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		Graphics g = rv.getGraphics();  
+		g.drawImage(image, 0, 0, null);  
+		g.dispose();
+		
+		for (int x = 0; x < rv.getWidth(); x++ ) {
+			for (int y = 0; y < rv.getHeight(); y++ ) {
+				int grayLevel = rv.getRGB(x, y) & 0xFF;;
+				
+				if (grayLevel > m_cutoffHigh) {
+					grayLevel = m_cutoffHigh;
+				} else if (grayLevel < m_cutoffLow) {
+					grayLevel = m_cutoffLow;
+				}
+				
+				// Scale the image
+				grayLevel = (int) Math.round( 256.0 / (double) (m_cutoffHigh - m_cutoffLow) * (double) (grayLevel + m_cutoffLow) );
+			
+		        int gray = (0xFF << 24) + (grayLevel << 16) + (grayLevel << 8) + grayLevel; 
+				
+				rv.setRGB(x, y, gray);
+			}
+		}
+		return rv;
+	}
+	
 	/**
 	 * Get a greyscale variant of the image.
 	 * @param src
@@ -333,10 +393,15 @@ public class CircleHoughTransformTask {
 	 * @param image
 	 * @param cutoff
 	 */
-	private void binarize(BufferedImage image, int cutoff) {
-		for (int x = 0; x < image.getWidth(); x++ ) {
-			for (int y = 0; y < image.getHeight(); y++ ) {
-				int grayLevel = image.getRGB(x, y) & 0xFF;;
+	private BufferedImage binarize(BufferedImage image, int cutoff) {
+		BufferedImage rv = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		Graphics g = rv.getGraphics();  
+		g.drawImage(image, 0, 0, null);  
+		g.dispose();
+		
+		for (int x = 0; x < rv.getWidth(); x++ ) {
+			for (int y = 0; y < rv.getHeight(); y++ ) {
+				int grayLevel = rv.getRGB(x, y) & 0xFF;;
 				
 				if (grayLevel > cutoff) {
 					grayLevel = 0xFF;
@@ -346,9 +411,10 @@ public class CircleHoughTransformTask {
 			
 		        int gray = (0xFF << 24) + (grayLevel << 16) + (grayLevel << 8) + grayLevel; 
 				
-				image.setRGB(x, y, gray);
+				rv.setRGB(x, y, gray);
 			}
 		}
+		return rv;
 	}
 	
 	/**
