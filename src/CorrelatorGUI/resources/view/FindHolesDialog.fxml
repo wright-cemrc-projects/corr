@@ -20,12 +20,12 @@
       <SplitPane dividerPositions="0.6050156739811913">
         <items>
             <Canvas fx:id="previewCanvas" height="400.0" width="768.0" />
-            <LineChart fx:id="imageHistogram">
+            <LineChart fx:id="imageHistogram" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" prefWidth="200.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
               <xAxis>
-                <CategoryAxis side="BOTTOM" />
+                <CategoryAxis animated="false" side="BOTTOM" tickLabelsVisible="false" />
               </xAxis>
               <yAxis>
-                <NumberAxis side="LEFT" />
+                <NumberAxis animated="false" side="LEFT" tickLabelsVisible="false" />
               </yAxis>
             </LineChart>
         </items>

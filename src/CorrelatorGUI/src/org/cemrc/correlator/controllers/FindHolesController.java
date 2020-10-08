@@ -123,6 +123,10 @@ public class FindHolesController {
 		binarizationSlider.valueProperty().addListener(updateUI);
 		
 		edgeAlgorithmCombo.setItems(FXCollections.observableArrayList("Laplacian_1", "Laplacian_2", "Laplacian_3"));
+	
+		// Style the image histogram
+		imageHistogram.setCreateSymbols(false);
+		imageHistogram.setAnimated(false);
 	}
 	
 	/**
@@ -189,6 +193,7 @@ public class FindHolesController {
 		updateCanvas();
 		
 		// Fill the histogram
+		imageHistogram.getData().clear();
 		HistogramChartFactory.buildChart(imageHistogram, SwingFXUtils.toFXImage(m_src, null));
 	}
 	
