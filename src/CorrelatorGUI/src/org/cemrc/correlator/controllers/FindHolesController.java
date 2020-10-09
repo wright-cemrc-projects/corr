@@ -17,6 +17,8 @@ import org.cemrc.data.IPositionDataset;
 import org.cemrc.data.NavigatorColorEnum;
 import org.cemrc.data.PixelPositionDataset;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -35,6 +37,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
@@ -92,6 +95,15 @@ public class FindHolesController {
 	private Pane chartPane;
 	
 	private PixelPositionDataset m_pixelPositions;
+	
+	@FXML
+	private ToggleButton bwImageToggle;
+	
+	@FXML
+	private ToggleButton edgeImageToggle;
+	
+	BooleanProperty showBWImage = new SimpleBooleanProperty(true);
+	BooleanProperty showEdgeImage = new SimpleBooleanProperty(true);
 	
 	@FXML
 	public void initialize() {
@@ -166,6 +178,19 @@ public class FindHolesController {
 		high.textProperty().addListener(highCallback);
 		
 		edgeAlgorithmCombo.setItems(FXCollections.observableArrayList("Laplacian_1", "Laplacian_2", "Laplacian_3"));
+		
+		bwImageToggle.selectedProperty().bindBidirectional(showBWImage);
+		edgeImageToggle.selectedProperty().bindBidirectional(showEdgeImage);
+		
+		ChangeListener<Boolean> buttonCallback = new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				updateCanvas();
+			}
+		};
+		bwImageToggle.selectedProperty().addListener(buttonCallback);
+		edgeImageToggle.selectedProperty().addListener(buttonCallback);
 	}
 	
 	/**
@@ -360,20 +385,22 @@ public class FindHolesController {
 		double height = previewCanvas.getHeight();
 		
 		GraphicsContext gc = previewCanvas.getGraphicsContext2D();
-		gc.clearRect(0, 0, previewCanvas.getWidth(), previewCanvas.getHeight());
+		gc.clearRect(0, 0, width, height);
 		
 		double mxx = width / m_edgeDetectImage.getWidth();
 		double myy = height / m_edgeDetectImage.getHeight();
 		
-		gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
-		
-		if (m_greyScaleImage != null) {
+		if (m_greyScaleImage != null && showBWImage.getValue()) {
+			gc.save();
+			gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
 			gc.drawImage(m_greyScaleImage,  0,  0);
+			gc.restore();
 		}
 
 		// Set color effects
-		if (m_edgeDetectImage != null) {
+		if (m_edgeDetectImage != null && showEdgeImage.getValue()) {
 			gc.save();
+			gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
 			gc.setGlobalBlendMode(BlendMode.OVERLAY);
 			gc.drawImage(m_edgeDetectImage,  0,  0);
 			gc.restore();
@@ -382,10 +409,12 @@ public class FindHolesController {
 		mxx = width / m_src.getWidth();
 		myy = height / m_src.getHeight();
 		
+		gc.save();
 		gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
 		
 		// Draw each checked off points set.
 		drawPixels(gc, m_pixelPositions, NavigatorColorEnum.Red);
+		gc.restore();
 	}
 	
     /**

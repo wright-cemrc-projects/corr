@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.TextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
@@ -9,6 +8,8 @@
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
@@ -74,25 +75,41 @@
                   <Insets left="25.0" right="25.0" />
                </padding>
             </VBox>
-            <HBox alignment="BOTTOM_LEFT">
+            <VBox>
                <children>
-                  <Button fx:id="holesButton" mnemonicParsing="false" onAction="#doCircleHoughTransform" prefWidth="100.0" text="Find Holes!">
-                     <HBox.margin>
-                        <Insets left="10.0" right="10.0" top="10.0" />
-                     </HBox.margin></Button>
-                  <ProgressBar fx:id="findProgressBar" prefWidth="150.0" progress="0.0">
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
-                     <HBox.margin>
-                        <Insets left="10.0" right="10.0" top="10.0" />
-                     </HBox.margin>
-                  </ProgressBar>
+                  <HBox alignment="BOTTOM_LEFT">
+                     <children>
+                        <Button fx:id="holesButton" mnemonicParsing="false" onAction="#doCircleHoughTransform" prefWidth="100.0" text="Find Holes!">
+                           <HBox.margin>
+                              <Insets left="10.0" right="10.0" top="10.0" />
+                           </HBox.margin>
+                        </Button>
+                        <ProgressBar fx:id="findProgressBar" prefWidth="150.0" progress="0.0">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                           <HBox.margin>
+                              <Insets left="10.0" right="10.0" top="10.0" />
+                           </HBox.margin>
+                        </ProgressBar>
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <ToggleButton fx:id="bwImageToggle" mnemonicParsing="false" selected="true" text="Show BW Image Layer">
+                           <HBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </HBox.margin>
+                        </ToggleButton>
+                        <ToggleButton fx:id="edgeImageToggle" mnemonicParsing="false" selected="true" text="Show Edge Image Layer">
+                           <HBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </HBox.margin>
+                        </ToggleButton>
+                     </children>
+                  </HBox>
                </children>
-               <HBox.margin>
-                  <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
-               </HBox.margin>
-            </HBox>
+            </VBox>
          </children>
       </HBox>
       <HBox alignment="TOP_RIGHT">
