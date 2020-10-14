@@ -29,51 +29,78 @@
       </SplitPane>
       <HBox alignment="CENTER">
          <children>
-            <VBox alignment="TOP_CENTER">
+            <VBox>
                <children>
-                  <Label text="Target map :" wrapText="true">
-                     <font>
-                        <Font name="System Bold" size="14.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets top="25.0" />
-                     </VBox.margin>
-                  </Label>
-                  <ComboBox fx:id="targetMapCombo" onAction="#updateTargetMap" prefWidth="150.0">
-                     <VBox.margin>
-                        <Insets bottom="25.0" top="5.0" />
-                     </VBox.margin>
-                  </ComboBox>
+                  <HBox>
+                     <children>
+                        <VBox alignment="TOP_CENTER">
+                           <children>
+                              <Label text="Target map :" wrapText="true">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets top="25.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <ComboBox fx:id="targetMapCombo" onAction="#updateTargetMap" prefWidth="150.0">
+                                 <VBox.margin>
+                                    <Insets bottom="25.0" top="5.0" />
+                                 </VBox.margin>
+                              </ComboBox>
+                           </children>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <HBox.margin>
+                              <Insets left="25.0" right="25.0" />
+                           </HBox.margin>
+                        </VBox>
+                        <VBox alignment="TOP_CENTER">
+                           <children>
+                              <Label text="Edge Detection" wrapText="true">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets top="25.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <ComboBox fx:id="edgeAlgorithmCombo" onAction="#updateEdgeDetection" prefWidth="150.0">
+                                 <VBox.margin>
+                                    <Insets bottom="25.0" top="5.0" />
+                                 </VBox.margin>
+                              </ComboBox>
+                           </children>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets left="25.0" right="25.0" />
+                           </padding>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <HBox>
+                     <children>
+                        <ToggleButton fx:id="bwImageToggle" mnemonicParsing="false" selected="true" text="Show BW Image Layer">
+                           <HBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </HBox.margin>
+                        </ToggleButton>
+                        <ToggleButton fx:id="edgeImageToggle" mnemonicParsing="false" selected="true" text="Show Edge Image Layer">
+                           <HBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </HBox.margin>
+                        </ToggleButton>
+                        <ToggleButton fx:id="holesToggle" layoutX="161.0" layoutY="20.0" mnemonicParsing="false" selected="true" text="Show Found Holes">
+                           <HBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </HBox.margin>
+                        </ToggleButton>
+                     </children>
+                  </HBox>
                </children>
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-               <HBox.margin>
-                  <Insets left="25.0" right="25.0" />
-               </HBox.margin>
-            </VBox>
-            <VBox alignment="TOP_CENTER" layoutX="319.0" layoutY="10.0">
-               <children>
-                  <Label text="Edge Detection" wrapText="true">
-                     <font>
-                        <Font name="System Bold" size="14.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets top="25.0" />
-                     </VBox.margin>
-                  </Label>
-                  <ComboBox fx:id="edgeAlgorithmCombo" onAction="#updateEdgeDetection" prefWidth="150.0">
-                     <VBox.margin>
-                        <Insets bottom="25.0" top="5.0" />
-                     </VBox.margin>
-                  </ComboBox>
-               </children>
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-               <padding>
-                  <Insets left="25.0" right="25.0" />
-               </padding>
             </VBox>
             <VBox>
                <children>
@@ -92,20 +119,6 @@
                               <Insets left="10.0" right="10.0" top="10.0" />
                            </HBox.margin>
                         </ProgressBar>
-                     </children>
-                  </HBox>
-                  <HBox prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <ToggleButton fx:id="bwImageToggle" mnemonicParsing="false" selected="true" text="Show BW Image Layer">
-                           <HBox.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </HBox.margin>
-                        </ToggleButton>
-                        <ToggleButton fx:id="edgeImageToggle" mnemonicParsing="false" selected="true" text="Show Edge Image Layer">
-                           <HBox.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </HBox.margin>
-                        </ToggleButton>
                      </children>
                   </HBox>
                </children>

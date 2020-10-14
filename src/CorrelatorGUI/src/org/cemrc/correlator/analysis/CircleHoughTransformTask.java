@@ -14,11 +14,6 @@ import java.util.List;
 import org.cemrc.autodoc.Vector2;
 
 import javafx.application.Platform;
-import javafx.beans.property.FloatProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ProgressBar;
 
 /**
@@ -34,6 +29,8 @@ public class CircleHoughTransformTask {
 	private BufferedImage m_src;
 	private BufferedImage m_greyScale;
 	private BufferedImage m_sobel;
+	
+	private final float FIXED_WIDTH = 2048.0f;
 	private float m_scale = 1.0f;
 	private int m_binarization = 240;
 	
@@ -43,6 +40,38 @@ public class CircleHoughTransformTask {
 	private String m_edgeFilter = "Laplacian_1";
 	
 	private ProgressBar m_progress;
+	
+	/**
+	 * Describes a detected circle cluster
+	 * @author mrlarson2
+	 *
+	 */
+	public static class ClusterMinima {
+		public Vector2<Float> center;
+		public int radius;
+		public int score;
+		
+		public ClusterMinima(Vector2<Float> center, int radius, int score) {
+			this.radius = radius;
+			this.score = score;
+			this.center = center;
+		}
+		
+		/**
+		 * Compare two circle centers and their radius. If they are overlapping, report true.
+		 * @param x
+		 * @param y
+		 * @param radius
+		 * @return
+		 */
+		public boolean isOverlap(int x, int y, int radius) {
+			float dx = this.center.x - x;
+			float dy = this.center.y - y;
+			int dr = this.radius + radius;
+			
+			return dx * dx + dy * dy <= dr*dr;
+		}
+	}
 
 	public void setProgressBar(ProgressBar bar) {
 		m_progress = bar;
@@ -66,7 +95,7 @@ public class CircleHoughTransformTask {
 	 * Run the CHT to find the circles in the image.
 	 * @return
 	 */
-	public List<Vector2<Integer>> findCircles() {
+	public List<ClusterMinima> findCircles() {
 		if (m_sobel == null) {
 			updateImages();
 		}
@@ -121,7 +150,7 @@ public class CircleHoughTransformTask {
 			return null;
 		}
 		
-		m_scale = 2048.0f / src.getWidth();
+		m_scale = FIXED_WIDTH / src.getWidth();
 		
 		// 1. Convert to scale and greyscale
 		// BufferedImage image = getGreyscale(src);
@@ -144,7 +173,7 @@ public class CircleHoughTransformTask {
 		return getSobel(binarized);
 	}
 	
-	private List<Vector2<Integer>> CHT(BufferedImage image) {
+	private List<ClusterMinima> CHT(BufferedImage image) {
 		// Circle Hough Transform to find circles (x,y) center points.
 		
 		// Create accumulator -> A[x,y,r]
@@ -152,7 +181,7 @@ public class CircleHoughTransformTask {
 		int height = image.getHeight();
 		
 		int radiusMin = 8;
-		int radiusMax = 16;
+		int radiusMax = 20;
 		
 		int accumulator [][][] = new int[width][height][radiusMax]; 
 		
@@ -208,19 +237,29 @@ public class CircleHoughTransformTask {
 			updateProgress(progress);
 		}
 		
-		float scale_x = (float) m_src.getWidth() / (float) width;
-		float scale_y = (float) m_src.getHeight() / (float) height;
+		float scale = (float) m_src.getWidth() / FIXED_WIDTH;
 		
 		//  -> Save the list of the (X,Y) centers.
-		List<Vector2<Integer>> maximum = findLocalMaximum(accumulator, width, height, radiusMax);
+		List<ClusterMinima> maximum = findLocalMaximum(accumulator, width, height, radiusMax);
 		
 		// Rescale to match original image dimensions.
-		List<Vector2<Integer>> rv = new ArrayList<Vector2<Integer>>();
-		for (Vector2<Integer> m : maximum) rv.add(new Vector2<Integer>(Math.round(m.x * scale_x), Math.round(m.y * scale_y)));
+		List<ClusterMinima> rv = new ArrayList<ClusterMinima>();
+		for (ClusterMinima m : maximum) {
+			
+			// Imprecision in hole center due to use of Int values.
+			Vector2<Float> center = new Vector2<Float>();
+			center.x = m.center.x * scale;
+			center.y = m.center.y * scale;
+			int radius = Math.round(m.radius * scale);
+			
+			int score = m.score;
+			ClusterMinima scaled = new ClusterMinima(center, radius, score);
+			rv.add(scaled);
+		}
 		return rv;
 	}
 	
-	private List<Vector2<Integer>> findLocalMaximum(int [][][] values, int width, int height, int radiusMax) {
+	private List<ClusterMinima> findLocalMaximum(int [][][] values, int width, int height, int radiusMax) {
 		
 		// First we fill these in.
 		int [][] highestScores = new int[width][height];
@@ -239,34 +278,7 @@ public class CircleHoughTransformTask {
 			}
 		}
 		
-		List<Vector2<Integer>> rv = new ArrayList<Vector2<Integer>>();
-		
-		class ClusterMinima {
-			public Vector2<Integer> center;
-			public int radius;
-			public int score;
-			
-			public ClusterMinima(Vector2<Integer> center, int radius, int score) {
-				this.radius = radius;
-				this.score = score;
-				this.center = center;
-			}
-			
-			/**
-			 * Compare two circle centers and their radius. If they are overlapping, report true.
-			 * @param x
-			 * @param y
-			 * @param radius
-			 * @return
-			 */
-			public boolean isOverlap(int x, int y, int radius) {
-				int dx = this.center.x - x;
-				int dy = this.center.y - y;
-				int dr = this.radius + radius;
-				
-				return dx * dx + dy * dy <= dr*dr;
-			}
-		}
+		List<ClusterMinima> rv = new ArrayList<ClusterMinima>();
 		
 		// Add any clusters that are above the cutoff.
 		int cutoff = 10;
@@ -295,18 +307,18 @@ public class CircleHoughTransformTask {
 						// Update the circle.
 						currentMinima.score = score;
 						currentMinima.radius = radius;
-						currentMinima.center.x = x;
-						currentMinima.center.y = y;
+						currentMinima.center.x = (float) x;
+						currentMinima.center.y = (float) y;
 					}
 				} else {
-					existingClusters.add(new ClusterMinima(new Vector2<Integer>(x, y), radius, score));
+					existingClusters.add(new ClusterMinima(new Vector2<Float>((float) x,  (float) y), radius, score));
 				}
 			}
 		}
 		
 		// Add any clusters that are above the cutoff.
 		for (ClusterMinima m : existingClusters) {
-			rv.add(m.center);
+			rv.add(m);
 		}
 		
 		return rv;

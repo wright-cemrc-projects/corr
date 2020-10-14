@@ -150,7 +150,7 @@ public class PointsTableController {
 	    column1.setCellFactory(TextFieldTableCell.forTableColumn());
 	    column1.setCellValueFactory(new PropertyValueFactory<>("name"));
 	    column1.setOnEditCommit(evt -> evt.getRowValue().setName(evt.getNewValue()));
-	    column1.setMaxWidth(100);
+	    column1.setMinWidth(80);
 
 	    TableColumn<PointsDatasetTableItem, String> column2 = new TableColumn<>("Points");
 	    column2.setCellValueFactory(new PropertyValueFactory<>("points"));
@@ -161,7 +161,7 @@ public class PointsTableController {
 	    	evt.getRowValue().setColor(evt.getNewValue());
 	    	firePropertyChange("COLOR_CHANGED", evt, evt);
 	    	});
-	    column3.setMinWidth(80);
+	    column3.setMinWidth(40);
 	    
 	    ObservableList<NavigatorColorEnum> cbValues = FXCollections.observableArrayList(NavigatorColorEnum.values());
 	    column3.setCellFactory(ComboBoxTableCell.forTableColumn(cbValues));
@@ -188,6 +188,8 @@ public class PointsTableController {
 	    	
 	    });
 	    
+	    // Prevents appearance of extra, emtpy column, with tradeoff of requiring same-size columns.
+	    m_pointsTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 	    m_pointsTableView.setEditable(true);
 	}
 	

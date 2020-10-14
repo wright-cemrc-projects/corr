@@ -54,7 +54,7 @@ public class ActionViewAlignedImage {
 			controller.updateZoomCanvas();
 			
 			// create a stage
-	    	Scene importScene = new Scene(importView, 750, 800);
+	    	Scene importScene = new Scene(importView, 800, 750);
 	    	Stage dialogStage = new Stage();
 	    	dialogStage.getIcons().add(CorrelatorConfig.getApplicationIcon());
 	    	dialogStage.setScene(importScene);

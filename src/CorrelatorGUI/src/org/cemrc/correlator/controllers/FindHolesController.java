@@ -102,8 +102,15 @@ public class FindHolesController {
 	@FXML
 	private ToggleButton edgeImageToggle;
 	
+	@FXML
+	private ToggleButton holesToggle;
+	
+	// Describe hole information which could be converted into IPositionDatasets.
+	private List<CircleHoughTransformTask.ClusterMinima> m_foundHoles;
+	
 	BooleanProperty showBWImage = new SimpleBooleanProperty(true);
 	BooleanProperty showEdgeImage = new SimpleBooleanProperty(true);
+	BooleanProperty showHoles = new SimpleBooleanProperty(true);
 	
 	@FXML
 	public void initialize() {
@@ -152,7 +159,23 @@ public class FindHolesController {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if (m_task != null) {
-					m_task.setLowCutoff(Integer.parseInt(newValue));
+					int value;
+					
+					try {
+						value = Integer.parseInt(newValue);
+					} catch (NumberFormatException e) {
+						return;
+					}
+					
+					if (value < 0) {
+						value = 0;
+					}
+					
+					if (value > 256) {
+						value = 256;
+					}
+					
+					m_task.setLowCutoff(value);
 					m_task.getProcessed(false);
 					m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
 					m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
@@ -167,7 +190,23 @@ public class FindHolesController {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if (m_task != null) {
-					m_task.setHighCutoff(Integer.parseInt(newValue));
+					int value;
+					
+					try {
+						value = Integer.parseInt(newValue);
+					} catch (NumberFormatException e) {
+						return;
+					}
+					
+					if (value < 0) {
+						value = 0;
+					}
+					
+					if (value > 256) {
+						value = 256;
+					}
+					
+					m_task.setHighCutoff(value);
 					m_task.getProcessed(false);
 					m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
 					m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
@@ -181,6 +220,7 @@ public class FindHolesController {
 		
 		bwImageToggle.selectedProperty().bindBidirectional(showBWImage);
 		edgeImageToggle.selectedProperty().bindBidirectional(showEdgeImage);
+		holesToggle.selectedProperty().bindBidirectional(showHoles);
 		
 		ChangeListener<Boolean> buttonCallback = new ChangeListener<Boolean>() {
 
@@ -191,6 +231,9 @@ public class FindHolesController {
 		};
 		bwImageToggle.selectedProperty().addListener(buttonCallback);
 		edgeImageToggle.selectedProperty().addListener(buttonCallback);
+		holesToggle.selectedProperty().addListener(buttonCallback);
+		
+		resetCirclePositions();
 	}
 	
 	/**
@@ -209,6 +252,7 @@ public class FindHolesController {
 	@FXML
 	private void updateTargetMap() {
 		m_targetMap = targetMapCombo.getValue();
+		resetCirclePositions();
 		setTask();
 		
 		updateButton();
@@ -279,10 +323,10 @@ public class FindHolesController {
 		Task<Void> task = new Task<Void>() {
 			@Override public Void call()
 			{
-				List<Vector2<Integer>> points = m_task.findCircles();
+				m_foundHoles = m_task.findCircles();
 				
-				if (points.size() > 0) {
-					addPoints(points, m_targetMap);
+				if (m_foundHoles.size() > 0) {
+					addPoints(m_foundHoles, m_targetMap);
 				}
 				
 				return null;
@@ -294,10 +338,10 @@ public class FindHolesController {
 	    thread.start();
 	}
 	
-	private void addPoints(List<Vector2<Integer>> points, IMap map) {
+	private void addPoints(List<CircleHoughTransformTask.ClusterMinima> points, IMap map) {
 		List<Vector2<Float>> parsedPositions= new ArrayList<Vector2<Float>>(); 
-		for (Vector2<Integer> pt : points) {
-			parsedPositions.add(new Vector2<Float>(new Float(pt.x), new Float( pt.y) )); 
+		for (CircleHoughTransformTask.ClusterMinima pt : points) {
+			parsedPositions.add(new Vector2<Float>(new Float(pt.center.x), new Float( pt.center.y) )); 
 		}
 		
 		m_pixelPositions = new PixelPositionDataset();
@@ -385,12 +429,16 @@ public class FindHolesController {
 		double height = previewCanvas.getHeight();
 		
 		GraphicsContext gc = previewCanvas.getGraphicsContext2D();
+		gc.save();
 		gc.clearRect(0, 0, width, height);
-		
-		double mxx = width / m_edgeDetectImage.getWidth();
-		double myy = height / m_edgeDetectImage.getHeight();
+		gc.restore();
+		// gc.setFill(Color.BLACK);
+		// gc.fillRect(0, 0, width, height);
 		
 		if (m_greyScaleImage != null && showBWImage.getValue()) {
+			double mxx = width / m_greyScaleImage.getWidth();
+			double myy = height / m_greyScaleImage.getHeight();
+			
 			gc.save();
 			gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
 			gc.drawImage(m_greyScaleImage,  0,  0);
@@ -399,6 +447,9 @@ public class FindHolesController {
 
 		// Set color effects
 		if (m_edgeDetectImage != null && showEdgeImage.getValue()) {
+			double mxx = width / m_edgeDetectImage.getWidth();
+			double myy = height / m_edgeDetectImage.getHeight();
+			
 			gc.save();
 			gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
 			gc.setGlobalBlendMode(BlendMode.OVERLAY);
@@ -406,15 +457,41 @@ public class FindHolesController {
 			gc.restore();
 		}
 		
-		mxx = width / m_src.getWidth();
-		myy = height / m_src.getHeight();
+		if (showHoles.getValue()) {
+			
+			double mxx = width / m_src.getWidth();
+			double myy = height / m_src.getHeight();
+			
+			gc.save();
+			gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
+			
+			// Draw each checked off points set.
+			gc.setGlobalBlendMode(null);
+			drawPixels(gc, m_pixelPositions, NavigatorColorEnum.Red);
+			drawCircles(gc, m_foundHoles, Color.RED);
+			
+			gc.restore();
+		}
+	}
+	
+	private void resetCirclePositions() {
+		m_pixelPositions = new PixelPositionDataset();
+		m_foundHoles = new ArrayList<CircleHoughTransformTask.ClusterMinima>();
+	}
+	
+	/**
+	 * Helper function to draw circles
+	 * @param positions
+	 */
+	private void drawCircles(GraphicsContext gc, List<CircleHoughTransformTask.ClusterMinima> positions, Color color) {
+		if (positions == null) return;
+		// GraphicsContext gc = previewCanvas.getGraphicsContext2D();
 		
-		gc.save();
-		gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
+		for (CircleHoughTransformTask.ClusterMinima p : positions) {
+			gc.setStroke(color);
+			gc.strokeOval(p.center.x-p.radius, p.center.y-p.radius, 2* p.radius, 2* p.radius);
+		}
 		
-		// Draw each checked off points set.
-		drawPixels(gc, m_pixelPositions, NavigatorColorEnum.Red);
-		gc.restore();
 	}
 	
     /**
@@ -452,9 +529,8 @@ public class FindHolesController {
 			break;
 		}
     	
-    	gc.beginPath();
     	for (Vector2<Float> pixel : positions.getPixelPositions()) {
-    		
+    		gc.beginPath();
     		Point2D pt = new Point2D(pixel.x, pixel.y);
     		
     		gc.setStroke(c);
@@ -464,7 +540,7 @@ public class FindHolesController {
             gc.moveTo(pt.getX(), pt.getY() + 2);
             gc.lineTo(pt.getX(), pt.getY() - 2);
             gc.stroke();
+            gc.closePath();
     	}	
-    	gc.closePath();
     }
 }

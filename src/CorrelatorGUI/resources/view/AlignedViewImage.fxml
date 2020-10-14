@@ -17,100 +17,101 @@
    <children>
       <HBox alignment="TOP_RIGHT" VBox.vgrow="ALWAYS">
          <children>
-            <SplitPane orientation="VERTICAL" HBox.hgrow="ALWAYS">
+            <SplitPane dividerPositions="0.5" HBox.hgrow="ALWAYS">
               <items>
-                  <ScrollPane fx:id="zoomPane" fitToHeight="true" fitToWidth="true" prefHeight="398.0" prefWidth="440.0" />
+                  <ScrollPane fx:id="zoomPane" fitToHeight="true" fitToWidth="true" />
+                  <VBox>
+                     <children>
+                        <TableView fx:id="pointsTableView" />
+                        <Label text="Zoom (%)">
+                           <VBox.margin>
+                              <Insets top="25.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="zoomField" onAction="#zoomChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="100.0">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label text="Rotation (°)">
+                           <padding>
+                              <Insets top="25.0" />
+                           </padding>
+                        </Label>
+                        <TextField fx:id="rotationAngleEntry" onAction="#rotateChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="0.0" />
+                        <ToggleButton fx:id="showReference" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onReferencePressed" selected="true" text="Show Reference">
+                           <VBox.margin>
+                              <Insets top="25.0" />
+                           </VBox.margin>
+                        </ToggleButton>
+                        <ToggleButton fx:id="showAligned" layoutX="20.0" layoutY="224.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onAlignedPressed" selected="true" text="Show Aligned">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <VBox.margin>
+                              <Insets top="25.0" />
+                           </VBox.margin>
+                        </ToggleButton>
+                        <Label text="Bottom Image">
+                           <padding>
+                              <Insets top="25.0" />
+                           </padding>
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <VBox>
+                           <children>
+                              <Label text="Brightness">
+                                 <padding>
+                                    <Insets top="5.0" />
+                                 </padding>
+                              </Label>
+                              <Slider fx:id="brightnessSlider1" max="1.0" min="-1.0" />
+                              <Label layoutX="10.0" layoutY="10.0" text="Contrast">
+                                 <padding>
+                                    <Insets top="5.0" />
+                                 </padding>
+                              </Label>
+                              <Slider fx:id="contrastSlider1" layoutX="10.0" layoutY="56.0" max="1.0" min="-1.0" />
+                           </children>
+                        </VBox>
+                        <Label layoutX="20.0" layoutY="311.0" text="Top Image">
+                           <padding>
+                              <Insets top="25.0" />
+                           </padding>
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <VBox>
+                           <children>
+                              <Label text="Brightness">
+                                 <padding>
+                                    <Insets top="5.0" />
+                                 </padding>
+                              </Label>
+                              <Slider fx:id="brightnessSlider2" max="1.0" min="-1.0" />
+                              <Label layoutX="10.0" layoutY="10.0" text="Contrast">
+                                 <padding>
+                                    <Insets top="5.0" />
+                                 </padding>
+                              </Label>
+                              <Slider fx:id="contrastSlider2" layoutX="10.0" layoutY="56.0" max="1.0" min="-1.0" />
+                           </children>
+                        </VBox>
+                        <Button fx:id="saveImageButton" mnemonicParsing="false" onAction="#doSaveImage" text="Save Image">
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </Button>
+                     </children>
+                     <padding>
+                        <Insets bottom="25.0" left="10.0" right="10.0" top="25.0" />
+                     </padding>
+                  </VBox>
               </items>
             </SplitPane>
-            <VBox HBox.hgrow="NEVER">
-               <children>
-                  <TableView fx:id="pointsTableView" />
-                  <Label text="Zoom (%)">
-                     <VBox.margin>
-                        <Insets top="25.0" />
-                     </VBox.margin>
-                  </Label>
-                  <TextField fx:id="zoomField" onAction="#zoomChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="100.0">
-                     <VBox.margin>
-                        <Insets top="5.0" />
-                     </VBox.margin>
-                  </TextField>
-                  <Label text="Rotation (°)">
-                     <padding>
-                        <Insets top="25.0" />
-                     </padding>
-                  </Label>
-                  <TextField fx:id="rotationAngleEntry" onAction="#rotateChanged" onInputMethodTextChanged="#zoomChanged" prefWidth="120.0" text="0.0" />
-                  <ToggleButton fx:id="showReference" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onReferencePressed" selected="true" text="Show Reference">
-                     <VBox.margin>
-                        <Insets top="25.0" />
-                     </VBox.margin>
-                  </ToggleButton>
-                  <ToggleButton fx:id="showAligned" layoutX="20.0" layoutY="224.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onAlignedPressed" selected="true" text="Show Aligned">
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                     <VBox.margin>
-                        <Insets top="25.0" />
-                     </VBox.margin>
-                  </ToggleButton>
-                  <Label text="Bottom Image">
-                     <padding>
-                        <Insets top="25.0" />
-                     </padding>
-                     <font>
-                        <Font size="18.0" />
-                     </font>
-                  </Label>
-                  <VBox>
-                     <children>
-                        <Label text="Brightness">
-                           <padding>
-                              <Insets top="5.0" />
-                           </padding>
-                        </Label>
-                        <Slider fx:id="brightnessSlider1" max="1.0" min="-1.0" />
-                        <Label layoutX="10.0" layoutY="10.0" text="Contrast">
-                           <padding>
-                              <Insets top="5.0" />
-                           </padding>
-                        </Label>
-                        <Slider fx:id="contrastSlider1" layoutX="10.0" layoutY="56.0" max="1.0" min="-1.0" />
-                     </children>
-                  </VBox>
-                  <Label layoutX="20.0" layoutY="311.0" text="Top Image">
-                     <padding>
-                        <Insets top="25.0" />
-                     </padding>
-                     <font>
-                        <Font size="18.0" />
-                     </font>
-                  </Label>
-                  <VBox>
-                     <children>
-                        <Label text="Brightness">
-                           <padding>
-                              <Insets top="5.0" />
-                           </padding>
-                        </Label>
-                        <Slider fx:id="brightnessSlider2" max="1.0" min="-1.0" />
-                        <Label layoutX="10.0" layoutY="10.0" text="Contrast">
-                           <padding>
-                              <Insets top="5.0" />
-                           </padding>
-                        </Label>
-                        <Slider fx:id="contrastSlider2" layoutX="10.0" layoutY="56.0" max="1.0" min="-1.0" />
-                     </children>
-                  </VBox>
-                  <Button fx:id="saveImageButton" mnemonicParsing="false" onAction="#doSaveImage" text="Save Image">
-                     <VBox.margin>
-                        <Insets top="10.0" />
-                     </VBox.margin></Button>
-               </children>
-               <padding>
-                  <Insets bottom="25.0" left="10.0" right="10.0" top="25.0" />
-               </padding>
-            </VBox>
          </children>
       </HBox>
    </children>
