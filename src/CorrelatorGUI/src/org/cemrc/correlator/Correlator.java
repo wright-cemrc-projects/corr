@@ -94,7 +94,7 @@ public class Correlator extends Application {
         mb.getMenus().add(createImportMenu());
         mb.getMenus().add(createExportMenu());
         mb.getMenus().add(createAlignmentMenu());
-        mb.getMenus().add(createAnalysisMenu());
+        // [TODO: enable after production ready] mb.getMenus().add(createAnalysisMenu());
         mb.getMenus().add(createHelpMenu());
         
         // create a VBox
@@ -277,6 +277,7 @@ public class Correlator extends Application {
         	try {
         		CorrelatorDocument.serialize(m_state.getDocument(), file);
         		m_state.getDocument().setDirt(false);
+        		m_state.setSaveFile(file);
         	} catch (Exception e) {
         		e.printStackTrace();
         	}

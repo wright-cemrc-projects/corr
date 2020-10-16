@@ -110,7 +110,8 @@ public class AlignMapsController {
 		referenceMapPointsCombo.setCellFactory(cellFactoryPositions);
 		
 		// Setup the comboBoxMode
-		comboBoxMode.getItems().addAll(ALIGN_MODE_RIGID, ALIGN_MODE_INTERACTIVE);
+		// [TODO: enable when feature is production ready] comboBoxMode.getItems().addAll(ALIGN_MODE_RIGID, ALIGN_MODE_INTERACTIVE);
+		comboBoxMode.getItems().addAll(ALIGN_MODE_RIGID);
 		comboBoxMode.setValue(ALIGN_MODE_RIGID);
 	}
 	

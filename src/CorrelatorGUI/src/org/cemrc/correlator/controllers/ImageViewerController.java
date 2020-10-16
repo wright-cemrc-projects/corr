@@ -170,8 +170,8 @@ public class ImageViewerController {
 		dataset.setMap(m_activeMap);
 		dataset.setDrawnID(m_activeMap.getId());
 		dataset.setRegisID(m_activeMap.getRegis());
-		dataset.setName("Point Set " + m_document.getData().getUniquePointsID());
-		
+		dataset.setGroupID(m_document.getData().getUniqueGroupID());
+		dataset.setName("Group " + dataset.getGroupID());
 		m_document.getData().addPositionData(dataset);		
 		m_document.setDirt(true);
 		m_pointsTableController.updatePointsTableView();

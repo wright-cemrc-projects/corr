@@ -392,7 +392,7 @@ public class PanAndZoomPane extends Pane {
 		gc.save();
 		gc.setGlobalBlendMode(null);		
 		drawPixels(gc, points, points.getColor(), mat);
-		gc.restore();
+		gc.restore(); 
 	}
 	
 	/**

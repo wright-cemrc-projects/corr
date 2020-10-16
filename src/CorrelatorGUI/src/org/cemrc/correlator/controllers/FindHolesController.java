@@ -215,6 +215,7 @@ public class FindHolesController {
 		}
 		
 		m_pixelPositions = new PixelPositionDataset();
+		m_pixelPositions.setGroupID(m_document.getData().getUniqueGroupID());
 		m_pixelPositions.setPixelPositions(parsedPositions);
 		// pixelPositions.setColor(Color.RE);
 		m_pixelPositions.setName("Point set " + m_document.getData().getUniquePointsID() + " - Found Holes [ " + points.size() + "]");

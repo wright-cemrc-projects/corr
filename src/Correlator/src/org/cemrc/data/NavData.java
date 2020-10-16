@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -127,6 +128,10 @@ public class NavData {
 	 * @param sourceFile
 	 */
 	public void mergeAutodoc(List<GenericItem> items, File sourceFile) {
+		
+		// TODO: should have an AutodocPositionDataset per GroupID
+		//  these should also belong to a particular MapID.
+		//  currently only care about MapID.
 		
 		// Bundle stage positions being drawn on the same map together. 
 		Map<Integer, AutodocPositionDataset> positions = new HashMap<Integer, AutodocPositionDataset>();
@@ -400,5 +405,26 @@ public class NavData {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Obtain a unique GroupID.
+	 * @return
+	 */
+	public int getUniqueGroupID() {
+		Set<Integer> takenIDs = new HashSet<Integer>();
+		
+		int rv = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
+		
+		for (IPositionDataset pos : m_positionData) {
+			takenIDs.add(pos.getGroupID());
+		}
+		
+		// Repeats until gets an untaken unique ID.
+		while (takenIDs.contains(rv)) {
+			rv = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
+		}
+		
+		return rv;
 	}
 }
