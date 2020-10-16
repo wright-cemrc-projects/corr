@@ -286,7 +286,7 @@ public class ImageViewerController {
 				points.put(new Integer(i++), new Vector3<Float>(position.x, position.y, 0f));
 			}
 			
-			m_zoomPane.drawLabels(points, mat);
+			m_zoomPane.drawLabels(points, mat, item.getColor());
 		}
 	}
 	

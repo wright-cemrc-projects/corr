@@ -399,23 +399,50 @@ public class PanAndZoomPane extends Pane {
 	 * Text labels to be drawn on the canvas
 	 * @param points
 	 */
-	public void drawLabels(Map<Integer, Vector3<Float>> points, Affine mat) {
+	public void drawLabels(Map<Integer, Vector3<Float>> points, Affine mat, NavigatorColorEnum color) {
 		GraphicsContext gc = m_canvas.getGraphicsContext2D();
 		
 		gc.save();
 		gc.setGlobalBlendMode(null);
 		Point2D offset = new Point2D(-10f, -5f);
 		
+		Color c;
+		switch (color) {
+		case Black:
+			c = Color.BLACK;
+			break;
+		case Red:
+			c = Color.RED;
+			break;
+		case Blue:
+			c = Color.BLUE;
+			break;
+		case Green:
+			c = Color.GREEN;
+			break;
+		case Yellow:
+			c = Color.YELLOW;
+			break;
+		case Magenta:
+			c = Color.MAGENTA;
+			break;
+		default:
+			c = Color.RED;
+			break;
+		}
+		
 		for (Integer i : points.keySet()) {
 			// For each of these registration points draw a label
     		Point2D pt = new Point2D(points.get(i).x, points.get(i).y);
     		Point2D movedPt = mat.transform(pt);
-    		drawLabelText(gc, movedPt, offset, i.toString());
+    		drawLabelText(gc, movedPt, offset, i.toString(), c);
 		}
 		gc.restore();
 	}
 	
-    private void drawLabelText(GraphicsContext gc, Point2D pixel, Point2D offset, String text) {
+    private void drawLabelText(GraphicsContext gc, Point2D pixel, Point2D offset, String text, Color c) {
+    	gc.setFill(c);
+    	gc.setStroke(c);
     	gc.fillText(text, pixel.getX() + offset.getX(), pixel.getY() + offset.getY());
     }
 }
