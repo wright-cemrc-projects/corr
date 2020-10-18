@@ -160,7 +160,7 @@ public class NavData {
 		}
 		
 		// convert points into group segments associated with maps.
-		processPointItems(items);
+		processPointItems(points);
 		firePropertyChange(DOCUMENT_CHANGED, this, this);
 	}
 	
