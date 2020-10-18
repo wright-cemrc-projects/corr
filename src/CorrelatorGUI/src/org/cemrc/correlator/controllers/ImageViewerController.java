@@ -176,6 +176,8 @@ public class ImageViewerController {
 		m_document.setDirt(true);
 		m_pointsTableController.updatePointsTableView();
 		m_pointsTableController.select(dataset);
+		m_document.setDirt(true);
+		m_document.getData().forceUpdate();
 	}
 	
 	@FXML
@@ -241,6 +243,24 @@ public class ImageViewerController {
 		m_pointsTableController.addMap(map);
 		m_pointsTableController.updatePointsTableView();
 		updateZoomCanvas();
+	}
+	
+	/**
+	 * Get a title for the window
+	 * @return
+	 */
+	public String getTitle() {
+		
+		StringBuilder titleBuilder = new StringBuilder();
+		titleBuilder.append(CorrelatorConfig.AppName);
+		titleBuilder.append(" ");
+
+		if (m_activeMap != null) {
+			titleBuilder.append("(" + m_activeMap.getName() + ")");		
+		}
+		
+		// Stage is where visual parts of JavaFX application are displayed.
+      return titleBuilder.toString();
 	}
 	
 	@FXML
@@ -414,10 +434,12 @@ public class ImageViewerController {
 			case Add:
 				activePoints.addPixelPosition(actualPosition.x, actualPosition.y);
 				m_document.setDirt(true);
+				m_document.getData().forceUpdate();
 				break;
 			case Remove: 
 				activePoints.removePixelPositionNear(actualPosition.x, actualPosition.y, near);
 				m_document.setDirt(true);
+				m_document.getData().forceUpdate();
 				break;
 			default:
 				return;

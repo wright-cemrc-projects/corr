@@ -216,9 +216,7 @@ public class AlignMapsController {
 				
 				m_targetMap.setRegistration(register);
 				
-				m_document.getData().forceUpdate();
 				m_document.setDirt(true);
-				
 				m_document.getData().forceUpdate();
 				
 				if (m_stage != null) {

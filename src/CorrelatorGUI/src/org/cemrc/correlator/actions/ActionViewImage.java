@@ -2,11 +2,6 @@ package org.cemrc.correlator.actions;
 
 
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.cemrc.autodoc.Vector2;
 import org.cemrc.correlator.Correlator;
 import org.cemrc.correlator.CorrelatorConfig;
 import org.cemrc.correlator.controllers.ImageViewerController;
@@ -57,7 +52,7 @@ public class ActionViewImage {
 	    	Stage dialogStage = new Stage();
 	    	dialogStage.getIcons().add(CorrelatorConfig.getApplicationIcon());
 	    	dialogStage.setScene(importScene);
-	    	dialogStage.setTitle(CorrelatorConfig.getApplicationName());
+	    	dialogStage.setTitle(controller.getTitle());
 	    	dialogStage.show();
 			
 		} catch (Exception e) {

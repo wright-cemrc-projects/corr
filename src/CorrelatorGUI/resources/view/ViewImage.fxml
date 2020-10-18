@@ -20,7 +20,7 @@
    <children>
       <HBox alignment="TOP_RIGHT" VBox.vgrow="ALWAYS">
          <children>
-            <SplitPane dividerPositions="0.5" HBox.hgrow="ALWAYS">
+            <SplitPane dividerPositions="0.6" HBox.hgrow="ALWAYS">
               <items>
                   <SplitPane dividerPositions="0.75" orientation="VERTICAL">
                     <items>

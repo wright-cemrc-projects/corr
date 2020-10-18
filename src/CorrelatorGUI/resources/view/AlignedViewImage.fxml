@@ -17,7 +17,7 @@
    <children>
       <HBox alignment="TOP_RIGHT" VBox.vgrow="ALWAYS">
          <children>
-            <SplitPane dividerPositions="0.5" HBox.hgrow="ALWAYS">
+            <SplitPane dividerPositions="0.6" HBox.hgrow="ALWAYS">
               <items>
                   <ScrollPane fx:id="zoomPane" fitToHeight="true" fitToWidth="true" />
                   <VBox prefHeight="200.0" prefWidth="300.0">
@@ -52,7 +52,7 @@
                               <Insets top="25.0" />
                            </VBox.margin>
                         </ToggleButton>
-                        <Label text="Bottom Image">
+                        <Label text="Reference Image (TEM)">
                            <padding>
                               <Insets top="25.0" />
                            </padding>
@@ -76,7 +76,7 @@
                               <Slider fx:id="contrastSlider1" layoutX="10.0" layoutY="56.0" max="1.0" min="-1.0" />
                            </children>
                         </VBox>
-                        <Label layoutX="20.0" layoutY="311.0" text="Top Image">
+                        <Label layoutX="20.0" layoutY="311.0" text="Aligned Image (FLM)">
                            <padding>
                               <Insets top="25.0" />
                            </padding>

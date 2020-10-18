@@ -84,8 +84,6 @@ public class Correlator extends Application {
 			}
 		}
 		
-		System.out.println("Set title called: " + titleBuilder.toString());
-		
 		// Stage is where visual parts of JavaFX application are displayed.
         m_primaryStage.setTitle(titleBuilder.toString());
 	}
