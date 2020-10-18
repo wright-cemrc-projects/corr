@@ -59,9 +59,35 @@ public class Correlator extends Application {
 			public void propertyChange(PropertyChangeEvent arg0) {
 				m_projectController.setDocument(m_state.getDocument());
 				m_projectController.updateTreeView(m_state.getDocument());
+				updateTitle();
 			}
 			
 		});
+	}
+	
+	private void updateTitle() {
+		
+		StringBuilder titleBuilder = new StringBuilder();
+		titleBuilder.append(CorrelatorConfig.AppName);
+		titleBuilder.append(" ");
+		if (m_state.hasSavefile()) {
+			titleBuilder.append("(" + m_state.getFilename());
+			
+			if (m_state.getDocument().isDirty()) {
+				titleBuilder.append("*");
+			}
+			
+			titleBuilder.append(")");
+		} else {
+			if (m_state.getDocument().isDirty()) {
+				titleBuilder.append("(Untitled*)");
+			}
+		}
+		
+		System.out.println("Set title called: " + titleBuilder.toString());
+		
+		// Stage is where visual parts of JavaFX application are displayed.
+        m_primaryStage.setTitle(titleBuilder.toString());
 	}
 	
 	/**
@@ -186,6 +212,7 @@ public class Correlator extends Application {
             	if (checkExisting()) {
             		m_state.setDocument(new CorrelatorDocument());
             		m_state.setSaveFile(null);
+            		updateTitle();
             	}
             } 
         };
@@ -197,6 +224,7 @@ public class Correlator extends Application {
             	if (checkExisting()) {
             		handleProjectWizard();
             		m_state.setSaveFile(null);
+            		updateTitle();
             	}
             } 
         };
@@ -207,6 +235,7 @@ public class Correlator extends Application {
             { 
             	if (checkExisting() ) {
             		handleOpenProject();
+            		updateTitle();
             	}
             } 
         };
@@ -216,6 +245,7 @@ public class Correlator extends Application {
             public void handle(ActionEvent e) 
             { 
             	handleSaveProject();
+            	updateTitle();
             } 
         };
         saveProjectMenu.setOnAction(saveProjectEvent);
@@ -224,6 +254,7 @@ public class Correlator extends Application {
             public void handle(ActionEvent e) 
             { 
             	handleSaveAsProject();
+            	updateTitle();
             } 
         };
         saveasProjectMenu.setOnAction(saveasProjectEvent);
@@ -245,8 +276,8 @@ public class Correlator extends Application {
         if (file != null) {
         	try {
         		CorrelatorDocument doc = CorrelatorDocument.deserialize(file);
-        		m_state.setDocument(doc);
         		m_state.setSaveFile(file);
+        		m_state.setDocument(doc);
         	} catch (Exception e) {
         		e.printStackTrace();
         	}

@@ -68,6 +68,14 @@ public class NavData {
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         listeners.add(listener);
     }
+    
+    /**
+     * Unsubscribe a listener
+     * @param listener
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+    	listeners.remove(listener);
+    }
 
     /**
      * Can be called when a some value has changed.
@@ -76,7 +84,10 @@ public class NavData {
      * @param newValue
      */
     private void firePropertyChange(String property, Object oldValue, Object newValue) {
-        for (PropertyChangeListener l : listeners) {
+    	List<PropertyChangeListener> modlisteners = new ArrayList<>();
+    	modlisteners.addAll(listeners);
+    	
+        for (PropertyChangeListener l : modlisteners) {
             l.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
         }
     }

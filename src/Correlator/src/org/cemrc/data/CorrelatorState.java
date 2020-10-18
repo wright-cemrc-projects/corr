@@ -25,6 +25,18 @@ public class CorrelatorState {
 	// Cause UI updates when data model changes.
     private final List<PropertyChangeListener> listeners = new ArrayList<>();
 	
+    // Listener to subscribe to changes in the underlying document data.
+    private final PropertyChangeListener docDataListener = new PropertyChangeListener() {
+		@Override
+		public void propertyChange(PropertyChangeEvent arg0) {
+			forceUpdate();
+		}
+	};
+	
+	public CorrelatorState() {
+		m_document.getData().addPropertyChangeListener(docDataListener);
+	}
+    
 	/**
 	 * get the current CorrelatorDocument.
 	 * @return
@@ -40,6 +52,10 @@ public class CorrelatorState {
 	public void setDocument(CorrelatorDocument doc) {
 		CorrelatorDocument oldDoc = m_document;
 		m_document = doc;
+		
+		oldDoc.getData().removePropertyChangeListener(docDataListener);
+		m_document.getData().addPropertyChangeListener(docDataListener);
+		
 		firePropertyChange(DOCUMENT_CHANGED, oldDoc, doc);
 	}
 	
@@ -49,6 +65,8 @@ public class CorrelatorState {
 	public void forceUpdate() {
 		firePropertyChange(DOCUMENT_CHANGED, m_document, m_document);
 	}
+	
+	
 	
 	/**
 	 * This property listener can alert when some values have updated.
@@ -98,5 +116,16 @@ public class CorrelatorState {
      */
     public boolean hasSavefile() {
     	return m_saveFile != null;
+    }
+    
+    /**
+     * Return the save filename;
+     * @return
+     */
+    public String getFilename() {
+    	if (hasSavefile()) {
+    		return m_saveFile.getName();
+    	}
+    	return "";
     }
 }
