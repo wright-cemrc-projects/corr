@@ -2,7 +2,6 @@ package org.cemrc.correlator.controllers;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +19,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.util.Callback;
 
 /**
@@ -33,6 +34,9 @@ public class ProjectController {
 	
 	@FXML
 	private TreeView<ProjectNodeItem> projectTreeView;
+	
+    private final Image registeredImage =  new Image(
+            getClass().getResourceAsStream("/view/registered.png"));
 	
     @FXML
     public void initialize() {
@@ -85,7 +89,6 @@ public class ProjectController {
 	                	IMap mapItem = cell.getItem().getMapItem();  
 	                	ActionAlignMaps alignAction = new ActionAlignMaps(m_document, mapItem);
 	                	alignAction.doAction();
-	                	// TODO: should update Project TreeItem with an Icon
                 	}
                 });
                 
@@ -95,8 +98,9 @@ public class ProjectController {
 	                	IMap mapItem = cell.getItem().getMapItem();  
 	                	ActionUnalignMaps unalignAction = new ActionUnalignMaps(m_document, mapItem);
 	                	unalignAction.doAction();
-	                	
-	                	// TODO: should update Project TreeItem with an Icon
+	                	if (mapItem.getRegistration() == null) {
+	                		cell.getTreeItem().setGraphic(null);
+	                	}
                 	}
                 });
                 
@@ -139,7 +143,12 @@ public class ProjectController {
 	        	// ProjectNodeItem itemName = map.getRegistration() == null ? map.getName() : map.getName() + " Registered to [" + map.getId() + "]";
 	        	ProjectNodeItem mapItem = new ProjectNodeItem(ProjectNodeItem.NodeType.Map, null, map, "Map");
 	        	
-	        	TreeItem<ProjectNodeItem> item = new TreeItem<ProjectNodeItem>(mapItem);
+	        	TreeItem<ProjectNodeItem> item;
+            	if (map.getRegistration() != null) {
+            		item = new TreeItem<ProjectNodeItem>(mapItem, new ImageView(registeredImage));
+            	} else {
+            		item = new TreeItem<ProjectNodeItem>(mapItem);
+            	}
 	        	root.getChildren().add(item);
 	        	
 	        	// Add the matching positions as children.
@@ -153,6 +162,7 @@ public class ProjectController {
 			        	item.getChildren().add(pointsItem);
 		    		}
 		    	}
+		    	
 	        }
     	}
 	        
