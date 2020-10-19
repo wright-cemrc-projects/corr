@@ -455,7 +455,7 @@ public class ImageViewerController {
 	    FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Save the overlay image.");
     	
-    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.png)", "*.png");
+    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.tif, *.png)", "*.tif", "*.png");
     	fileChooser.getExtensionFilters().add(extFilter);
     	
     	Stage dialogStage = new Stage();
@@ -467,9 +467,15 @@ public class ImageViewerController {
         	
             BufferedImage bImage = SwingFXUtils.fromFXImage(saveImage, null);
             try {
-              ImageIO.write(bImage, "png", file);
+            	String filename = file.getName();
+            	String ext = filename.toString().substring(filename.lastIndexOf("."),filename.length());
+            	if (".png".equals(ext)) {
+            		ImageIO.write(bImage, "png", file);
+            	} else if (".tif".equals(ext)) {
+            		ImageIO.write(bImage, "tif", file);
+            	}
             } catch (IOException e) {
-              throw new RuntimeException(e);
+            	throw new RuntimeException(e);
             }
         }
 	}
