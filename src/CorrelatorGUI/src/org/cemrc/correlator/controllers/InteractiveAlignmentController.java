@@ -9,6 +9,7 @@ import org.cemrc.correlator.controllers.canvas.PanAndZoomPane;
 import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
+import org.cemrc.data.NavigatorColorEnum;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -143,7 +144,7 @@ public class InteractiveAlignmentController {
 			}
 			
 			m_zoomPane.drawPositions(getRegistrationPoints(), mat);
-			m_zoomPane.drawLabels(getPoints(), mat);			
+			m_zoomPane.drawLabels(getPoints(), mat, NavigatorColorEnum.Red);			
 		}
 	}
 	

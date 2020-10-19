@@ -18,9 +18,9 @@
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cemrc.correlator.controllers.ImageViewerController">
    <children>
-      <HBox alignment="TOP_RIGHT" prefHeight="409.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
+      <HBox alignment="TOP_RIGHT" VBox.vgrow="ALWAYS">
          <children>
-            <SplitPane dividerPositions="0.5">
+            <SplitPane dividerPositions="0.6" HBox.hgrow="ALWAYS">
               <items>
                   <SplitPane dividerPositions="0.75" orientation="VERTICAL">
                     <items>

@@ -27,7 +27,12 @@ public class ProjectNodeItem {
 		
 		switch (type) {
 			case Map:
-				return m_map.getName();
+				StringBuilder name = new StringBuilder();
+				name.append(m_map.getName());
+				if (m_map.getRegistration() != null) {
+					name.append(" (registered)");
+				}
+				return name.toString();
 			case Position:
 				return m_dataset.getName();
 			default: 

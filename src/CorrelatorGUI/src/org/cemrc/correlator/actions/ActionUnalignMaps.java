@@ -22,6 +22,7 @@ public class ActionUnalignMaps {
 
 			// Need to know what map, and then can do it.
 			m_map.setRegistration(null);
+			m_document.setDirt(true);
 			m_document.getData().forceUpdate();
 			
 		} catch (Exception e) {

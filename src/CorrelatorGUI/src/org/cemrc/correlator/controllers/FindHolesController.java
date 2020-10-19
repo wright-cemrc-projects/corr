@@ -269,6 +269,7 @@ public class FindHolesController {
 	public void doAccept() {
 		if (m_pixelPositions != null) {
 			m_document.getData().addPositionData(m_pixelPositions);
+			m_document.setDirt(true);
 		}
 		
 		if (m_stage != null) {
@@ -345,6 +346,7 @@ public class FindHolesController {
 		}
 		
 		m_pixelPositions = new PixelPositionDataset();
+		m_pixelPositions.setGroupID(m_document.getData().getUniqueGroupID());
 		m_pixelPositions.setPixelPositions(parsedPositions);
 		// pixelPositions.setColor(Color.RE);
 		m_pixelPositions.setName("Point set " + m_document.getData().getUniquePointsID() + " - Found Holes [ " + points.size() + "]");

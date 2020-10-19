@@ -22,28 +22,22 @@ import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
-import org.cemrc.data.NavigatorColorEnum;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
-import javafx.scene.transform.Rotate;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -336,7 +330,7 @@ public class AlignedImageViewerController {
 					points.put(new Integer(i++), new Vector3<Float>(position.x, position.y, 0f));
 				}
 				
-				m_zoomPane.drawLabels(points, mat);
+				m_zoomPane.drawLabels(points, mat, item.getColor());
 			}
 		}
 		
@@ -375,7 +369,7 @@ public class AlignedImageViewerController {
 					points.put(new Integer(i++), new Vector3<Float>(position.x, position.y, 0f));
 				}
 				
-				m_zoomPane.drawLabels(points, mat);
+				m_zoomPane.drawLabels(points, mat, item.getColor());
 			}
 		}
 		
@@ -398,7 +392,7 @@ public class AlignedImageViewerController {
 	    FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Save the overlay image.");
     	
-    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.png)", "*.png");
+    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.tif, *.png)", "*.tif", "*.png");
     	fileChooser.getExtensionFilters().add(extFilter);
     	
     	Stage dialogStage = new Stage();
@@ -410,9 +404,15 @@ public class AlignedImageViewerController {
         	
             BufferedImage bImage = SwingFXUtils.fromFXImage(saveImage, null);
             try {
-              ImageIO.write(bImage, "png", file);
+            	String filename = file.getName();
+            	String ext = filename.toString().substring(filename.lastIndexOf("."),filename.length());
+            	if (".png".equals(ext)) {
+            		ImageIO.write(bImage, "png", file);
+            	} else if (".tif".equals(ext)) {
+            		ImageIO.write(bImage, "tif", file);
+            	}
             } catch (IOException e) {
-              throw new RuntimeException(e);
+            	throw new RuntimeException(e);
             }
         }
 	}

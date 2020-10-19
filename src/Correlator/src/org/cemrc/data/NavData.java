@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -67,6 +68,14 @@ public class NavData {
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         listeners.add(listener);
     }
+    
+    /**
+     * Unsubscribe a listener
+     * @param listener
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+    	listeners.remove(listener);
+    }
 
     /**
      * Can be called when a some value has changed.
@@ -75,7 +84,10 @@ public class NavData {
      * @param newValue
      */
     private void firePropertyChange(String property, Object oldValue, Object newValue) {
-        for (PropertyChangeListener l : listeners) {
+    	List<PropertyChangeListener> modlisteners = new ArrayList<>();
+    	modlisteners.addAll(listeners);
+    	
+        for (PropertyChangeListener l : modlisteners) {
             l.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
         }
     }
@@ -128,44 +140,20 @@ public class NavData {
 	 */
 	public void mergeAutodoc(List<GenericItem> items, File sourceFile) {
 		
-		// Bundle stage positions being drawn on the same map together. 
-		Map<Integer, AutodocPositionDataset> positions = new HashMap<Integer, AutodocPositionDataset>();
+		// Bundle stage positions being drawn on the same map together. 		
+		List<GenericItem> points = new ArrayList<GenericItem>();
 		
 		// Parse through each GenericItem
 		for (GenericItem item : items) {
 			if ((item.hasKey(NavigatorKey.Type))) {
 				
 				int itemType = (Integer) item.getValue(NavigatorKey.Type);
-				Integer key;
 				
 				switch (itemType) {
 					case 0: 
 					case 1:
 						// Point type
-						key = null;
-						if (item.hasKey(NavigatorKey.DrawnID)) {
-							key = (Integer) item.getValue(NavigatorKey.DrawnID);
-						} 
-						
-						if (! positions.containsKey(key)) {
-							AutodocPositionDataset points = new AutodocPositionDataset();
-							positions.put(key, points);
-							points.setName("Point Set " + getUniquePointsID());
-							
-							// Associate with it's parent map.
-							for (IMap map : m_maps) {
-								GenericItem mapItem = map.getAutoDoc();
-								if (mapItem.hasKey(NavigatorKey.MapID) && 
-										(mapItem.getValue(NavigatorKey.MapID).equals(key))) {
-									points.setMapId(map.getId());
-									points.setMap(map);
-								}	
-							}
-						}
-						
-						// Add to this dataset.
-						positions.get(key).addItem(item);
-						
+						points.add(item);
 						break;
 						
 					case 2:
@@ -182,8 +170,74 @@ public class NavData {
 			}
 		}
 		
-		m_positionData.addAll(positions.values());
+		// convert points into group segments associated with maps.
+		processPointItems(points);
 		firePropertyChange(DOCUMENT_CHANGED, this, this);
+	}
+	
+	// convert points into group segments associated with maps.
+	private void processPointItems(List<GenericItem> items) {
+		
+		// Need to index by MapID and GroupID
+		
+		Map<Integer, Map<Integer, AutodocPositionDataset>> mapping = new HashMap<Integer, Map<Integer, AutodocPositionDataset>>();
+		// Map<Integer, AutodocPositionDataset> positions = new HashMap<Integer, AutodocPositionDataset>();
+		Integer key = null;
+		
+		for (GenericItem item : items) {
+			// Point type
+			
+			// Associate with the Map
+			key = null;
+			if (item.hasKey(NavigatorKey.DrawnID)) {
+				key = (Integer) item.getValue(NavigatorKey.DrawnID);
+			} 
+			
+			if (! mapping.containsKey(key)) {
+				mapping.put(key, new HashMap<Integer, AutodocPositionDataset>());
+			}
+			
+			// Segment by the GroupID
+			Integer groupID = 0;
+			if (item.hasKey(NavigatorKey.GroupID)) {
+				groupID = (Integer) item.getValue(NavigatorKey.GroupID);
+			}
+			
+			Map<Integer, AutodocPositionDataset> mapPositions = mapping.get(key);
+			if (! mapPositions.containsKey(groupID) ) {
+				AutodocPositionDataset points = new AutodocPositionDataset();
+				points.setGroupID(groupID);
+				points.setName("Group " + points.getGroupID());
+				
+				// Associate with it's parent map.
+				for (IMap map : m_maps) {
+					GenericItem mapItem = map.getAutoDoc();
+					if (mapItem.hasKey(NavigatorKey.MapID) && 
+							(mapItem.getValue(NavigatorKey.MapID).equals(key))) {
+						points.setMapId(map.getId());
+						points.setMap(map);
+					}	
+				}
+				mapPositions.put(groupID, points);
+			}
+			
+			// Add to this dataset.
+			mapPositions.get(groupID).addItem(item);
+			
+		}
+		
+		for (Map<Integer, AutodocPositionDataset> mapPositions : mapping.values()) {
+			for (AutodocPositionDataset p : mapPositions.values()) {
+				
+				if (p.getGroupID() == 0) {
+					int uniqueId = getUniqueGroupID();
+					p.setGroupID(uniqueId);
+					p.setName("Group " + p.getGroupID());
+				}
+				
+				m_positionData.add(p);
+			}
+		}
 	}
 	
 	/**
@@ -400,5 +454,26 @@ public class NavData {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Obtain a unique GroupID.
+	 * @return
+	 */
+	public int getUniqueGroupID() {
+		Set<Integer> takenIDs = new HashSet<Integer>();
+		
+		int rv = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
+		
+		for (IPositionDataset pos : m_positionData) {
+			takenIDs.add(pos.getGroupID());
+		}
+		
+		// Repeats until gets an untaken unique ID.
+		while (takenIDs.contains(rv)) {
+			rv = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
+		}
+		
+		return rv;
 	}
 }
