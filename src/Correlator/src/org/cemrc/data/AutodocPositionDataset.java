@@ -79,6 +79,8 @@ public class AutodocPositionDataset extends AbstractPositionDataset implements I
 	 * @param item
 	 */
 	public void addItem(GenericItem item) {
+		// Update the GroupID to match this Group.
+		item.addNavigatorField(NavigatorKey.GroupID, getGroupID());
 		m_itemList.add(new AutodocPosition(item));
 	}
 

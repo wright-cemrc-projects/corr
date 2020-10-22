@@ -170,11 +170,14 @@ public class ImageViewerController {
 		dataset.setMap(m_activeMap);
 		dataset.setDrawnID(m_activeMap.getId());
 		dataset.setRegisID(m_activeMap.getRegis());
-		dataset.setName("Point Set " + m_document.getData().getUniquePointsID());
-		
+		dataset.setGroupID(m_document.getData().getUniqueGroupID());
+		dataset.setName("Group " + dataset.getGroupID());
 		m_document.getData().addPositionData(dataset);		
+		m_document.setDirt(true);
 		m_pointsTableController.updatePointsTableView();
 		m_pointsTableController.select(dataset);
+		m_document.setDirt(true);
+		m_document.getData().forceUpdate();
 	}
 	
 	@FXML
@@ -242,6 +245,24 @@ public class ImageViewerController {
 		updateZoomCanvas();
 	}
 	
+	/**
+	 * Get a title for the window
+	 * @return
+	 */
+	public String getTitle() {
+		
+		StringBuilder titleBuilder = new StringBuilder();
+		titleBuilder.append(CorrelatorConfig.AppName);
+		titleBuilder.append(" ");
+
+		if (m_activeMap != null) {
+			titleBuilder.append("(" + m_activeMap.getName() + ")");		
+		}
+		
+		// Stage is where visual parts of JavaFX application are displayed.
+      return titleBuilder.toString();
+	}
+	
 	@FXML
 	public void updatePoints() {
 		updateZoomCanvas();
@@ -285,7 +306,7 @@ public class ImageViewerController {
 				points.put(new Integer(i++), new Vector3<Float>(position.x, position.y, 0f));
 			}
 			
-			m_zoomPane.drawLabels(points, mat);
+			m_zoomPane.drawLabels(points, mat, item.getColor());
 		}
 	}
 	
@@ -412,9 +433,13 @@ public class ImageViewerController {
 				break;
 			case Add:
 				activePoints.addPixelPosition(actualPosition.x, actualPosition.y);
+				m_document.setDirt(true);
+				m_document.getData().forceUpdate();
 				break;
 			case Remove: 
 				activePoints.removePixelPositionNear(actualPosition.x, actualPosition.y, near);
+				m_document.setDirt(true);
+				m_document.getData().forceUpdate();
 				break;
 			default:
 				return;
@@ -430,7 +455,7 @@ public class ImageViewerController {
 	    FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Save the overlay image.");
     	
-    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.png)", "*.png");
+    	FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Image files (*.tif, *.png)", "*.tif", "*.png");
     	fileChooser.getExtensionFilters().add(extFilter);
     	
     	Stage dialogStage = new Stage();
@@ -442,9 +467,15 @@ public class ImageViewerController {
         	
             BufferedImage bImage = SwingFXUtils.fromFXImage(saveImage, null);
             try {
-              ImageIO.write(bImage, "png", file);
+            	String filename = file.getName();
+            	String ext = filename.toString().substring(filename.lastIndexOf("."),filename.length());
+            	if (".png".equals(ext)) {
+            		ImageIO.write(bImage, "png", file);
+            	} else if (".tif".equals(ext)) {
+            		ImageIO.write(bImage, "tif", file);
+            	}
             } catch (IOException e) {
-              throw new RuntimeException(e);
+            	throw new RuntimeException(e);
             }
         }
 	}

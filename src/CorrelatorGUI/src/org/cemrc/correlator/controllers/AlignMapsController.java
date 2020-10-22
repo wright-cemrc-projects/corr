@@ -111,6 +111,7 @@ public class AlignMapsController {
 		
 		// Setup the comboBoxMode
 		comboBoxMode.getItems().addAll(ALIGN_MODE_RIGID, ALIGN_MODE_INTERACTIVE);
+		comboBoxMode.getItems().addAll(ALIGN_MODE_RIGID);
 		comboBoxMode.setValue(ALIGN_MODE_RIGID);
 	}
 	
@@ -214,6 +215,8 @@ public class AlignMapsController {
 				showMatrixDialog.showAndWait();
 				
 				m_targetMap.setRegistration(register);
+				
+				m_document.setDirt(true);
 				m_document.getData().forceUpdate();
 				
 				if (m_stage != null) {
@@ -224,7 +227,6 @@ public class AlignMapsController {
 			
 			ActionInteractiveAlignment startAlignmentGUI = new ActionInteractiveAlignment(m_document, m_targetPoints, m_referencePoints);
 			startAlignmentGUI.doAction();
-			
 			
 			if (m_stage != null) {
 				m_stage.close();

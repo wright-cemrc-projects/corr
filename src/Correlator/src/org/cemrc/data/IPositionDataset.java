@@ -105,4 +105,15 @@ public interface IPositionDataset {
 	 * @param color
 	 */
 	public void setColor(NavigatorColorEnum color);
+	
+	/**
+	 * Get the unique GroupID for this dataset
+	 * @return
+	 */
+	public int getGroupID();
+	
+	/**
+	 * Set the unique GroupID for this dataset
+	 */
+	public void setGroupID(int value);
 }

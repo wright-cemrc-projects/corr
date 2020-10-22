@@ -25,6 +25,10 @@ public class AbstractPositionDataset {
 	@XmlElement(name="color")
 	private NavigatorColorEnum m_color = NavigatorColorEnum.Black;
 	
+	@XmlElement(name="groupID")
+	private int m_groupID = 0;
+
+	
 	/**
 	 * Set the parent map this position set belongs to.
 	 * @param map
@@ -72,5 +76,13 @@ public class AbstractPositionDataset {
 	
 	public void setName(String name) {
 		m_name = name;
+	}
+	
+	public int getGroupID() {
+		return m_groupID;
+	}
+
+	public void setGroupID(int value) {
+		m_groupID = value;
 	}
 }

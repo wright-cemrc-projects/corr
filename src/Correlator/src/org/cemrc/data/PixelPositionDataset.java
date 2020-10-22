@@ -30,7 +30,7 @@ public class PixelPositionDataset extends AbstractPositionDataset implements IPo
 	private Vector2<Float> m_backlash = new Vector2<Float>(0f, 0f);
 	@XmlElement(name="positions")
 	private List<Vector2<Float>> m_pixelPositions = new ArrayList<Vector2<Float>>();
-
+	
 	/**
 	 * Helper method to build the converter.
 	 * @param id
@@ -133,6 +133,7 @@ public class PixelPositionDataset extends AbstractPositionDataset implements IPo
 		if (m_imported != null) {
 			genericItem.addNavigatorField(NavigatorKey.Imported, m_imported);
 		}
+		genericItem.addNavigatorField(NavigatorKey.GroupID, getGroupID());
 		
 		// Renumber
 		List<GenericItem> outputItems = buildItems(genericItem, stagePositions);
@@ -224,4 +225,5 @@ public class PixelPositionDataset extends AbstractPositionDataset implements IPo
 		
 		m_pixelPositions = updateList;
 	}
+
 }

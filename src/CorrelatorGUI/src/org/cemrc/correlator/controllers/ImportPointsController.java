@@ -247,7 +247,8 @@ public class ImportPointsController {
 		PixelPositionDataset pixelPositions = new PixelPositionDataset();
 		pixelPositions.setPixelPositions(parsedPositions);
 		pixelPositions.setColor(colorId);
-		pixelPositions.setName("Point Set " + m_document.getData().getUniquePointsID());
+		pixelPositions.setGroupID(m_document.getData().getUniqueGroupID());
+		pixelPositions.setName("Group " + pixelPositions.getGroupID());
 
 		// Get useful values from the map.
 		if (selectedMap != null) {

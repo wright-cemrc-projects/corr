@@ -20,10 +20,8 @@ import org.cemrc.correlator.CorrelatorConfig;
 import org.cemrc.correlator.io.ReadMRC;
 import org.cemrc.data.CorrelatorDocument;
 
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -63,6 +61,7 @@ public class ActionImportImageMap {
 		List<GenericItem> docItems = new ArrayList<GenericItem>();
 		docItems.add(mapItemFromImage(file));
 		m_document.getData().mergeAutodoc(docItems, file);
+		m_document.setDirt(true);
 		
 	}
 	
