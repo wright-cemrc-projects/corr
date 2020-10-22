@@ -40,7 +40,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
@@ -92,7 +92,7 @@ public class FindHolesController {
 	private TextField high;
 	
 	@FXML
-	private Pane chartPane;
+	private HBox chartBox;
 	
 	private PixelPositionDataset m_pixelPositions;
 	
@@ -305,14 +305,16 @@ public class FindHolesController {
 		final NumberAxis xAxis = new NumberAxis();
 		final NumberAxis yAxis = new NumberAxis();
 		imageHistogram = new LineChart<Number, Number>(xAxis, yAxis);
+		imageHistogram.setPrefSize(chartBox.getWidth(), chartBox.getHeight());
 		
 		// Style the image histogram
 		imageHistogram.setCreateSymbols(false);
 		imageHistogram.setAnimated(false);
 		
-		chartPane.getChildren().clear();		
+		chartBox.getChildren().clear();		
+		chartBox.getChildren().add(imageHistogram);
 		// Setup a controller class to manage lines
-		HistogramController histogram = new HistogramController(chartPane, imageHistogram, SwingFXUtils.toFXImage(m_src, null));
+		HistogramController histogram = new HistogramController(imageHistogram, SwingFXUtils.toFXImage(m_src, null));
 	}
 	
 	@FXML

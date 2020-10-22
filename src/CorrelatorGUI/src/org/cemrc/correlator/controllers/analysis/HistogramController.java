@@ -1,20 +1,9 @@
 package org.cemrc.correlator.controllers.analysis;
 
-import java.util.List;
-import java.util.Objects;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
-import javafx.scene.layout.Pane;
-import javafx.scene.chart.ValueAxis;
-import javafx.scene.shape.Line;
 
 /**
  * This class either describes a controller for a LineChart representing an image histogram
@@ -26,16 +15,15 @@ public class HistogramController {
 	
 	
 	
-	public HistogramController(Pane pane, LineChart<Number, Number> chart, Image image) {
+	public HistogramController(LineChart<Number, Number> chart, Image image) {
 		buildChart(chart, image);
 		
 		// Add controllable marker lines.
 		chart.setCache(true);
+	
 		// These lines are present in the wrapping Pane class, not chart itself.
-		LineMarker lineMarker = new LineMarker(pane, (NumberAxis) chart.getXAxis(), 0.0, (NumberAxis) chart.getYAxis());
-		
-		pane.getChildren().addAll(chart);
-		lineMarker.updateMarker(10);
+		//LineMarker lineMarker = new LineMarker(pane, (NumberAxis) chart.getXAxis(), 0.0, (NumberAxis) chart.getYAxis());
+		//lineMarker.updateMarker(10);
 	}
 	
 	// Setup a chart with a draggable line
