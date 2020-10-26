@@ -207,7 +207,6 @@ public class NavData {
 			if (! mapPositions.containsKey(groupID) ) {
 				AutodocPositionDataset points = new AutodocPositionDataset();
 				points.setGroupID(groupID);
-				mapPositions.put(key, points);
 				points.setName("Group " + points.getGroupID());
 				
 				// Associate with it's parent map.
@@ -227,7 +226,6 @@ public class NavData {
 			
 		}
 		
-		List<IPositionDataset> rv = new ArrayList<IPositionDataset>();
 		for (Map<Integer, AutodocPositionDataset> mapPositions : mapping.values()) {
 			for (AutodocPositionDataset p : mapPositions.values()) {
 				
