@@ -58,6 +58,11 @@ public class ReadMRC {
 			Integer ns = Integer.reverseBytes(bb.getInt());
 			Integer nmode = Integer.reverseBytes(bb.getInt());
 			
+			// Bytes 93-96 contain size for extended header.
+			bb.position(93); // 92?
+			Integer extendedHeader = Integer.reverseBytes(bb.getInt());
+			// Need to see if the extended header is included in the MRC images that parse incorrectly [TODO]
+			
 			// Determine mode bytes.
 			int modeBytes;
 			switch (nmode) {
