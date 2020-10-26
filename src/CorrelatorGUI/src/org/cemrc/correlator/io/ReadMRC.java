@@ -13,9 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.Image;
+import java.nio.ByteOrder;
 
 /**
  * A parser for SerialEM (.st/.mrc) file format.
@@ -59,7 +57,7 @@ public class ReadMRC {
 			Integer nmode = Integer.reverseBytes(bb.getInt());
 			
 			// Bytes 93-96 contain size for extended header.
-			bb.position(93); // 92?
+			bb.position(92); 
 			Integer extendedHeader = Integer.reverseBytes(bb.getInt());
 			// Need to see if the extended header is included in the MRC images that parse incorrectly [TODO]
 			
@@ -94,6 +92,12 @@ public class ReadMRC {
 			// Mode 3 represents 2-byte integer complex number
 			// Mode 4 represents 4-byte real complex number
 			
+			// Skip block possibly 128 bytes
+			//byte []  extendedBuffer = new byte[(int) 1024];
+			//in.read(extendedBuffer);
+			
+			in.skipBytes(extendedHeader);
+			
 			// After 1024 bytes read from input stream,
 			// Next determine the image size in bytes and read that in.
 			
@@ -104,7 +108,7 @@ public class ReadMRC {
 			in.read(imageByteBuffer);
 	
 			// Normalize to 8-bit greyscale
-			byte [] normalizedValues = getNormalizedByteArray(imageByteBuffer, nx, ny, modeBytes, true);
+			byte [] normalizedValues = getNormalizedByteArray(imageByteBuffer, nx, ny, modeBytes, nmode, true);
 			
 			// Create 8-bit greyscale
 			ColorModel cm = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_GRAY), false, false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
@@ -122,7 +126,7 @@ public class ReadMRC {
 		return rv;
 	}
 	
-	private static byte [] getNormalizedByteArray(byte [] bytes, int nx, int ny, int modeBytes, boolean flip) {
+	private static byte [] getNormalizedByteArray(byte [] bytes, int nx, int ny, int modeBytes, int mode, boolean flip) {
 		byte [] rv = new byte[nx*ny];
 		
 		// High value to scale by.
@@ -139,8 +143,17 @@ public class ReadMRC {
 			}
 			
 			// Get integer
-			int result = ByteBuffer.wrap(buffer).getInt();
-			if (result > maxValue) maxValue = result;
+			ByteBuffer b = ByteBuffer.wrap(buffer);
+			b.order(ByteOrder.BIG_ENDIAN);
+			int result = b.getInt();
+			
+			//if (mode == 1) {
+			//	result += 32768;
+			//}
+			
+			if (result > maxValue) {
+				maxValue = result;
+			}
 		}
 		
 		// Pass #2 normalize to 8-bit image.
@@ -157,7 +170,14 @@ public class ReadMRC {
 			}
 			
 			// Get integer
-			int result = ByteBuffer.wrap(buffer).getInt();
+			ByteBuffer b = ByteBuffer.wrap(buffer);
+			b.order(ByteOrder.BIG_ENDIAN);
+			int result = b.getInt();
+			
+			//if (mode == 1) {
+			//	result += 32768;
+			//}
+			
 			byte resultByte = new Integer( (int)(255.0f * ((float) result / (float) maxValue)) ).byteValue();
 			
 			int index = nx * y + x;
