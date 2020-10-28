@@ -341,6 +341,12 @@ public class FindHolesController {
 	    thread.start();
 	}
 	
+	@FXML
+	public void doResetHoles() {
+		resetCirclePositions();
+		updateCanvas();
+	}
+	
 	private void addPoints(List<CircleHoughTransformTask.ClusterMinima> points, IMap map) {
 		List<Vector2<Float>> parsedPositions= new ArrayList<Vector2<Float>>(); 
 		for (CircleHoughTransformTask.ClusterMinima pt : points) {
@@ -461,7 +467,7 @@ public class FindHolesController {
 			gc.restore();
 		}
 		
-		if (showHoles.getValue()) {
+		if (showHoles.getValue() && m_src != null) {
 			
 			double mxx = width / m_src.getWidth();
 			double myy = height / m_src.getHeight();
@@ -481,6 +487,7 @@ public class FindHolesController {
 	private void resetCirclePositions() {
 		m_pixelPositions = new PixelPositionDataset();
 		m_foundHoles = new ArrayList<CircleHoughTransformTask.ClusterMinima>();
+		findProgressBar.setProgress(0.0f);
 	}
 	
 	/**
@@ -493,6 +500,7 @@ public class FindHolesController {
 		
 		for (CircleHoughTransformTask.ClusterMinima p : positions) {
 			gc.setStroke(color);
+			gc.setLineWidth(3.0);
 			gc.strokeOval(p.center.x-p.radius, p.center.y-p.radius, 2* p.radius, 2* p.radius);
 		}
 		

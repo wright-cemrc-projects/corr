@@ -43,6 +43,7 @@ public class ActionInteractiveAlignment {
 			// create a stage
 	    	Scene importScene = new Scene(importView, 750, 800);
 	    	Stage dialogStage = new Stage();
+	    	controller.setStage(dialogStage);
 	    	dialogStage.getIcons().add(CorrelatorConfig.getApplicationIcon());
 	    	dialogStage.setScene(importScene);
 	    	dialogStage.setTitle(CorrelatorConfig.getApplicationName());

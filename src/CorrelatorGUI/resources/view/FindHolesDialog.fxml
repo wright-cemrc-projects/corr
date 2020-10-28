@@ -117,11 +117,6 @@
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </HBox.margin>
                         </ToggleButton>
-                        <Button fx:id="holesButton" mnemonicParsing="false" onAction="#doCircleHoughTransform" prefWidth="100.0" text="Find Holes!">
-                           <HBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
-                           </HBox.margin>
-                        </Button>
                      </children>
                   </HBox>
                   <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0">
@@ -130,6 +125,16 @@
                            <children>
                               <HBox>
                                  <children>
+                                    <Button fx:id="holesButton" mnemonicParsing="false" onAction="#doCircleHoughTransform" prefWidth="100.0" text="Find Holes!">
+                                       <HBox.margin>
+                                          <Insets bottom="25.0" left="10.0" right="10.0" top="25.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                    <Button fx:id="resetHoles" mnemonicParsing="false" onAction="#doResetHoles" prefWidth="60.0" text="Reset">
+                                       <HBox.margin>
+                                          <Insets bottom="25.0" left="10.0" right="10.0" top="25.0" />
+                                       </HBox.margin>
+                                    </Button>
                                     <ProgressBar fx:id="findProgressBar" prefWidth="150.0" progress="0.0">
                                        <padding>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="15.0" />
@@ -140,12 +145,12 @@
                                     </ProgressBar>
                                     <Button fx:id="acceptButton" layoutX="35.0" layoutY="35.0" mnemonicParsing="false" onAction="#doAccept" text="Accept">
                                        <HBox.margin>
-                                          <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                                          <Insets bottom="25.0" left="10.0" right="10.0" top="25.0" />
                                        </HBox.margin>
                                     </Button>
                                     <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#doCancel" text="Cancel">
                                        <HBox.margin>
-                                          <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                                          <Insets bottom="25.0" left="10.0" right="10.0" top="25.0" />
                                        </HBox.margin>
                                     </Button>
                                  </children>

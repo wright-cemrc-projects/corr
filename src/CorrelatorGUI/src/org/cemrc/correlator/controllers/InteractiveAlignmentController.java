@@ -15,6 +15,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -22,6 +23,7 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.transform.Affine;
+import javafx.stage.Stage;
 
 /**
  * A controller class for an interactive alignment.
@@ -35,6 +37,8 @@ public class InteractiveAlignmentController {
 	double MAX_SCALE = 100;
 	
 	IMap m_referenceMap, m_targetMap;
+	
+	private Stage m_stage = null;
 	
 	@FXML 
 	public ScrollPane targetPane;
@@ -62,7 +66,19 @@ public class InteractiveAlignmentController {
 	
 	@FXML
 	public TextField rRotate;
-
+	
+	@FXML
+	CheckBox tflipx;
+	
+	@FXML
+	CheckBox tflipy;
+	
+	@FXML
+	CheckBox rflipx;
+	
+	@FXML
+	CheckBox rflipy;
+	
 	/**
 	 * Structure tracking Canvas transforms.
 	 */
@@ -327,6 +343,30 @@ public class InteractiveAlignmentController {
 	            event.consume();
 			}
 		});
+		
+		ChangeListener<Boolean> rcheckChange = new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				m_referenceCanvasState.draw();
+			}
+		};
+		
+		ChangeListener<Boolean> tcheckChange = new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				m_targetCanvasState.draw();
+			}
+		};
+		
+		rflipx.selectedProperty().bindBidirectional(m_referenceCanvasState.getPane().flipX);
+		rflipy.selectedProperty().bindBidirectional(m_referenceCanvasState.getPane().flipY);
+		tflipx.selectedProperty().bindBidirectional(m_targetCanvasState.getPane().flipX);
+		tflipy.selectedProperty().bindBidirectional(m_targetCanvasState.getPane().flipY);
+		
+		rflipx.selectedProperty().addListener(rcheckChange);
+		rflipy.selectedProperty().addListener(rcheckChange);
+		tflipx.selectedProperty().addListener(tcheckChange);
+		tflipy.selectedProperty().addListener(tcheckChange);
 	}
 	
     private double clamp( double value, double min, double max) {
@@ -357,5 +397,35 @@ public class InteractiveAlignmentController {
 		}
 
 		state.draw();
+	}
+	
+	/**
+	 * This is the stage of the window.
+	 * @param s
+	 */
+	public void setStage(Stage s) {
+		m_stage = s;
+	}
+	
+	@FXML
+	public void doAlign() {
+		// TODO: Kick off an interactive alignment that displays an overlay in the right-hand side?
+	
+	}
+	
+	@FXML
+	public void doCancel() {
+		if (m_stage != null) {
+			m_stage.close();
+		}
+	}
+	
+	@FXML
+	public void doAccept() {
+		// TODO: Save alignment and show a dialog?
+		
+		if (m_stage != null) {
+			m_stage.close();
+		}
 	}
 }

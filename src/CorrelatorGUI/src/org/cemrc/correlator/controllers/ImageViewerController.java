@@ -74,6 +74,9 @@ public class ImageViewerController {
 	double globalMaxHeight = 400;
 	double globalFitFactor = 1f;
 	
+	// The stage this belongs to.
+	private Stage m_stage = null;
+	
 	@FXML
 	ScrollPane scrollPane;
 	
