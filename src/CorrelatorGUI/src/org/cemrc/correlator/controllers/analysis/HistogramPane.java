@@ -1,29 +1,50 @@
 package org.cemrc.correlator.controllers.analysis;
 
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 
 /**
- * This class either describes a controller for a LineChart representing an image histogram
- * or is a factory for creating an image histogram LineChart from an Image.
+ * Derived from a StackPane, this will feature interactible cutoff lines for min/max.
  * @author mrlarson2
  *
  */
-public class HistogramController {
+public class HistogramPane extends StackPane {
 	
+	private LineChart<Number, Number> imageHistogram;
 	
-	
-	public HistogramController(LineChart<Number, Number> chart, Image image) {
-		buildChart(chart, image);
+	public HistogramPane(Pane parent, Image image) {
+		
+		final NumberAxis xAxis = new NumberAxis();
+		final NumberAxis yAxis = new NumberAxis();
+		imageHistogram = new LineChart<Number, Number>(xAxis, yAxis);
+		imageHistogram.setPrefSize(parent.getWidth(), parent.getHeight());
+		
+		buildChart(imageHistogram, image);
 		
 		// Add controllable marker lines.
-		chart.setCache(true);
+		imageHistogram.setCache(true);
+		
+		// Style the image histogram
+		imageHistogram.setCreateSymbols(false);
+		imageHistogram.setAnimated(false);
 	
 		// These lines are present in the wrapping Pane class, not chart itself.
 		//LineMarker lineMarker = new LineMarker(pane, (NumberAxis) chart.getXAxis(), 0.0, (NumberAxis) chart.getYAxis());
 		//lineMarker.updateMarker(10);
+		
+		// Add the histogram
+		this.getChildren().add(imageHistogram);
+		
+		// Add interactible line nodes for min/bin/max
+		// TODO
+		
+		// Add this StackPane to the parent.
+		parent.getChildren().add(this);
 	}
 	
 	// Setup a chart with a draggable line

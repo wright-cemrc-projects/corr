@@ -9,7 +9,7 @@ import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.correlator.analysis.CircleHoughTransformTask;
-import org.cemrc.correlator.controllers.analysis.HistogramController;
+import org.cemrc.correlator.controllers.analysis.HistogramPane;
 import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
@@ -28,8 +28,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -82,8 +80,6 @@ public class FindHolesController {
 	
 	@FXML
 	private ProgressBar findProgressBar;
-	
-	private LineChart<Number, Number> imageHistogram;
 	
 	@FXML
 	private TextField low;
@@ -303,19 +299,10 @@ public class FindHolesController {
 		updateCanvas();
 		
 		// Fill the histogram
-		final NumberAxis xAxis = new NumberAxis();
-		final NumberAxis yAxis = new NumberAxis();
-		imageHistogram = new LineChart<Number, Number>(xAxis, yAxis);
-		imageHistogram.setPrefSize(chartBox.getWidth(), chartBox.getHeight());
-		
-		// Style the image histogram
-		imageHistogram.setCreateSymbols(false);
-		imageHistogram.setAnimated(false);
-		
 		chartBox.getChildren().clear();		
-		chartBox.getChildren().add(imageHistogram);
+		
 		// Setup a controller class to manage lines
-		HistogramController histogram = new HistogramController(imageHistogram, SwingFXUtils.toFXImage(m_src, null));
+		HistogramPane histogram = new HistogramPane(chartBox, SwingFXUtils.toFXImage(m_src, null));
 	}
 	
 	@FXML
