@@ -1,5 +1,6 @@
 package org.cemrc.correlator.controllers.analysis;
 
+import javafx.animation.AnimationTimer;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -7,6 +8,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Line;
 
 /**
  * Derived from a StackPane, this will feature interactible cutoff lines for min/max.
@@ -41,7 +43,42 @@ public class HistogramPane extends StackPane {
 		this.getChildren().add(imageHistogram);
 		
 		// Add interactible line nodes for min/bin/max
-		// TODO
+	    Line cutoffLine1 = new Line();
+	    cutoffLine1.setStrokeWidth(1);
+	    Line cutoffLine2 = new Line();
+	    cutoffLine2.setStrokeWidth(1);
+
+	    Pane pane = new Pane(cutoffLine1, cutoffLine2);
+	    this.getChildren().add(pane);
+	    
+	    cutoffLine1.setStartY(0);
+	    cutoffLine1.setEndY(parent.getHeight());
+	    cutoffLine1.setStartX(5);
+	    cutoffLine1.setEndX(5);
+	    
+	    cutoffLine2.setStartY(0);
+	    cutoffLine2.setEndY(parent.getHeight());
+	    cutoffLine2.setStartX(55);
+	    cutoffLine2.setEndX(55);
+
+	    /*
+        AnimationTimer loop = new AnimationTimer()
+        {
+            @Override
+            public void handle(long now)
+            {
+                verticleLine.setStartY(0);
+                verticleLine.setEndY(pane.getHeight());
+                verticleLine.setEndX(mouseX);
+                verticleLine.setStartX(mouseX);
+
+                horizontalLine.setStartX(0);
+                horizontalLine.setEndX(pane.getWidth());
+                horizontalLine.setEndY(mouseY);
+                horizontalLine.setStartY(mouseY);
+            }
+        };
+        */
 		
 		// Add this StackPane to the parent.
 		parent.getChildren().add(this);
