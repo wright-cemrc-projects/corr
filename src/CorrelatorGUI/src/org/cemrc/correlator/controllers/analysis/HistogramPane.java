@@ -1,6 +1,12 @@
 package org.cemrc.correlator.controllers.analysis;
 
+import java.awt.event.MouseEvent;
+
 import javafx.animation.AnimationTimer;
+import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -21,6 +27,8 @@ public class HistogramPane extends StackPane {
 	
 	public HistogramPane(Pane parent, Image image) {
 		
+		parent.getChildren().add(this);
+		
 		final NumberAxis xAxis = new NumberAxis();
 		final NumberAxis yAxis = new NumberAxis();
 		imageHistogram = new LineChart<Number, Number>(xAxis, yAxis);
@@ -39,50 +47,74 @@ public class HistogramPane extends StackPane {
 		//LineMarker lineMarker = new LineMarker(pane, (NumberAxis) chart.getXAxis(), 0.0, (NumberAxis) chart.getYAxis());
 		//lineMarker.updateMarker(10);
 		
-		// Add the histogram
-		this.getChildren().add(imageHistogram);
-		
 		// Add interactible line nodes for min/bin/max
 	    Line cutoffLine1 = new Line();
-	    cutoffLine1.setStrokeWidth(1);
+	    cutoffLine1.setStrokeWidth(3);
 	    Line cutoffLine2 = new Line();
-	    cutoffLine2.setStrokeWidth(1);
+	    cutoffLine2.setStrokeWidth(3);
+	    
+	    makeDraggable(cutoffLine1);
+	    makeDraggable(cutoffLine2);
 
 	    Pane pane = new Pane(cutoffLine1, cutoffLine2);
+		// Add the histogram
+		this.getChildren().add(imageHistogram);
 	    this.getChildren().add(pane);
-	    
+	    this.layout();
+
+	    Bounds b = xAxis.getBoundsInParent();
+	    Node axis_p = xAxis.getParent();
+	    Bounds bp = axis_p.localToParent(b);
+
 	    cutoffLine1.setStartY(0);
-	    cutoffLine1.setEndY(parent.getHeight());
-	    cutoffLine1.setStartX(5);
-	    cutoffLine1.setEndX(5);
+	    cutoffLine1.setEndY(bp.getMinY());
+	    cutoffLine1.setStartX(bp.getMinX());
+	    cutoffLine1.setEndX(bp.getMinX());
 	    
 	    cutoffLine2.setStartY(0);
-	    cutoffLine2.setEndY(parent.getHeight());
-	    cutoffLine2.setStartX(55);
-	    cutoffLine2.setEndX(55);
-
-	    /*
-        AnimationTimer loop = new AnimationTimer()
-        {
-            @Override
-            public void handle(long now)
-            {
-                verticleLine.setStartY(0);
-                verticleLine.setEndY(pane.getHeight());
-                verticleLine.setEndX(mouseX);
-                verticleLine.setStartX(mouseX);
-
-                horizontalLine.setStartX(0);
-                horizontalLine.setEndX(pane.getWidth());
-                horizontalLine.setEndY(mouseY);
-                horizontalLine.setStartY(mouseY);
-            }
-        };
-        */
-		
-		// Add this StackPane to the parent.
-		parent.getChildren().add(this);
+	    cutoffLine2.setEndY(bp.getMinY());
+	    cutoffLine2.setStartX(bp.getMaxX() - 1);
+	    cutoffLine2.setEndX(bp.getMaxX() - 1);
+	    
 	}
+	
+    private class Delta {
+        public double x;
+        public double y;
+    }
+	
+    private void makeDraggable(Node node) {
+    	
+        final Delta dragDelta = new Delta();
+
+        node.setOnMouseEntered(me -> {
+            if (!me.isPrimaryButtonDown()) {
+                node.getScene().setCursor(Cursor.HAND);
+            }
+        });
+        node.setOnMouseExited(me -> {
+            if (!me.isPrimaryButtonDown()) {
+                node.getScene().setCursor(Cursor.DEFAULT);
+            }
+        });
+        node.setOnMousePressed(me -> {
+            if (me.isPrimaryButtonDown()) {
+                node.getScene().setCursor(Cursor.DEFAULT);
+            }
+            dragDelta.x = me.getX();
+            dragDelta.y = me.getY();
+            node.getScene().setCursor(Cursor.MOVE);
+        });
+        node.setOnMouseReleased(me -> {
+            if (!me.isPrimaryButtonDown()) {
+                node.getScene().setCursor(Cursor.DEFAULT);
+            }
+        });
+        node.setOnMouseDragged(me -> {
+            node.setLayoutX(node.getLayoutX() + me.getX() - dragDelta.x);
+            // node.setLayoutY(node.getLayoutY() + me.getY() - dragDelta.y);
+        });
+    }
 	
 	// Setup a chart with a draggable line
 	public static void buildChart(LineChart<Number, Number> chart, Image image) {
