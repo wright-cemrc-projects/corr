@@ -33,8 +33,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
@@ -76,16 +74,7 @@ public class FindHolesController {
 	private Image m_edgeDetectImage;
 	
 	@FXML
-	private Slider binarizationSlider;
-	
-	@FXML
 	private ProgressBar findProgressBar;
-	
-	@FXML
-	private TextField low;
-	
-	@FXML
-	private TextField high;
 	
 	@FXML
 	private HBox chartBox;
@@ -133,84 +122,6 @@ public class FindHolesController {
 		};
 		targetMapCombo.setButtonCell(cellFactory.call(null));
 		targetMapCombo.setCellFactory(cellFactory);
-			
-		ChangeListener<Number> updateUI = new ChangeListener<Number>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				if (m_task != null) {
-					m_task.setBinarizationCutoff(newValue.intValue());
-					m_task.getProcessed(false);
-					m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
-					m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
-					updateCanvas();
-				}
-			}
-		};
-		binarizationSlider.setValue(240);
-		binarizationSlider.valueProperty().addListener(updateUI);
-		
-		ChangeListener<String> lowCallback = new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (m_task != null) {
-					int value;
-					
-					try {
-						value = Integer.parseInt(newValue);
-					} catch (NumberFormatException e) {
-						return;
-					}
-					
-					if (value < 0) {
-						value = 0;
-					}
-					
-					if (value > 256) {
-						value = 256;
-					}
-					
-					m_task.setLowCutoff(value);
-					m_task.getProcessed(false);
-					m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
-					m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
-					updateCanvas();
-				}
-			}
-		};
-		low.textProperty().addListener(lowCallback);
-		
-		ChangeListener<String> highCallback = new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (m_task != null) {
-					int value;
-					
-					try {
-						value = Integer.parseInt(newValue);
-					} catch (NumberFormatException e) {
-						return;
-					}
-					
-					if (value < 0) {
-						value = 0;
-					}
-					
-					if (value > 256) {
-						value = 256;
-					}
-					
-					m_task.setHighCutoff(value);
-					m_task.getProcessed(false);
-					m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
-					m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
-					updateCanvas();
-				}
-			}
-		};
-		high.textProperty().addListener(highCallback);
 		
 		edgeAlgorithmCombo.setItems(FXCollections.observableArrayList("Laplacian_1", "Laplacian_2", "Laplacian_3"));
 		
@@ -303,6 +214,45 @@ public class FindHolesController {
 		
 		// Setup a controller class to manage lines
 		HistogramPane histogram = new HistogramPane(chartBox, SwingFXUtils.toFXImage(m_src, null));
+		histogram.getHistogramController().m_positionBinaryCutoff.addListener((observable, oldValue, newValue) -> {
+		    int intValue = getLimited256(newValue.doubleValue());
+		    m_task.setBinarizationCutoff(intValue);
+			m_task.getProcessed(false);
+			m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
+			m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
+		    updateCanvas();
+		});
+		
+		histogram.getHistogramController().m_positionMinCutoff.addListener((observable, oldValue, newValue) -> {
+		    int intValue = getLimited256(newValue.doubleValue());
+		    m_task.setLowCutoff(intValue);
+			m_task.getProcessed(false);
+			m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
+			m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
+		    updateCanvas();
+		});
+		
+		histogram.getHistogramController().m_positionMaxCutoff.addListener((observable, oldValue, newValue) -> {
+		    int intValue = getLimited256(newValue.doubleValue());
+		    m_task.setHighCutoff(intValue);
+			m_task.getProcessed(false);
+			m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
+			m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
+		    updateCanvas();
+		});
+		
+		// Set default values:
+		
+		m_task.setBinarizationCutoff(getLimited256(histogram.getHistogramController().m_positionBinaryCutoff.doubleValue()));
+		m_task.setLowCutoff(getLimited256(histogram.getHistogramController().m_positionMinCutoff.doubleValue()));
+		m_task.setHighCutoff(getLimited256(histogram.getHistogramController().m_positionMaxCutoff.doubleValue()));
+	}
+	
+	private int getLimited256(double value) {
+		int rv = (int) Math.round(256.0 * value);
+		if (rv < 0) rv = 0;
+		if (rv > 255) rv = 255;
+		return rv;
 	}
 	
 	@FXML
