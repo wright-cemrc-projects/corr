@@ -14,6 +14,8 @@ import java.util.List;
 import org.cemrc.autodoc.Vector2;
 
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.control.ProgressBar;
 
 /**
@@ -37,9 +39,43 @@ public class CircleHoughTransformTask {
 	private int m_cutoffLow = 0;
 	private int m_cutoffHigh = 256;
 	
-	private String m_edgeFilter = "Laplacian_1";
+	// Make the second Laplacian edge filter the default.
+	private String m_edgeFilter = "Laplacian_2";
 	
 	private ProgressBar m_progress;
+	
+	// Set some sane limits
+	private final int MIN_HOLE_RADIUS_DEFAULT = 8;
+	private final int MAX_HOLE_RADIUS_DEFAULT = 20;
+	
+	class BoundedIntegerProperty extends SimpleIntegerProperty {
+		
+		private final int MIN_HOLE_RADIUS = 0;
+		private final int MAX_HOLE_RADIUS = 36;
+
+	    @Override
+	    public void set(int value){
+	    	
+	    	value = value > MIN_HOLE_RADIUS ? value : 0;
+	    	value = value < MAX_HOLE_RADIUS ? value : MAX_HOLE_RADIUS;
+	    	
+	        super.set(value);
+	    }
+
+	    @Override
+	    public void setValue(Number value){
+	    	
+	    	value = value.intValue() > MIN_HOLE_RADIUS ? value : 0;
+	    	value = value.intValue() < MAX_HOLE_RADIUS ? value : MAX_HOLE_RADIUS;
+	    	
+	        super.setValue(value);
+	    }
+	}
+	
+	public IntegerProperty minHole = new BoundedIntegerProperty();
+	public IntegerProperty maxHole = new BoundedIntegerProperty();
+	
+	//public Property<Integer> minHole = new SimpleProperty<Integer>();
 	
 	/**
 	 * Describes a detected circle cluster
@@ -71,6 +107,11 @@ public class CircleHoughTransformTask {
 			
 			return dx * dx + dy * dy <= dr*dr;
 		}
+	}
+	
+	public CircleHoughTransformTask() {
+		minHole.set(MIN_HOLE_RADIUS_DEFAULT);
+		maxHole.set(MAX_HOLE_RADIUS_DEFAULT);
 	}
 
 	public void setProgressBar(ProgressBar bar) {
@@ -180,8 +221,8 @@ public class CircleHoughTransformTask {
 		int width = image.getWidth();
 		int height = image.getHeight();
 		
-		int radiusMin = 8;
-		int radiusMax = 20;
+		int radiusMin = minHole.get();
+		int radiusMax = maxHole.get();
 		
 		int accumulator [][][] = new int[width][height][radiusMax]; 
 		
@@ -228,6 +269,7 @@ public class CircleHoughTransformTask {
 							if (a >= 0 && a < width && b >= 0 && b < height ) {
 								// add a vote
 								accumulator[a][b][r] +=1;
+								//System.out.print(".");
 							}
 						}
 					}
@@ -273,6 +315,7 @@ public class CircleHoughTransformTask {
 					if (values[x][y][r] >= max) {
 						highestScores[x][y] = values[x][y][r];
 						selectedRadius[x][y] = r;
+						max = values[x][y][r];
 					}
 				}
 			}

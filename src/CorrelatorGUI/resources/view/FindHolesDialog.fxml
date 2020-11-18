@@ -53,30 +53,10 @@
                         <Insets left="25.0" right="25.0" />
                      </HBox.margin>
                   </VBox>
-                  <VBox alignment="TOP_CENTER">
-                     <children>
-                        <Label text="Edge Detection" wrapText="true">
-                           <font>
-                              <Font name="System Bold" size="14.0" />
-                           </font>
-                           <VBox.margin>
-                              <Insets top="10.0" />
-                           </VBox.margin>
-                        </Label>
-                        <ComboBox fx:id="edgeAlgorithmCombo" onAction="#updateEdgeDetection" prefWidth="150.0">
-                           <VBox.margin>
-                              <Insets bottom="10.0" top="5.0" />
-                           </VBox.margin>
-                        </ComboBox>
-                     </children>
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </VBox>
                   <VBox>
                      <children>
                         <Label text="Hole Min Radius" />
-                        <TextField fx:id="holeMinEntry" prefWidth="15.0">
+                        <TextField fx:id="holeMinEntry" prefWidth="15.0" text="8">
                            <VBox.margin>
                               <Insets top="5.0" />
                            </VBox.margin>
@@ -89,7 +69,7 @@
                   <VBox>
                      <children>
                         <Label text="Hole Max Radius" />
-                        <TextField fx:id="holeMaxEntry" prefWidth="15.0">
+                        <TextField fx:id="holeMaxEntry" prefWidth="15.0" text="20">
                            <VBox.margin>
                               <Insets top="5.0" />
                            </VBox.margin>

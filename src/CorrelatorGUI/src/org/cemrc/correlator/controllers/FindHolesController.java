@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.UnaryOperator;
+import java.util.regex.Pattern;
 
 import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
@@ -17,11 +19,11 @@ import org.cemrc.data.IPositionDataset;
 import org.cemrc.data.NavigatorColorEnum;
 import org.cemrc.data.PixelPositionDataset;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -33,6 +35,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
@@ -41,6 +46,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 public class FindHolesController {
 	// The active document.
@@ -58,8 +64,8 @@ public class FindHolesController {
 	@FXML
 	private ComboBox<IMap> targetMapCombo;
 	
-	@FXML
-	private ComboBox<String> edgeAlgorithmCombo;
+	//@FXML
+	//private ComboBox<String> edgeAlgorithmCombo;
 	
 	@FXML
 	private Button cancelButton;
@@ -98,8 +104,17 @@ public class FindHolesController {
 	BooleanProperty showHoles = new SimpleBooleanProperty(true);
 	
 	@FXML
+	private TextField holeMinEntry;
+	
+	@FXML
+	private TextField holeMaxEntry;
+	
+	@FXML
 	public void initialize() {
 		updateButton();
+		
+		// Setup the min/max circle sizes
+		
 		
 		// Setup callbacks to update the views.
 		Callback<ListView<IMap>, ListCell<IMap>> cellFactory = new Callback<ListView<IMap>, ListCell<IMap>>() {
@@ -123,7 +138,7 @@ public class FindHolesController {
 		targetMapCombo.setButtonCell(cellFactory.call(null));
 		targetMapCombo.setCellFactory(cellFactory);
 		
-		edgeAlgorithmCombo.setItems(FXCollections.observableArrayList("Laplacian_1", "Laplacian_2", "Laplacian_3"));
+		// edgeAlgorithmCombo.setItems(FXCollections.observableArrayList("Laplacian_1", "Laplacian_2", "Laplacian_3"));
 		
 		bwImageToggle.selectedProperty().bindBidirectional(showBWImage);
 		edgeImageToggle.selectedProperty().bindBidirectional(showEdgeImage);
@@ -184,6 +199,15 @@ public class FindHolesController {
 		}
 	}
 	
+	public class IntegerFilter implements UnaryOperator<TextFormatter.Change> {
+	    private final Pattern DIGIT_PATTERN = Pattern.compile("\\d*");
+
+	    @Override
+	    public Change apply(TextFormatter.Change aT) {
+	        return DIGIT_PATTERN.matcher(aT.getText()).matches() ? aT : null;
+	    }
+	}
+	
 	private void setTask() {
 		if (m_targetMap == null) return;
 		
@@ -200,6 +224,34 @@ public class FindHolesController {
 		m_task.getProcessed(false);
 		m_greyScaleImage =  SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
 		m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
+		
+		StringConverter<Number> converter = new StringConverter<Number>() {
+
+		    @Override
+		    public String toString(Number object) {
+		        return object == null ? "" : object.toString();
+		    }
+
+		    @Override
+		    public Number fromString(String string) {
+		        if (string == null) {
+		            return 0;
+		        } else {
+		            try {
+		                return Integer.parseInt(string);
+		            } catch (NumberFormatException ex) {
+		                return 0;
+		            }
+		        }
+		    }
+
+		};
+
+		Bindings.bindBidirectional(holeMaxEntry.textProperty(), m_task.maxHole, converter);
+		Bindings.bindBidirectional(holeMinEntry.textProperty(), m_task.minHole, converter);
+		
+		holeMinEntry.textProperty().set("8");
+		holeMaxEntry.textProperty().set("20");
 		
 		// Update canvas aspect ratio.
 		double canvasHeight = previewCanvas.getHeight();
@@ -365,7 +417,7 @@ public class FindHolesController {
 	 * Should switch the edge detection filter.
 	 */
 	public void updateEdgeDetection() {
-		m_task.setEdgeFilter(edgeAlgorithmCombo.getValue());
+		// m_task.setEdgeFilter(edgeAlgorithmCombo.getValue());
 		BufferedImage proc = m_task.getProcessed(true);
 		m_edgeDetectImage =  SwingFXUtils.toFXImage(proc, null);
 		updateCanvas();
