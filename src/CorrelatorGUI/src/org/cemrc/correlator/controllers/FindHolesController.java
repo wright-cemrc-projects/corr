@@ -315,6 +315,8 @@ public class FindHolesController {
 		Task<Void> task = new Task<Void>() {
 			@Override public Void call()
 			{
+				// TODO: Call FilterGridPoints to keep only organized points.
+				
 				m_foundHoles = m_task.findCircles();
 				
 				if (m_foundHoles.size() > 0) {
