@@ -1,13 +1,20 @@
 # CorRelator
 CorRelator provides easy TEM and FLM correlation for On-The-Fly processing.
 
-
 ## About CorRelator
 CorRelator supports both on-the-fly and post-acquisition two dimensional (2D) cryo-correlation. The on-the-fly correlation integrates image registration, transformation and correlation between EM and FM.
 
 The output is ready for SerialEM automated data collection at transformed fluorescent targets of interest (TOIs) on registered EM images. To get started and gain supports, visit Wiki for more details.
 
 ![Map View](images/mapview.png)
+
+## Documentation
+
+### Tutorials
+
+1. [Tutorial 01: On-the-fly Rough Correlation with Navigator files](documentation/Tutorial_01_OnTheFly_GridSquare.md)
+2. [Tutorial 02: On-the-fly Rough Correlation with raw images](documentation/Tutorial_02_OneTheFly_GridSquare2.md)	
+3. [Tutorial 03: Fine Correlation with Navigator files](documentation/Tutorial_03_OnTheFly_FineAlignment.md) 
 
 ## CorRelator Features 
 
