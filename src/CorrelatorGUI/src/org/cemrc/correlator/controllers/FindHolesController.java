@@ -11,6 +11,7 @@ import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.correlator.analysis.CircleHoughTransformTask;
+import org.cemrc.correlator.controllers.analysis.FilterGridPoints;
 import org.cemrc.correlator.controllers.analysis.HistogramPane;
 import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.CorrelatorDocument;
@@ -315,9 +316,9 @@ public class FindHolesController {
 		Task<Void> task = new Task<Void>() {
 			@Override public Void call()
 			{
-				// TODO: Call FilterGridPoints to keep only organized points.
-				
-				m_foundHoles = m_task.findCircles();
+				FilterGridPoints filter = new FilterGridPoints();
+				List<CircleHoughTransformTask.ClusterMinima> circles = m_task.findCircles();
+				m_foundHoles = filter.findGridPoints(circles);
 				
 				if (m_foundHoles.size() > 0) {
 					addPoints(m_foundHoles, m_targetMap);
