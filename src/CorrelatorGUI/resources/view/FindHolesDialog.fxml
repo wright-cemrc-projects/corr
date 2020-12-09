@@ -141,6 +141,9 @@
                </children>
             </HBox>
          </children>
+         <VBox.margin>
+            <Insets top="15.0" />
+         </VBox.margin>
       </VBox>
    </children>
 </VBox>

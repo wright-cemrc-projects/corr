@@ -1,9 +1,12 @@
 package org.cemrc.correlator.controllers.analysis;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import org.cemrc.autodoc.Vector2;
 import org.cemrc.correlator.analysis.CircleHoughTransformTask;
+import org.cemrc.math.GridSpacing;
 
 /**
  * Given an input list of 2D positions determine which points on a lattice:
@@ -26,7 +29,7 @@ public class FilterGridPoints {
 		public double angle, dx;
 		
 		// Original points
-		CircleHoughTransformTask.ClusterMinima pt1, pt2;
+		public CircleHoughTransformTask.ClusterMinima pt1, pt2;
 		
 		public DeltaPoint(CircleHoughTransformTask.ClusterMinima pt1, CircleHoughTransformTask.ClusterMinima pt2) {
 			this.pt1 = pt1;
@@ -63,6 +66,7 @@ public class FilterGridPoints {
 		// These are the cluster center.
 		Double averageAngle;
 		Double averageDistance;
+		Vector2<Double> origin;
 		
 		/**
 		 * Start a grid cluster with a known angle/distance
@@ -139,7 +143,6 @@ public class FilterGridPoints {
 	
 	
 	public List<CircleHoughTransformTask.ClusterMinima> findGridPoints(List<CircleHoughTransformTask.ClusterMinima> unfiltered) {
-		List<CircleHoughTransformTask.ClusterMinima> rv = new ArrayList<CircleHoughTransformTask.ClusterMinima>();
 		
 		final double MAX_LENGTH = 20.0;
 		
@@ -176,18 +179,60 @@ public class FilterGridPoints {
 			}
 			
 			if (found == false) {
-				clusters.add(new GridCluster(p.angle, p.dx));
+				GridCluster c = new GridCluster(p.angle, p.dx);
+				c.origin = new Vector2<Double>((double)p.pt1.center.x, (double)p.pt1.center.y);
+				clusters.add(c);
 			}
 		}
 		
 		// Establish a grid from two vectors, two spacings and origin point.
 		// Find list of points within distance XX of the grid intersections.
 		
+		int bestHits = 0;
+		GridSpacing best = null;
+		
+		List<Vector2<Double>> pts = new ArrayList<Vector2<Double>>();
+		for (CircleHoughTransformTask.ClusterMinima m : unfiltered) {
+			pts.add(new Vector2<Double>((double)m.center.x, (double)m.center.y));
+		}
+		
+		double delta = 0.1;
+		
 		for (GridCluster c : clusters) {
 			// Establish a grid from two vectors, two spacings and origin point.
 			// Find list of points within distance XX of the grid intersections.
 			
 			// The list with the most accepted points is the best grid, keep that list and return.
+			
+			double x1 = c.averageDistance * Math.cos(c.averageAngle);
+			double y1 = c.averageDistance * Math.sin(c.averageAngle);
+			
+			double perpAngle = c.averageAngle + Math.PI/2.0;
+			
+			double x2 = c.averageDistance * Math.cos(perpAngle);
+			double y2 = c.averageDistance * Math.sin(perpAngle);
+			
+		
+			Vector2<Double> axis_w = new Vector2<Double>(x1, y1);
+			Vector2<Double> axis_h = new Vector2<Double>(x2, y2);
+			
+			GridSpacing s = new GridSpacing(c.origin, axis_w, axis_h);
+			int size = s.getOnGrid(pts, delta).size();
+
+			if (size > 0) {
+				bestHits = size;
+				best = s;
+			}
+		}
+		
+		List<CircleHoughTransformTask.ClusterMinima> rv = new ArrayList<CircleHoughTransformTask.ClusterMinima>();
+		
+		// TODO: add a way to check the best hits.
+		for (CircleHoughTransformTask.ClusterMinima m : unfiltered) {
+			Vector2<Double> pt = new Vector2<Double>((double) m.center.x, (double) m.center.y);
+			if (best != null && best.isOnGrid(pt, delta)) {
+				rv.add(m);
+			}
 		}
 		
 		return rv;
