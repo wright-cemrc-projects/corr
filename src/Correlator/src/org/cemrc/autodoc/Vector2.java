@@ -29,4 +29,5 @@ public class Vector2<T> implements Serializable {
 	public String toString() {
 		return x.toString() + " " + y.toString();
 	}
+
 }

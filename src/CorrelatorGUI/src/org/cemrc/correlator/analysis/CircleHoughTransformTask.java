@@ -77,38 +77,6 @@ public class CircleHoughTransformTask {
 	
 	//public Property<Integer> minHole = new SimpleProperty<Integer>();
 	
-	/**
-	 * Describes a detected circle cluster
-	 * @author mrlarson2
-	 *
-	 */
-	public static class ClusterMinima {
-		public Vector2<Float> center;
-		public int radius;
-		public int score;
-		
-		public ClusterMinima(Vector2<Float> center, int radius, int score) {
-			this.radius = radius;
-			this.score = score;
-			this.center = center;
-		}
-		
-		/**
-		 * Compare two circle centers and their radius. If they are overlapping, report true.
-		 * @param x
-		 * @param y
-		 * @param radius
-		 * @return
-		 */
-		public boolean isOverlap(int x, int y, int radius) {
-			float dx = this.center.x - x;
-			float dy = this.center.y - y;
-			int dr = this.radius + radius;
-			
-			return dx * dx + dy * dy <= dr*dr;
-		}
-	}
-	
 	public CircleHoughTransformTask() {
 		minHole.set(MIN_HOLE_RADIUS_DEFAULT);
 		maxHole.set(MAX_HOLE_RADIUS_DEFAULT);
@@ -289,7 +257,7 @@ public class CircleHoughTransformTask {
 		for (ClusterMinima m : maximum) {
 			
 			// Imprecision in hole center due to use of Int values.
-			Vector2<Float> center = new Vector2<Float>();
+			Vector2<Double> center = new Vector2<Double>();
 			center.x = m.center.x * scale;
 			center.y = m.center.y * scale;
 			int radius = Math.round(m.radius * scale);
@@ -325,6 +293,7 @@ public class CircleHoughTransformTask {
 		
 		// Add any clusters that are above the cutoff.
 		int cutoff = 10;
+		int overlap = 8;
 		
 		// We will find the local minima via clustering
 		List<ClusterMinima> existingClusters = new ArrayList<ClusterMinima>();
@@ -339,22 +308,22 @@ public class CircleHoughTransformTask {
 				ClusterMinima currentMinima = null;
 				
 				for (ClusterMinima m : existingClusters) {
-					if (m.isOverlap(x, y, radius)) {
+					if (m.isOverlap(x, y, radius, overlap)) {
 						currentMinima = m;
 						break;
 					}
 				}
 				
 				if (currentMinima != null) {
-					if (currentMinima.score < score) {
+					if (currentMinima.score < score && currentMinima.radius < radius) {
 						// Update the circle.
 						currentMinima.score = score;
 						currentMinima.radius = radius;
-						currentMinima.center.x = (float) x;
-						currentMinima.center.y = (float) y;
+						currentMinima.center.x = (double) x;
+						currentMinima.center.y = (double) y;
 					}
 				} else {
-					existingClusters.add(new ClusterMinima(new Vector2<Float>((float) x,  (float) y), radius, score));
+					existingClusters.add(new ClusterMinima(new Vector2<Double>((double) x,  (double) y), radius, score));
 				}
 			}
 		}

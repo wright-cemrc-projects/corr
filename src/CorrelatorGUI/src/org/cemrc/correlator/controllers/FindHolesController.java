@@ -11,6 +11,7 @@ import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.correlator.analysis.CircleHoughTransformTask;
+import org.cemrc.correlator.analysis.ClusterMinima;
 import org.cemrc.correlator.controllers.analysis.FilterGridPoints;
 import org.cemrc.correlator.controllers.analysis.HistogramPane;
 import org.cemrc.correlator.io.ReadImage;
@@ -98,7 +99,7 @@ public class FindHolesController {
 	private ToggleButton holesToggle;
 	
 	// Describe hole information which could be converted into IPositionDatasets.
-	private List<CircleHoughTransformTask.ClusterMinima> m_foundHoles;
+	private List<ClusterMinima> m_foundHoles;
 	
 	BooleanProperty showBWImage = new SimpleBooleanProperty(true);
 	BooleanProperty showEdgeImage = new SimpleBooleanProperty(true);
@@ -317,7 +318,10 @@ public class FindHolesController {
 			@Override public Void call()
 			{
 				FilterGridPoints filter = new FilterGridPoints();
-				List<CircleHoughTransformTask.ClusterMinima> circles = m_task.findCircles();
+				List<ClusterMinima> circles = m_task.findCircles();
+				
+				// m_foundHoles = circles;
+				// TODO: improve filtering.
 				m_foundHoles = filter.findGridPoints(circles);
 				
 				if (m_foundHoles.size() > 0) {
@@ -339,9 +343,9 @@ public class FindHolesController {
 		updateCanvas();
 	}
 	
-	private void addPoints(List<CircleHoughTransformTask.ClusterMinima> points, IMap map) {
+	private void addPoints(List<ClusterMinima> points, IMap map) {
 		List<Vector2<Float>> parsedPositions= new ArrayList<Vector2<Float>>(); 
-		for (CircleHoughTransformTask.ClusterMinima pt : points) {
+		for (ClusterMinima pt : points) {
 			parsedPositions.add(new Vector2<Float>(new Float(pt.center.x), new Float( pt.center.y) )); 
 		}
 		
@@ -405,6 +409,11 @@ public class FindHolesController {
 		
 		for (IMap map : maps) {
 			targetMapCombo.getItems().add(map);
+		}
+		
+		if (targetMapCombo.getItems().size() > 0) {
+			targetMapCombo.getSelectionModel().select(0);
+			updateTargetMap();
 		}
 	}
 	
@@ -478,7 +487,7 @@ public class FindHolesController {
 	
 	private void resetCirclePositions() {
 		m_pixelPositions = new PixelPositionDataset();
-		m_foundHoles = new ArrayList<CircleHoughTransformTask.ClusterMinima>();
+		m_foundHoles = new ArrayList<ClusterMinima>();
 		findProgressBar.setProgress(0.0f);
 	}
 	
@@ -486,11 +495,11 @@ public class FindHolesController {
 	 * Helper function to draw circles
 	 * @param positions
 	 */
-	private void drawCircles(GraphicsContext gc, List<CircleHoughTransformTask.ClusterMinima> positions, Color color) {
+	private void drawCircles(GraphicsContext gc, List<ClusterMinima> positions, Color color) {
 		if (positions == null) return;
 		// GraphicsContext gc = previewCanvas.getGraphicsContext2D();
 		
-		for (CircleHoughTransformTask.ClusterMinima p : positions) {
+		for (ClusterMinima p : positions) {
 			gc.setStroke(color);
 			gc.setLineWidth(3.0);
 			gc.strokeOval(p.center.x-p.radius, p.center.y-p.radius, 2* p.radius, 2* p.radius);
