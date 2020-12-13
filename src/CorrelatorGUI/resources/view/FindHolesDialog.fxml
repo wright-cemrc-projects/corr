@@ -27,7 +27,7 @@
       </ScrollPane>
       <VBox>
          <children>
-            <HBox fx:id="chartBox" prefHeight="100.0" prefWidth="200.0" />
+            <HBox fx:id="chartBox" prefHeight="100.0" />
             <HBox>
                <children>
                   <VBox alignment="TOP_CENTER">

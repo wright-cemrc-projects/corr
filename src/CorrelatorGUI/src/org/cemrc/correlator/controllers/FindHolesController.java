@@ -12,8 +12,10 @@ import org.cemrc.autodoc.NavigatorKey;
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.correlator.analysis.CircleHoughTransformTask;
 import org.cemrc.correlator.analysis.ClusterMinima;
+import org.cemrc.correlator.controllers.analysis.CutoffLineChart;
 import org.cemrc.correlator.controllers.analysis.FilterGridPoints;
 import org.cemrc.correlator.controllers.analysis.HistogramPane;
+import org.cemrc.correlator.controllers.analysis.HistogramPane2;
 import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
@@ -32,6 +34,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -266,9 +269,15 @@ public class FindHolesController {
 		// Fill the histogram
 		chartBox.getChildren().clear();		
 		
+		final NumberAxis xAxis = new NumberAxis();
+		final NumberAxis yAxis = new NumberAxis();
+		CutoffLineChart imageHistogram = new CutoffLineChart(xAxis, yAxis, SwingFXUtils.toFXImage(m_src, null));
+		imageHistogram.setPrefSize( Double.MAX_VALUE, Double.MAX_VALUE );
+		chartBox.getChildren().add(imageHistogram);
+		
 		// Setup a controller class to manage lines
-		HistogramPane histogram = new HistogramPane(chartBox, SwingFXUtils.toFXImage(m_src, null));
-		histogram.getHistogramController().m_positionBinaryCutoff.addListener((observable, oldValue, newValue) -> {
+		//HistogramPane2 histogram = new HistogramPane2(chartBox, SwingFXUtils.toFXImage(m_src, null));
+		imageHistogram.m_positionBinaryCutoff.addListener((observable, oldValue, newValue) -> {
 		    int intValue = getLimited256(newValue.doubleValue());
 		    m_task.setBinarizationCutoff(intValue);
 			m_task.getProcessed(false);
@@ -277,7 +286,7 @@ public class FindHolesController {
 		    updateCanvas();
 		});
 		
-		histogram.getHistogramController().m_positionMinCutoff.addListener((observable, oldValue, newValue) -> {
+		imageHistogram.m_positionMinCutoff.addListener((observable, oldValue, newValue) -> {
 		    int intValue = getLimited256(newValue.doubleValue());
 		    m_task.setLowCutoff(intValue);
 			m_task.getProcessed(false);
@@ -286,7 +295,7 @@ public class FindHolesController {
 		    updateCanvas();
 		});
 		
-		histogram.getHistogramController().m_positionMaxCutoff.addListener((observable, oldValue, newValue) -> {
+		imageHistogram.m_positionMaxCutoff.addListener((observable, oldValue, newValue) -> {
 		    int intValue = getLimited256(newValue.doubleValue());
 		    m_task.setHighCutoff(intValue);
 			m_task.getProcessed(false);
@@ -297,9 +306,9 @@ public class FindHolesController {
 		
 		// Set default values:
 		
-		m_task.setBinarizationCutoff(getLimited256(histogram.getHistogramController().m_positionBinaryCutoff.doubleValue()));
-		m_task.setLowCutoff(getLimited256(histogram.getHistogramController().m_positionMinCutoff.doubleValue()));
-		m_task.setHighCutoff(getLimited256(histogram.getHistogramController().m_positionMaxCutoff.doubleValue()));
+		m_task.setBinarizationCutoff(getLimited256(imageHistogram.m_positionBinaryCutoff.doubleValue()));
+		m_task.setLowCutoff(getLimited256(imageHistogram.m_positionMinCutoff.doubleValue()));
+		m_task.setHighCutoff(getLimited256(imageHistogram.m_positionMaxCutoff.doubleValue()));
 	}
 	
 	private int getLimited256(double value) {
