@@ -14,8 +14,6 @@ import org.cemrc.correlator.analysis.CircleHoughTransformTask;
 import org.cemrc.correlator.analysis.ClusterMinima;
 import org.cemrc.correlator.controllers.analysis.CutoffLineChart;
 import org.cemrc.correlator.controllers.analysis.FilterGridPoints;
-import org.cemrc.correlator.controllers.analysis.HistogramPane;
-import org.cemrc.correlator.controllers.analysis.HistogramPane2;
 import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
@@ -272,7 +270,9 @@ public class FindHolesController {
 		final NumberAxis xAxis = new NumberAxis();
 		final NumberAxis yAxis = new NumberAxis();
 		CutoffLineChart imageHistogram = new CutoffLineChart(xAxis, yAxis, SwingFXUtils.toFXImage(m_src, null));
-		imageHistogram.setPrefSize( Double.MAX_VALUE, Double.MAX_VALUE );
+		
+		imageHistogram.setPrefSize(chartBox.getWidth(), chartBox.getHeight());
+		
 		chartBox.getChildren().add(imageHistogram);
 		
 		// Setup a controller class to manage lines

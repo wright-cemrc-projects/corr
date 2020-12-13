@@ -43,6 +43,8 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 		xAxis.setLowerBound(0);
 		xAxis.setUpperBound(256);
 		xAxis.setAutoRanging(false);
+		xAxis.setLabel("Color Value");
+		yAxis.setLabel("Count");
 		
 		setupDraggableLines();
 		// Add controllable marker lines.
@@ -51,7 +53,7 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 		// Style the image histogram
 		setCreateSymbols(false);
 		setAnimated(false);
-		setPrefSize( Double.MAX_VALUE, Double.MAX_VALUE );
+		setVerticalGridLinesVisible(false);
 	}
 	
 	private void setupDraggableLines() {
@@ -71,21 +73,24 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 	    cutoffLine3.setStroke(Color.BLUE);
 	    
 	    m_boundMinX = 1;
-	    m_boundMaxX = 130;
+	    m_boundMaxX = 100;
 	    m_drawY1 = 0;
-	    m_drawY2 = 100;
+	    m_drawY2 = 150;
 	    
 	    cutoffLine1.setStartY(m_drawY1);
 	    cutoffLine1.setEndY(m_drawY2);
-	    cutoffLine1.setLayoutX(m_boundMinX);
+	    cutoffLine1.setStartX(m_boundMinX);
+	    cutoffLine1.setEndX(m_boundMinX);
 	    
 	    cutoffLine2.setStartY(m_drawY1);
 	    cutoffLine2.setEndY(m_drawY2);
-	    cutoffLine2.setLayoutX( (m_boundMaxX - m_boundMinX) / 2.0);
+	    cutoffLine2.setStartX(m_boundMinX + 25);
+	    cutoffLine2.setEndX(m_boundMinX + 25);
 	    
 	    cutoffLine3.setStartY(m_drawY1);
 	    cutoffLine3.setEndY(m_drawY2);
-	    cutoffLine3.setLayoutX(m_boundMaxX);
+	    cutoffLine3.setStartX(m_boundMaxX);
+	    cutoffLine3.setEndX(m_boundMaxX);
 	    
 	    this.getPlotChildren().add(cutoffLine1);
 	    this.getPlotChildren().add(cutoffLine2);
@@ -97,6 +102,9 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 	    makeDraggable(cutoffLine3, cutoffLine2, null, m_positionMaxCutoff);
 	    
 	    // Done
+	    m_positionMinCutoff.set((cutoffLine1.getStartX() - m_boundMinX) / (m_boundMaxX - m_boundMinX));
+	    m_positionBinaryCutoff.set((cutoffLine2.getStartX() - m_boundMinX) / (m_boundMaxX - m_boundMinX));
+	    m_positionMaxCutoff.set((cutoffLine3.getStartX() - m_boundMinX) / (m_boundMaxX - m_boundMinX));
 	}
 	
 	/**
@@ -113,7 +121,7 @@ public class CutoffLineChart extends LineChart<Number, Number> {
      * Setup mouse listeners for an overlay node.
      * @param node
      */
-    private void makeDraggable(Node node, Node leftNeighbor, Node rightNeighbor, DoubleProperty update) {
+    private void makeDraggable(Line node, Line leftNeighbor, Line rightNeighbor, DoubleProperty update) {
     	
         final Delta dragDelta = new Delta();
 
@@ -139,13 +147,18 @@ public class CutoffLineChart extends LineChart<Number, Number> {
             if (!me.isPrimaryButtonDown()) {
                 node.getScene().setCursor(Cursor.DEFAULT);
             }
+            
+            double x = node.getStartX();
+            double percent = (x - m_boundMinX) / (m_boundMaxX - m_boundMinX);
+            update.set(percent);
+            
         });
         node.setOnMouseDragged(me -> {
         	
         	// Bounded moves.
-        	double x = node.getLayoutX() + me.getX() - dragDelta.x;
+        	double x = node.getStartX() + me.getX() - dragDelta.x;
         	if (leftNeighbor != null) {
-        		double bl = leftNeighbor.getLayoutX();
+        		double bl = leftNeighbor.getStartX();
         		if (x < bl) x = bl;
         	}
         	
@@ -154,21 +167,34 @@ public class CutoffLineChart extends LineChart<Number, Number> {
         	}
         	
         	if (rightNeighbor != null) {
-        		double br = rightNeighbor.getLayoutX();
+        		double br = rightNeighbor.getStartX();
         		if (x > br) x = br;
         	}
         	if (x >= m_boundMaxX) {
         		x = m_boundMaxX - 1;
         	}
         	
-            node.setLayoutX(x);
-            
-            double percent = (x - m_boundMinX) / (m_boundMaxX - m_boundMinX);
-            update.set(percent);
-            
+            node.setStartX(x);
+            node.setEndX(x);
+         
+            // update the drag.
+            dragDelta.x = me.getX();
         });
     }
 
+    private void setSeriesColor(Series s, Color c) {
+    	//Node fill = s.getNode().lookup(".chart-series-area-fill"); // only for AreaChart
+    	Node line = s.getNode().lookup(".chart-series-line");
+
+    	String rgb = String.format("%d, %d, %d",
+    	        (int) (c.getRed() * 255),
+    	        (int) (c.getGreen() * 255),
+    	        (int) (c.getBlue() * 255));
+
+    	//fill.setStyle("-fx-fill: rgba(" + rgb + ", 0.15);");
+    	line.setStyle("-fx-stroke: rgba(" + rgb + ", 1.0);");
+    }
+    
 	private void buildChart(Image image) {
 		
         long alpha[] = new long[256];
@@ -211,6 +237,11 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 	        seriesRed.setName("red");
 	        seriesGreen.setName("green");
 	        seriesBlue.setName("blue");
+	        
+	        // TODO: should be able to set series color using CSS.
+	        //setSeriesColor(seriesRed, Color.RED);
+	        //setSeriesColor(seriesGreen, Color.GREEN);
+	        //setSeriesColor(seriesBlue, Color.BLUE);
 	
 	        for (int i = 0; i < 256; i++) {
 	            seriesAlpha.getData().add(new XYChart.Data<Number, Number>(i, alpha[i]));

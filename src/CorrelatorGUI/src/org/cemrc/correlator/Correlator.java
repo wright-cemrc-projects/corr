@@ -448,7 +448,7 @@ public class Correlator extends Application {
 			holesController.setDocument(m_state.getDocument());
 			holesController.setStage(stage);
 			
-	    	Scene wizardScene = new Scene(dialog, 550, 900);
+	    	Scene wizardScene = new Scene(dialog, 800, 600);
 			stage.setScene(wizardScene);
 	    	stage.show();
     	} catch (Exception e) {
