@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -16,18 +17,31 @@
 
 <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cemrc.correlator.controllers.FindHolesController">
    <children>
-      <ScrollPane prefHeight="400.0" prefWidth="400.0">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
-               <children>
-                  <Canvas fx:id="previewCanvas" height="400.0" width="400.0" />
-               </children>
-            </AnchorPane>
-        </content>
-      </ScrollPane>
+      <SplitPane dividerPositions="0.5">
+         <items>
+            <ScrollPane hbarPolicy="NEVER" pannable="true" prefHeight="400.0" prefWidth="400.0" vbarPolicy="NEVER">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Canvas fx:id="previewCanvas" height="400.0" width="400.0" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </ScrollPane>
+            <ScrollPane hbarPolicy="NEVER" layoutX="10.0" layoutY="10.0" pannable="true" prefHeight="400.0" prefWidth="400.0" vbarPolicy="NEVER">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Canvas fx:id="resultsCanvas" height="400.0" width="400.0" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </ScrollPane>
+         </items>
+      </SplitPane>
       <HBox>
          <children>
-            <HBox fx:id="chartBox" prefHeight="100.0" prefWidth="200.0" />
+            <HBox fx:id="chartBox" prefHeight="100.0" prefWidth="300.0" />
             <VBox>
                <children>
                   <HBox>

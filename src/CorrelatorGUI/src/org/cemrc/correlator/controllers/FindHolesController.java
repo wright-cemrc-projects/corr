@@ -79,6 +79,11 @@ public class FindHolesController {
 	// Our canvas for drawing.
 	@FXML
 	private Canvas previewCanvas;
+	
+	@FXML
+	private Canvas resultsCanvas;
+	
+	private Image m_image;
 	private Image m_greyScaleImage;
 	private Image m_edgeDetectImage;
 	
@@ -225,6 +230,8 @@ public class FindHolesController {
 		m_src = ReadImage.readImage(imageLocation);
 		m_task = new CircleHoughTransformTask(m_src);
 		m_task.getProcessed(false);
+		
+		m_image = SwingFXUtils.toFXImage(m_src, null);
 		m_greyScaleImage =  SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
 		m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
 		
@@ -261,6 +268,7 @@ public class FindHolesController {
 		double aspectRatio = (double) m_greyScaleImage.getWidth() / (double) m_greyScaleImage.getHeight();
 		double canvasWidth = canvasHeight * aspectRatio;
 		previewCanvas.setWidth(canvasWidth);
+		resultsCanvas.setWidth(canvasWidth);
 		
 		updateCanvas();
 		
@@ -272,6 +280,7 @@ public class FindHolesController {
 		CutoffLineChart imageHistogram = new CutoffLineChart(xAxis, yAxis, SwingFXUtils.toFXImage(m_src, null));
 		
 		imageHistogram.setPrefSize(chartBox.getWidth(), chartBox.getHeight());
+		imageHistogram.setMinWidth(300);
 		
 		chartBox.getChildren().add(imageHistogram);
 		
@@ -441,10 +450,53 @@ public class FindHolesController {
 		// m_task.setEdgeFilter(edgeAlgorithmCombo.getValue());
 		BufferedImage proc = m_task.getProcessed(true);
 		m_edgeDetectImage =  SwingFXUtils.toFXImage(proc, null);
-		updateCanvas();
+		redrawPreviewCanvas();
 	}
 	
 	public void updateCanvas() {
+		redrawResultsCanvas();
+		redrawPreviewCanvas();
+	}
+	
+	public void redrawResultsCanvas() {
+		double width = resultsCanvas.getWidth();
+		double height = resultsCanvas.getHeight();
+		
+		GraphicsContext gc = resultsCanvas.getGraphicsContext2D();
+		gc.save();
+		gc.clearRect(0, 0, width, height);
+		gc.restore();
+		// gc.setFill(Color.BLACK);
+		// gc.fillRect(0, 0, width, height);
+		
+		if (m_image != null) {
+			double mxx = width / m_image.getWidth();
+			double myy = height / m_image.getHeight();
+			
+			gc.save();
+			gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
+			gc.drawImage(m_image,  0,  0);
+			gc.restore();
+		}
+		
+		if (showHoles.getValue() && m_src != null) {
+			
+			double mxx = width / m_src.getWidth();
+			double myy = height / m_src.getHeight();
+			
+			gc.save();
+			gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
+			
+			// Draw each checked off points set.
+			gc.setGlobalBlendMode(null);
+			drawPixels(gc, m_pixelPositions, NavigatorColorEnum.Red);
+			drawCircles(gc, m_foundHoles, Color.RED);
+			
+			gc.restore();
+		}
+	}
+	
+	public void redrawPreviewCanvas() {
 		double width = previewCanvas.getWidth();
 		double height = previewCanvas.getHeight();
 		

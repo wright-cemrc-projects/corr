@@ -266,7 +266,8 @@ public class FilterGridPoints {
 	private List<ClusterMinima> hashGrid(GridSpacing s, List<ClusterMinima> points, ClusterMinima origin) {
 		Map<String, ClusterMinima> rv = new HashMap<String, ClusterMinima>();
 		
-		double MAX_ERROR = 0.8;
+		// Error is after %, what is the remainder. Only want to keep points near to grid intersections.
+		double MAX_ERROR = 0.4;
 		
 		// Foreach ClusterMinima transform the coordinate system to the grid
 		//  then round each index to integer
@@ -277,7 +278,8 @@ public class FilterGridPoints {
 			double x_error = pNot.x % 1.0;
 			double y_error = pNot.y % 1.0;
 			
-			if (x_error > MAX_ERROR || y_error > MAX_ERROR) continue;
+			if (x_error > MAX_ERROR && (1.0-x_error) > MAX_ERROR) continue;
+			if (y_error > MAX_ERROR && (1.0-y_error) > MAX_ERROR) continue;
 			
 			Integer x = (int) Math.round(pNot.x);
 			Integer y = (int) Math.round(pNot.y);

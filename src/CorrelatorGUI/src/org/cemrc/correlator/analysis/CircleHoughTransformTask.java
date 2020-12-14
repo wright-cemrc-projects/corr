@@ -175,8 +175,11 @@ public class CircleHoughTransformTask {
 	
 	private BufferedImage preBinarize(BufferedImage rescaled) {
 		
+		// Need to adjust binarization cutoff based on the scaled histogram
+		int cutoff = (int) Math.round( ( 256.0 * (double) (m_binarization - m_cutoffLow) ) / (double) (m_cutoffHigh - m_cutoffLow) );
+		
 		// 3. Binarize image;
-		BufferedImage binarized = binarize(rescaled, m_binarization);
+		BufferedImage binarized = binarize(rescaled, cutoff);
 		
 		// 4. Perform Sobel edge detection transform on image
 		return getSobel(binarized);
@@ -388,7 +391,7 @@ public class CircleHoughTransformTask {
 				}
 				
 				// Scale the image
-				grayLevel = (int) Math.round( 256.0 / (double) (m_cutoffHigh - m_cutoffLow) * (double) (grayLevel + m_cutoffLow) );
+				grayLevel = (int) Math.round( ( 256.0 * (double) (grayLevel - m_cutoffLow) ) / (double) (m_cutoffHigh - m_cutoffLow) );
 			
 		        int gray = (0xFF << 24) + (grayLevel << 16) + (grayLevel << 8) + grayLevel; 
 				

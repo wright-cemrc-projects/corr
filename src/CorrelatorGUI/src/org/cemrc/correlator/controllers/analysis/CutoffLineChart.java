@@ -73,7 +73,7 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 	    cutoffLine3.setStroke(Color.BLUE);
 	    
 	    m_boundMinX = 1;
-	    m_boundMaxX = 100;
+	    m_boundMaxX = 192; // Magic number, may depend on font sizing etc.
 	    m_drawY1 = 0;
 	    m_drawY2 = 150;
 	    
