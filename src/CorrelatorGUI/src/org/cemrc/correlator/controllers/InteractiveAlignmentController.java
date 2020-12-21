@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector3;
 import org.cemrc.correlator.controllers.canvas.PanAndZoomPane;
 import org.cemrc.correlator.io.ReadImage;
@@ -45,15 +46,6 @@ public class InteractiveAlignmentController {
 	
 	@FXML
 	public ScrollPane referencePane;
-	
-	@FXML
-	public RadioButton radioPt1;
-	
-	@FXML
-	public RadioButton radioPt2;
-	
-	@FXML
-	public RadioButton radioPt3;
 	
 	@FXML
 	public TextField tZoom;
@@ -240,29 +232,6 @@ public class InteractiveAlignmentController {
 		
 		m_referenceZoomPane.getCanvas().setOnMouseClicked(event -> {
 			referenceClickedCallback(event.getX(), event.getY());
-		});
-		
-		// Setup button toggle grouping
-		ToggleGroup group = new ToggleGroup();
-		radioPt1.setToggleGroup(group);
-		radioPt2.setToggleGroup(group);
-		radioPt3.setToggleGroup(group);
-		
-		group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-			@Override
-			public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
-				// Has selection.
-				if (group.getSelectedToggle() != null) {
-					RadioButton button = (RadioButton) group.getSelectedToggle();
-					if (button == radioPt1) {
-						m_currentPoint = 1;
-					} else if (button == radioPt2) {
-						m_currentPoint = 2;
-					} else if (button == radioPt3) {
-						m_currentPoint = 3;
-					}
-				}
-			}
 		});
 		
 		// Rotate and Zoom controls
