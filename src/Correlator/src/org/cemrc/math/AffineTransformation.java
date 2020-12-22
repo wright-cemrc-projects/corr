@@ -1,13 +1,10 @@
 package org.cemrc.math;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.Vector2;
 
 /**

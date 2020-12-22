@@ -1,6 +1,8 @@
 package org.cemrc.autodoc;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A generic class with two values
@@ -30,4 +32,13 @@ public class Vector2<T> implements Serializable {
 		return x.toString() + " " + y.toString();
 	}
 
+	public static List<Vector2<Double>> toDouble(List<Vector2<Float>> in) {
+		List<Vector2<Double>> rv = new ArrayList<Vector2<Double>>();
+		
+		for (Vector2<Float> f : in) {
+			rv.add(new Vector2<Double>((double) f.x, (double) f.y));
+		}
+		
+		return rv;
+	}
 }
