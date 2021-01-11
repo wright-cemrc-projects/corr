@@ -183,7 +183,7 @@ public class PointsTableController {
 	    column5.setCellValueFactory(new PropertyValueFactory<>("remove"));
 	    column5.setCellFactory( tc -> new RemovePointsCell());
 	    column5.setSortable(false);
-	    column5.setMinWidth(40); column5.setMaxWidth(40);
+	    column5.setMinWidth(60); column5.setMaxWidth(60);
 	    
 	    m_pointsTableView.getColumns().add(column1);
 	    m_pointsTableView.getColumns().add(column2);
@@ -289,7 +289,7 @@ public class PointsTableController {
 	    // a button for adding a new person.
 		Image image = new Image(getClass().getResourceAsStream("/view/subtraction.png"));
 		ImageView buttonIV = new ImageView(image); 
-	    final Button removeButton       = new Button("");
+	    final Button removeButton       = new Button("delete");
 	    // pads and centers the add button in the cell.
 	    final StackPane paddedButton = new StackPane();
 	    // records the y pos of the last button press so that the add person dialog can be shown next to the cell.
@@ -301,7 +301,7 @@ public class PointsTableController {
 	    RemovePointsCell() {
 	      // paddedButton.setPadding(new Insets(3));
 	      paddedButton.getChildren().add(removeButton);
-	      removeButton.setGraphic(buttonIV);
+	      // removeButton.setGraphic(buttonIV);
 	      removeButton.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
@@ -322,8 +322,9 @@ public class PointsTableController {
 		    	  setGraphic(null);
 		      } else
 		      {
-		    	  setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+		    	  //setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		    	  setGraphic(paddedButton);
+		    	  removeButton.setContentDisplay(ContentDisplay.TEXT_ONLY);
 		      }
 	    }
 	  }
