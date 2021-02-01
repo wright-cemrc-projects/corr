@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cemrc.correlator.controllers.InteractiveAlignmentController">
+   <children>
+      <HBox alignment="TOP_RIGHT" VBox.vgrow="ALWAYS">
+         <children>
+            <VBox alignment="TOP_RIGHT">
+               <children>
+                  <HBox alignment="TOP_RIGHT">
+                     <children>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label text="Target Map" />
+                              <ComboBox prefWidth="150.0" />
+                           </children>
+                           <HBox.margin>
+                              <Insets bottom="15.0" right="15.0" top="15.0" />
+                           </HBox.margin>
+                        </VBox>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label text="Reference Map" />
+                              <ComboBox prefWidth="150.0" />
+                           </children>
+                           <HBox.margin>
+                              <Insets bottom="15.0" right="15.0" top="15.0" />
+                           </HBox.margin>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <VBox alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Button fx:id="addRegistrationPair2" alignment="TOP_RIGHT" contentDisplay="CENTER" maxHeight="32.0" maxWidth="96.0" mnemonicParsing="false" onAction="#addRegistrationPairFunction" prefHeight="32.0" prefWidth="96.0" text="Open Map" textAlignment="JUSTIFY" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="15.0" right="15.0" />
+                     </VBox.margin>
+                  </VBox>
+                  <Label text="Registration Points" />
+                  <ListView fx:id="registrationList" prefHeight="200.0" prefWidth="150.0" />
+                  <HBox>
+                     <children>
+                        <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="addRegistrationPair" alignment="TOP_RIGHT" contentDisplay="CENTER" maxHeight="32.0" maxWidth="120.0" mnemonicParsing="false" onAction="#addRegistrationPairFunction" prefHeight="32.0" prefWidth="64.0" text="Add" textAlignment="JUSTIFY" HBox.hgrow="NEVER">
+                           <HBox.margin>
+                              <Insets bottom="15.0" right="15.0" top="15.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="addRegistrationPair1" alignment="TOP_RIGHT" contentDisplay="CENTER" layoutX="556.0" layoutY="10.0" maxHeight="32.0" maxWidth="120.0" mnemonicParsing="false" onAction="#addRegistrationPairFunction" prefHeight="32.0" prefWidth="64.0" text="Remove" textAlignment="JUSTIFY">
+                           <HBox.margin>
+                              <Insets bottom="15.0" right="15.0" top="15.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT">
+                     <children>
+                        <Button fx:id="doAlign" mnemonicParsing="false" onAction="#doAlign" text="Start iterative alignment!">
+                           <HBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <HBox alignment="TOP_RIGHT">
+                     <children>
+                        <Button fx:id="doCancel" mnemonicParsing="false" onAction="#doCancel" text="Cancel">
+                           <HBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="doAccept" mnemonicParsing="false" onAction="#doAccept" text="Accept">
+                           <HBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="10.0" left="25.0" right="25.0" top="10.0" />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</VBox>
