@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.cemrc.correlator.Correlator;
 import org.cemrc.correlator.CorrelatorConfig;
-import org.cemrc.correlator.controllers.InteractiveAlignmentController;
+import org.cemrc.correlator.controllers.InteractiveAlignment;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IPositionDataset;
 
@@ -33,15 +33,13 @@ public class ActionInteractiveAlignment {
 		
 		try {
 	        // load in the project view.
-			FXMLLoader loader = new FXMLLoader(Correlator.class.getResource("/view/InteractiveAlignment.fxml"));
+			FXMLLoader loader = new FXMLLoader(Correlator.class.getResource("/view/InteractiveAlignmentEntryGUI.fxml"));
 			Parent importView = loader.load();
 			
-			InteractiveAlignmentController controller = loader.getController();
-			controller.setReferencePoints(m_referencePoints);
-			controller.setTargetPoints(m_targetPoints);
+			InteractiveAlignment controller = loader.getController();
 			
 			// create a stage
-	    	Scene importScene = new Scene(importView, 750, 800);
+	    	Scene importScene = new Scene(importView, 400, 400);
 	    	Stage dialogStage = new Stage();
 	    	controller.setStage(dialogStage);
 	    	dialogStage.getIcons().add(CorrelatorConfig.getApplicationIcon());

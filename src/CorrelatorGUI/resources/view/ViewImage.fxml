@@ -32,7 +32,7 @@
                         </StackPane>
                     </items>
                   </SplitPane>
-                  <VBox prefHeight="200.0" prefWidth="300.0">
+                  <VBox maxWidth="375.0" minWidth="375.0" prefHeight="200.0">
                      <children>
                         <TableView fx:id="pointsTableView" VBox.vgrow="ALWAYS" />
                         <HBox prefHeight="100.0" prefWidth="200.0">

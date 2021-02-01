@@ -17,6 +17,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -70,6 +71,9 @@ public class InteractiveAlignmentController {
 	
 	@FXML
 	CheckBox rflipy;
+	
+	@FXML
+	ListView registrationList;
 	
 	/**
 	 * Structure tracking Canvas transforms.
@@ -396,5 +400,10 @@ public class InteractiveAlignmentController {
 		if (m_stage != null) {
 			m_stage.close();
 		}
+	}
+	
+	@FXML
+	public void createPositionDataset() {
+		// TODO
 	}
 }
