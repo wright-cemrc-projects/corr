@@ -36,7 +36,11 @@ public class ActionInteractiveAlignment {
 			FXMLLoader loader = new FXMLLoader(Correlator.class.getResource("/view/InteractiveAlignmentEntryGUI.fxml"));
 			Parent importView = loader.load();
 			
+			// Note: we really don't need IPositionDatasets, instead maps...
 			InteractiveAlignment controller = loader.getController();
+			controller.setDocument(m_document);
+			controller.setTargetMap(m_targetPoints.getMap());
+			controller.setReferenceMap(m_referencePoints.getMap());
 			
 			// create a stage
 	    	Scene importScene = new Scene(importView, 400, 400);
