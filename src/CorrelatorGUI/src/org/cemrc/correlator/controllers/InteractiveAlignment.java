@@ -1,13 +1,15 @@
 package org.cemrc.correlator.controllers;
 
-import org.cemrc.autodoc.Vector2;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import org.cemrc.correlator.actions.ActionViewImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
+import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
 public class InteractiveAlignment {
@@ -16,9 +18,10 @@ public class InteractiveAlignment {
 	private IMap m_referenceMap, m_targetMap;
 	private Stage m_stage = null;
 	
-	// This ListView should get updated with registration points.
+	// This TableView should get updated with registration points.
 	@FXML
-	private ListView registrationList;
+	private TableView registrationTable;
+	RegistrationTableController m_registrationTableController;
 	
 	@FXML
 	private ComboBox targetMapComboBox;
@@ -26,52 +29,16 @@ public class InteractiveAlignment {
 	@FXML
 	private ComboBox referenceMapComboBox;
 	
-	/**
-	 * Represent a pair of registration points.
-	 * @author larso
-	 *
-	 */
-	public class RegistrationPair {
-		
-		private IMap m_referenceMap, m_targetMap;
-		private Vector2<Float> m_referencePoint, m_targetPoint;
-		
-		
-		public IMap getReferenceMap() {
-			return m_referenceMap;
-		}
-		
-		public void setReferenceMap(IMap referenceMap) {
-			m_referenceMap = referenceMap;
-		}
-
-		public IMap getTargetMap() {
-			return m_targetMap;
-		}
-
-		public void setTargetMap(IMap targetMap) {
-			m_targetMap = targetMap;
-		}
-
-		public Vector2<Float> getReferencePoint() {
-			return m_referencePoint;
-		}
-
-		public void setReferencePoint(Vector2<Float> referencePoint) {
-			m_referencePoint = referencePoint;
-		}
-
-		public Vector2<Float> getTargetPoint() {
-			return m_targetPoint;
-		}
-
-		public void setTargetPoint(Vector2<Float> targetPoint) {
-			m_targetPoint = targetPoint;
-		}
-	}
 	
 	@FXML
 	public void initialize() {
+		m_registrationTableController = new RegistrationTableController(registrationTable);
+		m_registrationTableController.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				// TODO: change button active state?
+			}
+		});
 	}
 	
 	/**
