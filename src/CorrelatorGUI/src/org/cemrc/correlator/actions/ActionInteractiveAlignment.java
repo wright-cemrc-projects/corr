@@ -41,9 +41,10 @@ public class ActionInteractiveAlignment {
 			controller.setDocument(m_document);
 			controller.setTargetMap(m_targetPoints.getMap());
 			controller.setReferenceMap(m_referencePoints.getMap());
+			controller.setupMaps();
 			
 			// create a stage
-	    	Scene importScene = new Scene(importView, 600, 400);
+	    	Scene importScene = new Scene(importView, 500, 400);
 	    	Stage dialogStage = new Stage();
 	    	controller.setStage(dialogStage);
 	    	dialogStage.getIcons().add(CorrelatorConfig.getApplicationIcon());
