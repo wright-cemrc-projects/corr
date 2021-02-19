@@ -23,6 +23,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 
@@ -40,6 +41,8 @@ public class PanAndZoomPane extends Pane {
     public DoubleProperty deltaY = new SimpleDoubleProperty(0.0);
      
     // Maintain a single scale value.
+    
+    // This value needs to be accessible
 	private DoubleProperty m_scale = new SimpleDoubleProperty(1.0);
 	private Canvas m_canvas = null;
 	
@@ -82,6 +85,31 @@ public class PanAndZoomPane extends Pane {
 
 	}
 	private DragContext nodeDragContext = new DragContext();
+	
+	/**
+	 * Get the scale factor for drawing text and labels on the canvas
+	 * @return
+	 */
+	private double getScaleFactor() {
+		double relativeFactor = 0.002;
+		
+		// Ranged scale prevents going beyond bounds.
+		double rangedScale = m_scale.get();
+		if (rangedScale > 2.5) {
+			rangedScale = 2.5;
+		} 
+		if (rangedScale < 0.33) {
+			rangedScale = 0.33;
+		}
+		
+		double scaleFactor = relativeFactor / rangedScale;
+		
+		if (m_canvas != null) {
+			scaleFactor *= getCanvasHeight();
+		}
+		
+		return scaleFactor;
+	}
 	
 	
     private EventHandler<MouseEvent> onMousePressedEventHandler = new EventHandler<MouseEvent>() {
@@ -272,6 +300,8 @@ public class PanAndZoomPane extends Pane {
 			c = Color.RED;
 			break;
 		}
+		
+		double scaleFactor = getScaleFactor();
     	
     	for (Vector2<Float> pixel : positions.getPixelPositions()) {
     		
@@ -281,10 +311,10 @@ public class PanAndZoomPane extends Pane {
     		gc.beginPath();
     		gc.setStroke(c);
     		gc.setFill(c);
-            gc.moveTo(movedPt.getX() + 2, movedPt.getY());
-            gc.lineTo(movedPt.getX() - 2, movedPt.getY());
-            gc.moveTo(movedPt.getX(), movedPt.getY() + 2);
-            gc.lineTo(movedPt.getX(), movedPt.getY() - 2);
+            gc.moveTo(movedPt.getX() + 2 * scaleFactor, movedPt.getY());
+            gc.lineTo(movedPt.getX() - 2 * scaleFactor, movedPt.getY());
+            gc.moveTo(movedPt.getX(), movedPt.getY() + 2 * scaleFactor);
+            gc.lineTo(movedPt.getX(), movedPt.getY() - 2 * scaleFactor);
             gc.stroke();
             gc.closePath();
 
@@ -404,7 +434,7 @@ public class PanAndZoomPane extends Pane {
 		
 		gc.save();
 		gc.setGlobalBlendMode(null);
-		Point2D offset = new Point2D(-10f, -5f);
+		Point2D offset = new Point2D(-5f * getScaleFactor(), -4f * getScaleFactor());
 		
 		Color c;
 		switch (color) {
@@ -441,6 +471,7 @@ public class PanAndZoomPane extends Pane {
 	}
 	
     private void drawLabelText(GraphicsContext gc, Point2D pixel, Point2D offset, String text, Color c) {
+    	gc.setFont(new Font(getScaleFactor() * 10.0));
     	gc.setFill(c);
     	gc.setStroke(c);
     	gc.fillText(text, pixel.getX() + offset.getX(), pixel.getY() + offset.getY());

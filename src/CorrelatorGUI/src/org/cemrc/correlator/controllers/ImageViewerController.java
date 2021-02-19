@@ -191,6 +191,7 @@ public class ImageViewerController {
 			
 			if (scale >= 0.0f && scale <= MAX_SCALE) {		
 				m_zoomPane.setScale(scale);
+				updateZoomCanvas();
 			}
 			
 		} catch (NumberFormatException ex) {
