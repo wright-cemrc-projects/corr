@@ -37,13 +37,15 @@ Note: OpenJDK does not contain the Java standard library JavaFX and cannot be us
 
 ## References
 
-CorRelator: An interactive and flexible toolkit for high-precision cryo-correlative light and electron microscopy.
+Jie E. Yang, Matthew R. Larson, Bryan S. Sibert, Samantha Shrum, Elizabeth R. Wright,
+**CorRelator: Interactive software for real-time high precision cryo-correlative light and electron microscopy**,
+*Journal of Structural Biology*,
+2021,
+107709,
+ISSN 1047-8477,
+https://doi.org/10.1016/j.jsb.2021.107709.
 
-Jie E. Yang1, Matthew R. Larson (1,2), Bryan S. Sibert (1,2), Samantha Shrum (3), and Elizabeth R. Wright (1,2,3,4) 
+[Link to preprint](https://www.sciencedirect.com/science/article/pii/S1047847721000149)
 
-1. Department of Biochemistry, University of Wisconsin, Madison, WI 53706
-2. Cryo-Electron Microscopy Research Center, Department of Biochemistry, University of Wisconsin, Madison, WI 53706
-3. Biophysics Graduate Program, University of Wisconsin, Madison, WI 53706
-4. Morgridge Institute for Research, Madison, WI, 53715
 
 
