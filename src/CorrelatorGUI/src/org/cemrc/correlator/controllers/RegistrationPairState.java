@@ -19,6 +19,11 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 public class RegistrationPairState {
 	
+	public static String EVENT_ROW_ADDED = "EVENT_ROW_ADDED";
+	public static String EVENT_ROW_REMOVED = "EVENT_ROW_REMOVED";
+	
+	private Integer m_counter = 1;
+	
 	// Current list of known registration pairs.
 	private List<RegistrationPair> m_registrationPairs = new ArrayList<RegistrationPair>();
 	// Selected element
@@ -77,5 +82,24 @@ public class RegistrationPairState {
 	 */
 	public List<RegistrationPair> getRegistrationList() {
 		return m_registrationPairs;
+	}
+	
+	/**
+	 * Add an unassigned registration pair.
+	 */
+	public void addEmptyPair() {
+		RegistrationPair pair = new RegistrationPair();
+		pair.setId(m_counter++);
+		m_registrationPairs.add(pair);
+		firePropertyChange(EVENT_ROW_ADDED, m_registrationPairs, m_registrationPairs);
+	}
+	
+	/**
+	 * Remove a specific registration pair.
+	 * @param pair
+	 */
+	public void removePair(RegistrationPair pair) {
+		m_registrationPairs.remove(pair);
+		firePropertyChange(EVENT_ROW_REMOVED, m_registrationPairs, m_registrationPairs);
 	}
 }

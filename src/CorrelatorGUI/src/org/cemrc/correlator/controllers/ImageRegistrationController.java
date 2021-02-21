@@ -1,5 +1,7 @@
 package org.cemrc.correlator.controllers;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -24,6 +26,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.effect.ColorAdjust;
@@ -88,6 +91,11 @@ public class ImageRegistrationController {
 	@FXML
 	Slider contrastSlider1;
 	private ColorAdjust colorAdjust;
+	
+	// This TableView should get updated with registration points.
+	@FXML
+	private TableView registrationTable;
+	RegistrationTableController m_registrationTableController;
 	
 	// The backing data.
 	private CorrelatorDocument m_document;
@@ -189,6 +197,7 @@ public class ImageRegistrationController {
 	 */
 	public void setRegistrationState(RegistrationPairState state) {
 		m_registrationState = state;
+		m_registrationTableController.setState(state);
 	}
 	
 	/**
@@ -275,6 +284,15 @@ public class ImageRegistrationController {
 	
 	@FXML
 	public void initialize() {
+		
+		// TODO: need a mechanism to share the same state among all the GUI windows
+		m_registrationTableController = new RegistrationTableController(registrationTable);
+		m_registrationTableController.getState().addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				// TODO: updateGUI();
+			}
+		});
 		
 		ToggleGroup group = new ToggleGroup();        
         zoomField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -365,6 +383,25 @@ public class ImageRegistrationController {
 		// TODO: this should happen in the 
 		// Need to assign the pixel position based on the actualPosition.x, actualPosition.y
 		updateZoomCanvas();
+	}
+	
+	@FXML
+	public void addRegistrationPair() {
+		// Create a new row entry in the list.
+		m_registrationState.addEmptyPair();
+	}
+	
+	@FXML
+	public void removeRegistrationPair() {
+		// If there is an active/highlighted row, it could be removed.
+		RegistrationPair selected = m_registrationState.getSelected();
+		m_registrationState.removePair(selected);
+	}
+	
+	@FXML
+	public void importRegistrationPair() {
+		// TODO: this should require user to choose pixel positions to add to the registration list.
+		// It could use a simple dialog dropdown that adds from a IPositionDataset list / group.
 	}
 	
 }

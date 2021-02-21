@@ -163,13 +163,14 @@ public class InteractiveAlignment {
 	@FXML
 	public void addRegistrationPair() {
 		// Create a new row entry in the list.
-		m_registrationTableController.addRow();
+		m_registrationTableController.getState().addEmptyPair();
 	}
 	
 	@FXML
 	public void removeRegistrationPair() {
 		// If there is an active/highlighted row, it could be removed.
-		m_registrationTableController.removeSelectedRow();
+		RegistrationPairState s = m_registrationTableController.getState();
+		s.removePair(s.getSelected());
 	}
 	
 	@FXML

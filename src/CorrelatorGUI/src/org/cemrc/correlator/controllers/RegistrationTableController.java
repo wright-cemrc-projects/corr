@@ -1,5 +1,7 @@
 package org.cemrc.correlator.controllers;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,15 +19,27 @@ import javafx.scene.control.cell.TextFieldTableCell;
  */
 public class RegistrationTableController {
 	
-	private Integer m_counter = 1;
-	
 	private TableView<RegistrationPair> m_registrationTableView;
 	private RegistrationPairState m_registrationState;
 	
-	
+	/**
+	 * Constructor with new state.
+	 * @param registrationTable
+	 */
 	public RegistrationTableController(TableView<RegistrationPair> registrationTable) {
-		m_registrationState = new RegistrationPairState();
 		m_registrationTableView = registrationTable;
+		setState(new RegistrationPairState());
+		setupTableView();
+	}
+	
+	/**
+	 * Constructor taking an existing state.
+	 * @param registrationTable
+	 * @param state
+	 */
+	public RegistrationTableController(TableView<RegistrationPair> registrationTable, RegistrationPairState state) {
+		m_registrationTableView = registrationTable;
+		setState(state);
 		setupTableView();
 	}
 	
@@ -77,16 +91,8 @@ public class RegistrationTableController {
 	    m_registrationTableView.setEditable(true);
 	}
 	
-	public void addRow() {
-		RegistrationPair pair = new RegistrationPair();
-		pair.setId(m_counter++);
-		m_registrationTableView.getItems().add(pair);
-		m_registrationTableView.refresh();
-	}
-	
 	/**
 	 * Remove the selected row from the table
-	 */
 	public void removeSelectedRow() {
 		RegistrationPair selection = m_registrationState.getSelected();
 		if (m_registrationState.getSelected() != null) {
@@ -95,6 +101,7 @@ public class RegistrationTableController {
 		}
 		m_registrationTableView.refresh();
 	}
+	*/
 	
 	/**
 	 * Get the registration pairs.
@@ -114,5 +121,45 @@ public class RegistrationTableController {
 	 */
 	public RegistrationPairState getState() {
 		return m_registrationState;
+	}
+	
+	/**
+	 * Rebuild the GUI from the backing state.
+	 */
+	private void rebuildList() {
+		m_registrationTableView.getItems().clear();
+		for (RegistrationPair pair : m_registrationState.getRegistrationList()) {
+			m_registrationTableView.getItems().add(pair);
+		}
+		m_registrationTableView.refresh();
+		
+	}
+	
+	/**
+	 * Replace the backing state data and update the GUI.
+	 * @param state
+	 */
+	public void setState(RegistrationPairState state) {
+		
+		// remove existing listeners
+		if (m_registrationState != null) {
+			// TODO
+		}
+		
+		m_registrationState = state;
+		
+		if (m_registrationState != null) {
+			rebuildList();
+			
+			// setup a listener
+			m_registrationState.addPropertyChangeListener(new PropertyChangeListener() {
+
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					rebuildList();
+				}
+				
+			});
+		}
 	}
 }
