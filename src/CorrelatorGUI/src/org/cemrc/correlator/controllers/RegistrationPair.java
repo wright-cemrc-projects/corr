@@ -1,83 +1,110 @@
 package org.cemrc.correlator.controllers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.data.IMap;
 
 /**
- * Represent a pair of registration points.
+ * Representation of registration between points.
  * @author larso
  *
  */
 public class RegistrationPair {
 	
+	// ID values
+	public static int REFERENCE_ID = 0;
+	public static int TARGET_ID = 1;
 	private static String UNASSIGNED = "Unassigned";
-	private IMap m_referenceMap, m_targetMap;
-	private Vector2<Float> m_referencePoint, m_targetPoint;
+	
 	private Integer m_id = 0;
+	private Map<Integer, IMap> m_maps = new HashMap<Integer, IMap>();
+	private Map<Integer, Vector2<Float>> m_points = new HashMap<Integer, Vector2<Float>>();
 	
-	
-	public IMap getReferenceMap() {
-		return m_referenceMap;
-	}
-	
-	public void setReferenceMap(IMap referenceMap) {
-		m_referenceMap = referenceMap;
-	}
-
-	public IMap getTargetMap() {
-		return m_targetMap;
-	}
-
-	public void setTargetMap(IMap targetMap) {
-		m_targetMap = targetMap;
-	}
-
-	public Vector2<Float> getReferencePoint() {
-		return m_referencePoint;
-	}
-
-	public void setReferencePoint(Vector2<Float> referencePoint) {
-		m_referencePoint = referencePoint;
-	}
-
-	public Vector2<Float> getTargetPoint() {
-		return m_targetPoint;
-	}
-
-	public void setTargetPoint(Vector2<Float> targetPoint) {
-		m_targetPoint = targetPoint;
+	/**
+	 * Get a map based on an index.
+	 * @param index
+	 * @return
+	 */
+	public IMap getMap(Integer index) {
+		if (m_maps.containsKey(index)) {
+			return m_maps.get(index);
+		}
+		return null;
 	}
 	
-	// Provides a table label
+	/**
+	 * Get a point based on an index.
+	 * @param index
+	 * @return
+	 */
+	public Vector2<Float> getPoint(Integer index) {
+		if (m_points.containsKey(index)) {
+			return m_points.get(index);
+		} 
+		return null;
+	}
+	
+	/**
+	 * Set a map for an index.
+	 * @param index
+	 * @param map
+	 */
+	public void setMap(Integer index, IMap map) {
+		m_maps.put(index,  map);
+	}
+	
+	/**
+	 * Set a point for an index.
+	 * @param index
+	 * @param point
+	 */
+	public void setPoint(Integer index, Vector2<Float> point) {
+		m_points.put(index, point);
+	}
+	
+	/**
+	 * Get an integer id for this registration set.
+	 * @return
+	 */
 	public Integer getId() {
 		return m_id;
 	}
 	
-	public String getName() {
-		return m_id.toString();
-	}
-	
+	/**
+	 * Set an integer id.
+	 * @param id
+	 */
 	public void setId(Integer id) {
 		m_id = id;
 	}
 	
-	public String getTargetMapName() {
-		if (m_targetMap != null) return m_targetMap.getName();
+	/**
+	 * Get a string name for the registration
+	 * @return
+	 */
+	public String getName() {
+		return getId().toString();
+	}
+	
+	/**
+	 * Get a String for a map name.
+	 * @param index
+	 * @return
+	 */
+	public String getMapName(Integer index) {
+		if (getMap(index) != null) return getMap(index).getName();
 		else return UNASSIGNED;
 	}
 	
-	public String getTargetPointName() {
-		if (m_targetPoint != null) return m_targetPoint.toString();
-		else return UNASSIGNED;
-	}
-	
-	public String getReferenceMapName() {
-		if (m_referenceMap != null) return m_referenceMap.getName();
-		else return UNASSIGNED;
-	}
-	
-	public String getReferencePointName() {
-		if (m_referencePoint != null) return m_referencePoint.toString();
+	/**
+	 * Get a string for a point name.
+	 * @param index
+	 * @return
+	 */
+	public String getPointName(Integer index) {
+		if (getPoint(index) != null) return getPoint(index).toString();
 		else return UNASSIGNED;
 	}
 }

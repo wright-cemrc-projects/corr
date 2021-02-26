@@ -1,5 +1,6 @@
 package org.cemrc.correlator.controllers.canvas;
 
+import java.util.List;
 import java.util.Map;
 
 import org.cemrc.autodoc.Vector2;
@@ -291,6 +292,53 @@ public class PanAndZoomPane extends Pane {
     	}	
     }
     
+    private void drawPixels(GraphicsContext gc, List<Vector2<Float>> positions, NavigatorColorEnum color, Affine t) {
+    	
+    	if (positions == null) return;
+    	
+		Color c;
+		switch (color) {
+		case Black:
+			c = Color.BLACK;
+			break;
+		case Red:
+			c = Color.RED;
+			break;
+		case Blue:
+			c = Color.BLUE;
+			break;
+		case Green:
+			c = Color.GREEN;
+			break;
+		case Yellow:
+			c = Color.YELLOW;
+			break;
+		case Magenta:
+			c = Color.MAGENTA;
+			break;
+		default:
+			c = Color.RED;
+			break;
+		}
+    	
+    	for (Vector2<Float> pixel : positions) {
+    		
+    		Point2D pt = new Point2D(pixel.x, pixel.y);
+    		Point2D movedPt = t.transform(pt);
+    		
+    		gc.beginPath();
+    		gc.setStroke(c);
+    		gc.setFill(c);
+            gc.moveTo(movedPt.getX() + 2, movedPt.getY());
+            gc.lineTo(movedPt.getX() - 2, movedPt.getY());
+            gc.moveTo(movedPt.getX(), movedPt.getY() + 2);
+            gc.lineTo(movedPt.getX(), movedPt.getY() - 2);
+            gc.stroke();
+            gc.closePath();
+
+    	}	
+    }
+    
 	/**
 	 * Get the real pixel position for a hit on canvas (affected by rotations and flips)
 	 * @param x
@@ -396,10 +444,68 @@ public class PanAndZoomPane extends Pane {
 	}
 	
 	/**
+	 * Crosshair points to be drawn on the canvas
+	 * @param points
+	 */
+	public void drawPositions(List<Vector2<Float>> points, NavigatorColorEnum color, Affine mat) {
+		GraphicsContext gc = m_canvas.getGraphicsContext2D();
+		
+		gc.save();
+		gc.setGlobalBlendMode(null);		
+		drawPixels(gc, points, color, mat);
+		gc.restore(); 
+	}
+	
+	/**
 	 * Text labels to be drawn on the canvas
 	 * @param points
 	 */
 	public void drawLabels(Map<Integer, Vector3<Float>> points, Affine mat, NavigatorColorEnum color) {
+		GraphicsContext gc = m_canvas.getGraphicsContext2D();
+		
+		gc.save();
+		gc.setGlobalBlendMode(null);
+		Point2D offset = new Point2D(-10f, -5f);
+		
+		Color c;
+		switch (color) {
+		case Black:
+			c = Color.BLACK;
+			break;
+		case Red:
+			c = Color.RED;
+			break;
+		case Blue:
+			c = Color.BLUE;
+			break;
+		case Green:
+			c = Color.GREEN;
+			break;
+		case Yellow:
+			c = Color.YELLOW;
+			break;
+		case Magenta:
+			c = Color.MAGENTA;
+			break;
+		default:
+			c = Color.RED;
+			break;
+		}
+		
+		for (Integer i : points.keySet()) {
+			// For each of these registration points draw a label
+    		Point2D pt = new Point2D(points.get(i).x, points.get(i).y);
+    		Point2D movedPt = mat.transform(pt);
+    		drawLabelText(gc, movedPt, offset, i.toString(), c);
+		}
+		gc.restore();
+	}
+	
+	/**
+	 * Text labels to be drawn on the canvas
+	 * @param points
+	 */
+	public void drawLabel2D(Map<Integer, Vector2<Float>> points, Affine mat, NavigatorColorEnum color) {
 		GraphicsContext gc = m_canvas.getGraphicsContext2D();
 		
 		gc.save();

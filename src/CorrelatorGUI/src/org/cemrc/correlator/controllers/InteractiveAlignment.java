@@ -4,15 +4,18 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
+import org.cemrc.autodoc.Vector2;
 import org.cemrc.correlator.actions.ActionRegisterImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
+import org.cemrc.data.IPositionDataset;
+import org.cemrc.data.PixelPositionDataset;
+import org.cemrc.data.Registration;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -105,7 +108,7 @@ public class InteractiveAlignment {
 		int validReferencePairs = 0;
 		
 		for (RegistrationPair p : m_registrationTableController.getState().getRegistrationList()) {
-			if (p.getReferencePoint() != null && p.getTargetPoint() != null) {
+			if (p.getPoint(RegistrationPair.REFERENCE_ID) != null && p.getPoint(RegistrationPair.TARGET_ID) != null) {
 				validReferencePairs += 1;
 			}
 		}
@@ -148,16 +151,51 @@ public class InteractiveAlignment {
 	
 	@FXML
 	public void doAlign() {
-		// TODO: Kick off an interactive alignment that displays an overlay in the right-hand side?
-		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("Starting alignment...");
-		alert.setHeaderText("[Not implemented]");
-		alert.setContentText("Should create an alignment with 3 pairs of pixel positions.");
-		alert.showAndWait().ifPresent(rs -> {
-		    if (rs == ButtonType.OK) {
-		        System.out.println("OK pressed.");
-		    }
-		});
+
+		PixelPositionDataset m_targetPoints = new PixelPositionDataset();
+		PixelPositionDataset m_referencePoints = new PixelPositionDataset();
+		
+		m_targetPoints.setMap(m_targetMap);
+		m_referencePoints.setMap(m_referenceMap);
+		
+		for (RegistrationPair p : m_registrationTableController.getItems()) {
+			if (p.getPoint(RegistrationPair.REFERENCE_ID) != null && p.getPoint(RegistrationPair.TARGET_ID) != null) {
+				
+				Vector2<Float> p1 = p.getPoint(RegistrationPair.TARGET_ID);
+				m_targetPoints.addPixelPosition(p1.x, p1.y);
+				
+				Vector2<Float> p2 = p.getPoint(RegistrationPair.REFERENCE_ID);
+				m_referencePoints.addPixelPosition(p2.x, p2.y);
+			}
+		}
+
+		// Calculate affine transformation as reigstration between maps.
+		Registration register = Registration.generate(m_targetPoints, m_referencePoints);
+		
+		// Clear registration of any other point sets under this map.
+		for (IPositionDataset d : m_doc.getData().getPositionData()) {
+			if (d.getMap() == m_targetMap) {
+				d.setIsRegistrationPoints(false);
+			}
+		}
+		
+		// Set the targetPoints as registered.
+		m_targetPoints.setIsRegistrationPoints(true);
+		
+		Alert showMatrixDialog = new Alert(AlertType.CONFIRMATION);
+		showMatrixDialog.setHeaderText("Affine Matrix");
+		showMatrixDialog.setContentText(register.getPrettyString());
+		showMatrixDialog.showAndWait();
+		
+		m_targetMap.setRegistration(register);
+		
+		m_doc.setDirt(true);
+		m_doc.getData().forceUpdate();
+		
+		if (m_stage != null) {
+			m_stage.close();
+		}
+		
 	}
 	
 	@FXML
@@ -181,14 +219,14 @@ public class InteractiveAlignment {
 		// Interactive alignment could also allow selection of additional points to use for finding new registration
 		// points as a dropdown or combo box.
 		RegistrationPairState state = m_registrationTableController.getState();
-		ActionRegisterImage action = new ActionRegisterImage(m_doc, m_targetMap, state);
+		ActionRegisterImage action = new ActionRegisterImage(m_doc, RegistrationPair.TARGET_ID, m_targetMap, state);
 		action.doAction();
 	}
 	
 	@FXML
 	public void openReferenceMap() {
 		RegistrationPairState state = m_registrationTableController.getState();	
-		ActionRegisterImage action = new ActionRegisterImage(m_doc, m_referenceMap, state);
+		ActionRegisterImage action = new ActionRegisterImage(m_doc, RegistrationPair.REFERENCE_ID, m_referenceMap, state);
 		action.doAction();
 	}
 }

@@ -45,6 +45,14 @@ public class RegistrationPairState {
         }
     }
     
+    /**
+     * Force updates of table GUI views.
+     * @param property
+     */
+    public void forceUpdate(String property) {
+    	firePropertyChange(property, null, null);
+    }
+    
 	/**
 	 * This property listener can alert when some values have updated.
 	 * @param listener

@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TableColumn;
@@ -46,25 +47,27 @@ public class RegistrationTableController {
 	private void setupTableView() {
 		// http://tutorials.jenkov.com/javafx/tableview.html#tableview-selection-model
 		
+		// TODO: can we use a parameter for these?
+		
 	    TableColumn<RegistrationPair, String> column1 = new TableColumn<>("Name");
 	    column1.setCellFactory(TextFieldTableCell.forTableColumn());
 	    column1.setCellValueFactory(new PropertyValueFactory<>("name"));
 	    column1.setMinWidth(40);
 
 	    TableColumn<RegistrationPair, String> column2 = new TableColumn<>("Target Map");
-	    column2.setCellValueFactory(new PropertyValueFactory<>("targetMapName"));
+	    column2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMapName(RegistrationPair.TARGET_ID)));
 	    column2.setMinWidth(60);
 	    
 	    TableColumn<RegistrationPair, String> column3 = new TableColumn<>("Target Point");
-	    column3.setCellValueFactory(new PropertyValueFactory<>("targetPointName"));
+	    column3.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPointName(RegistrationPair.TARGET_ID)));
 	    column3.setMinWidth(60);
 	    
 	    TableColumn<RegistrationPair, String> column4 = new TableColumn<>("Reference Map");
-	    column4.setCellValueFactory(new PropertyValueFactory<>("referenceMapName"));
+	    column4.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMapName(RegistrationPair.REFERENCE_ID)));
 	    column4.setMinWidth(65);
 	    
 	    TableColumn<RegistrationPair, String> column5 = new TableColumn<>("Reference Point");
-	    column5.setCellValueFactory(new PropertyValueFactory<>("referencePointName"));
+	    column5.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPointName(RegistrationPair.REFERENCE_ID)));
 	    column5.setMinWidth(75);
 	    
 	    m_registrationTableView.getColumns().add(column1);

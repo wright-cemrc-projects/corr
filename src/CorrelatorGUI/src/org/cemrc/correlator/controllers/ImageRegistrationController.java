@@ -5,10 +5,12 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector3;
 import org.cemrc.correlator.CorrelatorConfig;
 import org.cemrc.correlator.controllers.canvas.PanAndZoomPane;
@@ -57,6 +59,9 @@ public class ImageRegistrationController {
 	
 	// The stage this belongs to.
 	private Stage m_stage = null;
+	
+	// When displaying or viewing points, what index to use?
+	private int m_registrationIndex = 0;
 	
 	@FXML
 	ScrollPane scrollPane;
@@ -250,17 +255,17 @@ public class ImageRegistrationController {
 		}
 		
 		// Label positions that need to be drawn.
-		Map<Integer, Vector3<Float>> points = new HashMap<Integer, Vector3<Float>>();
+		Map<Integer, Vector2<Float>> points = new HashMap<Integer, Vector2<Float>>();
 		
 		if (m_registrationState != null && m_registrationState.getRegistrationList() != null) {
 			// Draw each of the registration points on the map.
 			for (RegistrationPair item : m_registrationState.getRegistrationList()) {
 				// m_zoomPane.drawPositions(item, mat);
 	
-				if (m_activeMap == item.getReferenceMap()) {
-					points.put(item.getId(), new Vector3<Float>(item.getReferencePoint().x, item.getReferencePoint().y, 0f));
-				} else if (m_activeMap == item.getTargetMap()) {
-					points.put(item.getId(), new Vector3<Float>(item.getTargetPoint().x, item.getTargetPoint().y, 0f));
+				if (m_activeMap == item.getMap(RegistrationPair.REFERENCE_ID)) {
+					points.put(item.getId(), item.getPoint(RegistrationPair.REFERENCE_ID));
+				} else if (m_activeMap == item.getMap(RegistrationPair.TARGET_ID)) {
+					points.put(item.getId(), item.getPoint(RegistrationPair.TARGET_ID));
 				}
 				 
 				// points.put(new Integer(i++), new Vector3<Float>(position.x, position.y, 0f));
@@ -268,7 +273,8 @@ public class ImageRegistrationController {
 			}
 		}
 		
-		m_zoomPane.drawLabels(points, mat, NavigatorColorEnum.Red);
+		m_zoomPane.drawPositions(new ArrayList<Vector2<Float>>(points.values()), NavigatorColorEnum.Red, mat);
+		m_zoomPane.drawLabel2D(points, mat, NavigatorColorEnum.Red);
 	}
 	
     public static double clamp( double value, double min, double max) {
@@ -370,18 +376,15 @@ public class ImageRegistrationController {
 	}
 	
 	public void canvasClickedCallback(double x, double y) {
-		double near = 5;
-		
 		Vector3<Float> actualPosition = m_zoomPane.getActualPixelPosition(x, y);
 		
 		if (m_registrationState.getSelected() != null) {
-			// TODO: set the selected position!
-			// We need to know which map we are working on and what reference/target to set.
-			
+			if (m_registrationState.getSelected() != null) {
+				m_registrationState.getSelected().setPoint(m_registrationIndex, new Vector2<Float>(actualPosition.x, actualPosition.y));
+				m_registrationState.getSelected().setMap(m_registrationIndex, m_activeMap);
+				m_registrationState.forceUpdate("TEXT_CHANGED");
+			}
 		}
-		
-		// TODO: this should happen in the 
-		// Need to assign the pixel position based on the actualPosition.x, actualPosition.y
 		updateZoomCanvas();
 	}
 	
@@ -402,6 +405,22 @@ public class ImageRegistrationController {
 	public void importRegistrationPair() {
 		// TODO: this should require user to choose pixel positions to add to the registration list.
 		// It could use a simple dialog dropdown that adds from a IPositionDataset list / group.
+	}
+
+	/**
+	 * Pixel positions are set based on this index in a RegistrationPair
+	 * @return
+	 */
+	public int getRegistrationIndex() {
+		return m_registrationIndex;
+	}
+
+	/**
+	 * Pixel positions are set based on this index in a RegistrationPair
+	 * @param registrationIndex
+	 */
+	public void setRegistrationIndex(int registrationIndex) {
+		m_registrationIndex = registrationIndex;
 	}
 	
 }

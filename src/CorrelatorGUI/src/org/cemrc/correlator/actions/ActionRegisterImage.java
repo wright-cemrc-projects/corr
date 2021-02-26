@@ -21,11 +21,13 @@ public class ActionRegisterImage {
 	private final CorrelatorDocument m_document;
 	private final IMap m_activeMap;
 	private final RegistrationPairState m_registrationState;
+	private int m_registrationIndex;
 	
-	public ActionRegisterImage(CorrelatorDocument doc, IMap active, RegistrationPairState state) {
+	public ActionRegisterImage(CorrelatorDocument doc, int registrationIndex, IMap active, RegistrationPairState state) {
 		m_document = doc;
 		m_activeMap = active;
 		m_registrationState = state;
+		m_registrationIndex = registrationIndex;
 	}
 	
 	/**
@@ -43,6 +45,7 @@ public class ActionRegisterImage {
 			controller.setDocument(m_document);
 			controller.setActiveMap(m_activeMap);
 			controller.setRegistrationState(m_registrationState);
+			controller.setRegistrationIndex(m_registrationIndex);
 			
 			// create a stage
 	    	Scene importScene = new Scene(importView, 750, 800);
