@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -20,12 +21,20 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 
 public class PointsTableController {
 	
@@ -170,10 +179,17 @@ public class PointsTableController {
 	    column4.setCellValueFactory(new PropertyValueFactory<>("visible"));
 	    column4.setCellFactory( tc -> new CheckBoxTableCell<PointsDatasetTableItem, Boolean>());
 	    
+	    TableColumn<PointsDatasetTableItem, Boolean> column5 = new TableColumn<>("");
+	    column5.setCellValueFactory(new PropertyValueFactory<>("remove"));
+	    column5.setCellFactory( tc -> new RemovePointsCell());
+	    column5.setSortable(false);
+	    column5.setMinWidth(60); column5.setMaxWidth(60);
+	    
 	    m_pointsTableView.getColumns().add(column1);
 	    m_pointsTableView.getColumns().add(column2);
 	    m_pointsTableView.getColumns().add(column3);
 	    m_pointsTableView.getColumns().add(column4);
+	    m_pointsTableView.getColumns().add(column5);
 	    
 	    // Add a listener for selections.
 	    m_pointsTableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PointsDatasetTableItem>() {
@@ -199,13 +215,15 @@ public class PointsTableController {
 	public void updatePointsTableView() {
 		
 		Set<IPositionDataset> existing = new HashSet<IPositionDataset>();
+		Set<IPositionDataset> expected = new HashSet<IPositionDataset>();
 		
-		// TODO: if we implement deleting rows, this will require a change.
 		for (PointsDatasetTableItem item : m_pointsTableView.getItems()) {
 			existing.add(item.getDataset());
 		}
 		
-		for (IPositionDataset p : m_document.getData().getPositionData()) {				
+		for (IPositionDataset p : m_document.getData().getPositionData()) {	
+			expected.add(p);
+			
 			if (m_maps.contains(p.getMap()) && !existing.contains(p)) {
 				PointsDatasetTableItem item = new PointsDatasetTableItem();
 				item.setDataset(p);
@@ -222,6 +240,20 @@ public class PointsTableController {
 				m_pointsTableView.getItems().add(item);
 			}
 		}
+		
+		// Check for deleted rows:
+		for (IPositionDataset p : existing) {
+			if (!expected.contains(p)) {
+				
+				// Find and remove a PointsDatasetTableItem
+				m_pointsTableView.getItems().removeIf(new Predicate<PointsDatasetTableItem>() {
+					@Override
+					public boolean test(PointsDatasetTableItem item) {
+						return item.m_dataset == p;
+					}
+				});
+			}
+		}	
 	}
 	
 	/**
@@ -253,4 +285,49 @@ public class PointsTableController {
 		}
 		return null;
 	}
+	
+	 /** A table cell containing a button for adding a new person. */
+	  private class RemovePointsCell extends TableCell<PointsDatasetTableItem, Boolean> {
+	    // a button for adding a new person.
+		Image image = new Image(getClass().getResourceAsStream("/view/subtraction.png"));
+		ImageView buttonIV = new ImageView(image); 
+	    final Button removeButton       = new Button("delete");
+	    // pads and centers the add button in the cell.
+	    final StackPane paddedButton = new StackPane();
+	    // records the y pos of the last button press so that the add person dialog can be shown next to the cell.
+	    // final DoubleProperty buttonY = new SimpleDoubleProperty();
+
+	    /**
+	     * RemovePointsCell constructor
+	     */
+	    RemovePointsCell() {
+	      // paddedButton.setPadding(new Insets(3));
+	      paddedButton.getChildren().add(removeButton);
+	      // removeButton.setGraphic(buttonIV);
+	      removeButton.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				PointsDatasetTableItem item = (PointsDatasetTableItem) getTableRow().getItem();	
+				// Tell the table to remove this row and delete row and/or delete from data model.
+				m_document.getData().removePositionData(item.getDataset());
+				updatePointsTableView();
+			}
+	    	  
+	      });
+	    }
+
+	    /** places button in the row only if the row is not empty. */
+	    @Override protected void updateItem(Boolean item, boolean empty) {
+		      super.updateItem(item, empty);
+		      if (empty) {
+		    	  setGraphic(null);
+		      } else
+		      {
+		    	  //setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+		    	  setGraphic(paddedButton);
+		    	  removeButton.setContentDisplay(ContentDisplay.TEXT_ONLY);
+		      }
+	    }
+	  }
 }

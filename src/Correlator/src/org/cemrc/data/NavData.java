@@ -111,6 +111,15 @@ public class NavData {
 	}
 	
 	/**
+	 * Remove PositionData from the NavData
+	 * @param data
+	 */
+	public void removePositionData(IPositionDataset data) {
+		m_positionData.remove(data);
+		firePropertyChange(DOCUMENT_CHANGED, this, this);
+	}
+	
+	/**
 	 * Force update of dependent views.
 	 */
 	public void forceUpdate() {
