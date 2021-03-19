@@ -9,7 +9,7 @@ import javafx.scene.image.Image;
  */
 public class CorrelatorConfig {
 	
-	public static String VersionName = "1.20.15";
+	public static String VersionName = "1.20.15.Development";
 	
 	public static String AppName = "CorRelator";
 	
