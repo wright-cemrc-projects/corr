@@ -287,8 +287,7 @@ public class FindHolesController {
 		// Setup a controller class to manage lines
 		//HistogramPane2 histogram = new HistogramPane2(chartBox, SwingFXUtils.toFXImage(m_src, null));
 		imageHistogram.m_positionBinaryCutoff.addListener((observable, oldValue, newValue) -> {
-		    int intValue = getLimited256(newValue.doubleValue());
-		    m_task.setBinarizationCutoff(intValue);
+		    m_task.setBinarizationCutoff(newValue.doubleValue());
 			m_task.getProcessed(false);
 			m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
 			m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
@@ -296,8 +295,7 @@ public class FindHolesController {
 		});
 		
 		imageHistogram.m_positionMinCutoff.addListener((observable, oldValue, newValue) -> {
-		    int intValue = getLimited256(newValue.doubleValue());
-		    m_task.setLowCutoff(intValue);
+		    m_task.setLowCutoff(newValue.doubleValue());
 			m_task.getProcessed(false);
 			m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
 			m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
@@ -305,8 +303,7 @@ public class FindHolesController {
 		});
 		
 		imageHistogram.m_positionMaxCutoff.addListener((observable, oldValue, newValue) -> {
-		    int intValue = getLimited256(newValue.doubleValue());
-		    m_task.setHighCutoff(intValue);
+		    m_task.setHighCutoff(newValue.doubleValue());
 			m_task.getProcessed(false);
 			m_greyScaleImage = SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
 			m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
@@ -315,16 +312,9 @@ public class FindHolesController {
 		
 		// Set default values:
 		
-		m_task.setBinarizationCutoff(getLimited256(imageHistogram.m_positionBinaryCutoff.doubleValue()));
-		m_task.setLowCutoff(getLimited256(imageHistogram.m_positionMinCutoff.doubleValue()));
-		m_task.setHighCutoff(getLimited256(imageHistogram.m_positionMaxCutoff.doubleValue()));
-	}
-	
-	private int getLimited256(double value) {
-		int rv = (int) Math.round(256.0 * value);
-		if (rv < 0) rv = 0;
-		if (rv > 255) rv = 255;
-		return rv;
+		m_task.setBinarizationCutoff(imageHistogram.m_positionBinaryCutoff.doubleValue());
+		m_task.setLowCutoff(imageHistogram.m_positionMinCutoff.doubleValue());
+		m_task.setHighCutoff(imageHistogram.m_positionMaxCutoff.doubleValue());
 	}
 	
 	@FXML

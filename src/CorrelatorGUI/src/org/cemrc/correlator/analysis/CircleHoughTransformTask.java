@@ -1,13 +1,19 @@
 package org.cemrc.correlator.analysis;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
 import java.awt.image.ConvolveOp;
+import java.awt.image.DataBuffer;
 import java.awt.image.Kernel;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,10 +40,10 @@ public class CircleHoughTransformTask {
 	
 	private final float FIXED_WIDTH = 2048.0f;
 	private float m_scale = 1.0f;
-	private int m_binarization = 240;
 	
-	private int m_cutoffLow = 0;
-	private int m_cutoffHigh = 256;
+	private double m_cutoffLow = 0.0;
+	private double m_binarization = 0.5;
+	private double m_cutoffHigh = 1.0;
 	
 	// Make the second Laplacian edge filter the default.
 	private String m_edgeFilter = "Laplacian_2";
@@ -131,17 +137,17 @@ public class CircleHoughTransformTask {
 		return m_sobel;
 	}
 	
-	public void setBinarizationCutoff(int level) {
+	public void setBinarizationCutoff(double level) {
 		m_binarization = level;
 		updateImages();
 	}
 	
-	public void setLowCutoff(int level) {
+	public void setLowCutoff(double level) {
 		m_cutoffLow = level;
 		updateImages();
 	}
 	
-	public void setHighCutoff(int level) {
+	public void setHighCutoff(double level) {
 		m_cutoffHigh = level;
 		updateImages();
 	}
@@ -165,18 +171,23 @@ public class CircleHoughTransformTask {
 		// BufferedImage image = getGreyscale(src);
 		BufferedImage image = getScaled(src, Math.round(m_scale * src.getWidth()), Math.round(m_scale * src.getHeight()));
 		
-		// 2. Blur the image
-		BufferedImage prebinarization = getBlurred(image);
+		// 2. rescale the brightness of the image.
+		BufferedImage rescaled = getRescaled(image);
 		
-		// 3. Rescale the image histogram (This could be drawn on the canvas also)
-		//  Should be affected by histogram controls.
-		return getRescaled(prebinarization);	
+		// 3. blur
+		BufferedImage blur = getBlurred(rescaled);
+		
+		return blur;
+		
 	}
 	
 	private BufferedImage preBinarize(BufferedImage rescaled) {
 		
+		int c = 256;
+		
 		// Need to adjust binarization cutoff based on the scaled histogram
-		int cutoff = (int) Math.round( ( 256.0 * (double) (m_binarization - m_cutoffLow) ) / (double) (m_cutoffHigh - m_cutoffLow) );
+		int cutoff = (int) Math.round( ( c * (double) (m_binarization - m_cutoffLow) ) / (double) (m_cutoffHigh - m_cutoffLow) );
+		
 		
 		// 3. Binarize image;
 		BufferedImage binarized = binarize(rescaled, cutoff);
@@ -339,8 +350,25 @@ public class CircleHoughTransformTask {
 		return rv;
 	}
 	
+	/**
+	 * Resize the image to smaller dimensions.
+	 * @param src
+	 * @param newWidth
+	 * @param newHeight
+	 * @return
+	 */
 	private BufferedImage getScaled(BufferedImage src, int newWidth, int newHeight) {
-		BufferedImage resized = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_BYTE_GRAY);
+		
+		// How many 16-bit parts in a pixel
+		int numDataElements = 3; // rgb = 3
+		
+		ColorSpace sRGB = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+		ColorModel cm = new ComponentColorModel(sRGB, false, false, Transparency.OPAQUE, DataBuffer.TYPE_USHORT);
+		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_USHORT, newWidth, newHeight, numDataElements, null);
+		BufferedImage resized = new BufferedImage(cm, raster, cm.isAlphaPremultiplied(), null);
+		
+		//BufferedImage resized = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_BYTE_GRAY);
+		
 		Graphics2D g = resized.createGraphics();
 		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
 		    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -351,7 +379,15 @@ public class CircleHoughTransformTask {
 		return resized;
 	}
 	
-	private BufferedImage getBlurred(BufferedImage src) {
+	/**
+	 * blur the image.
+	 * @param src
+	 * @return
+	 */
+	private BufferedImage getBlurred(BufferedImage image) {
+		
+		BufferedImage rv = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		
 		float frac = 1.0f / 15.0f;
 		float[] blurKernel = {
 				frac, frac, frac, frac, frac,
@@ -362,57 +398,47 @@ public class CircleHoughTransformTask {
 		};
 		BufferedImageOp blur = new ConvolveOp(new Kernel(5, 5, blurKernel));
 		
-		BufferedImage image = new BufferedImage(src.getWidth(), src.getHeight(),  
-			    BufferedImage.TYPE_BYTE_GRAY); 
-		
-        Graphics2D g2 = image.createGraphics();
-        g2.drawImage(src, 0, 0, src.getWidth(), src.getHeight(), null);
+        Graphics2D g2 = rv.createGraphics();
+        g2.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
 		g2.dispose();
 	
-		image = blur.filter(image, null);
+		rv = blur.filter(rv, null);
 		
-		return image;
+		return rv;
 	}
 	
+	/**
+	 * Resamble to 8-bit image, then apply cutoffs.
+	 * @param image
+	 * @return
+	 */
 	private BufferedImage getRescaled(BufferedImage image) {
 		BufferedImage rv = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-		Graphics g = rv.getGraphics();  
-		g.drawImage(image, 0, 0, null);  
-		g.dispose();
 		
-		for (int x = 0; x < rv.getWidth(); x++ ) {
-			for (int y = 0; y < rv.getHeight(); y++ ) {
-				int grayLevel = rv.getRGB(x, y) & 0xFF;;
+		for (int x = 0; x < image.getWidth(); x++ ) {
+			for (int y = 0; y < image.getHeight(); y++ ) {
 				
-				if (grayLevel > m_cutoffHigh) {
-					grayLevel = m_cutoffHigh;
-				} else if (grayLevel < m_cutoffLow) {
-					grayLevel = m_cutoffLow;
+				int rgb = image.getRGB(x, y);
+		        int gray = (int) Math.round( 0.30f * ((rgb >> 16) & 0xFF) + 0.59f * ((rgb >> 8) & 0xFF) + 0.11f * (rgb & 0xFF)); 
+				
+		        int max = 255;
+				int cutoffHigh = (int) Math.round(m_cutoffHigh * max);
+				int cutoffLow = (int) Math.round(m_cutoffLow * max);
+
+				if (gray > cutoffHigh) {
+					gray = cutoffHigh;
+				} else if (gray < cutoffLow) {
+					gray = cutoffLow;
 				}
 				
 				// Scale the image
-				grayLevel = (int) Math.round( ( 256.0 * (double) (grayLevel - m_cutoffLow) ) / (double) (m_cutoffHigh - m_cutoffLow) );
-			
-		        int gray = (0xFF << 24) + (grayLevel << 16) + (grayLevel << 8) + grayLevel; 
+				gray = (int) Math.round( ( max * (double) (gray - cutoffLow) ) / (double) (cutoffHigh - cutoffLow) );
+				gray = (0xFF << 24) + (gray << 16) + (gray << 8) + gray; 
 				
 				rv.setRGB(x, y, gray);
 			}
 		}
 		return rv;
-	}
-	
-	/**
-	 * Get a greyscale variant of the image.
-	 * @param src
-	 * @return a grey image
-	 */
-	private BufferedImage getGreyscale(BufferedImage src) {
-		BufferedImage image = new BufferedImage(src.getWidth(), src.getHeight(),  
-			    BufferedImage.TYPE_BYTE_GRAY);  
-			Graphics g = image.getGraphics();  
-			g.drawImage(src, 0, 0, null);  
-			g.dispose();
-		return image;
 	}
 	
 	/**
@@ -422,13 +448,10 @@ public class CircleHoughTransformTask {
 	 */
 	private BufferedImage binarize(BufferedImage image, int cutoff) {
 		BufferedImage rv = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-		Graphics g = rv.getGraphics();  
-		g.drawImage(image, 0, 0, null);  
-		g.dispose();
 		
 		for (int x = 0; x < rv.getWidth(); x++ ) {
 			for (int y = 0; y < rv.getHeight(); y++ ) {
-				int grayLevel = rv.getRGB(x, y) & 0xFF;;
+				int grayLevel = image.getRGB(x, y) & 0xFF;
 				
 				if (grayLevel > cutoff) {
 					grayLevel = 0xFF;
