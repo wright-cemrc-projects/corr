@@ -171,14 +171,14 @@ public class CircleHoughTransformTask {
 		// BufferedImage image = getGreyscale(src);
 		BufferedImage image = getScaled(src, Math.round(m_scale * src.getWidth()), Math.round(m_scale * src.getHeight()));
 		
+
 		// 2. rescale the brightness of the image.
 		BufferedImage rescaled = getRescaled(image);
-		
+
 		// 3. blur
 		BufferedImage blur = getBlurred(rescaled);
 		
 		return blur;
-		
 	}
 	
 	private BufferedImage preBinarize(BufferedImage rescaled) {
@@ -388,14 +388,16 @@ public class CircleHoughTransformTask {
 		
 		BufferedImage rv = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		
-		float frac = 1.0f / 15.0f;
+		// Gaussian smoothing kernel, sigma = 1.0
+		float frac = 1.0f / 273.0f;
 		float[] blurKernel = {
-				frac, frac, frac, frac, frac,
-				frac, frac, frac, frac, frac,
-				frac, frac, frac, frac, frac,
-				frac, frac, frac, frac, frac,
-				frac, frac, frac, frac, frac
+				frac, 4*frac, 7*frac, 4*frac, frac,
+				4*frac, 16*frac, 26*frac, 16*frac, 4*frac,
+				7*frac, 26*frac, 41*frac, 26*frac, 7*frac,
+				4*frac, 16*frac, 26*frac, 16*frac, 4*frac,
+				frac, 4*frac, 7*frac, 4*frac, frac
 		};
+		
 		BufferedImageOp blur = new ConvolveOp(new Kernel(5, 5, blurKernel));
 		
         Graphics2D g2 = rv.createGraphics();
