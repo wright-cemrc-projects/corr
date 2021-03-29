@@ -129,6 +129,7 @@ public class Correlator extends Application {
 		Parent projectView = loader.load();
 		m_projectController = (ProjectController) loader.getController();
 		m_projectController.setDocument(m_state.getDocument());
+		m_projectController.setState(m_state);
 		
 		// Add to the view.
 		vb.getChildren().add(projectView);
@@ -447,8 +448,9 @@ public class Correlator extends Application {
 			FindHolesController holesController = (FindHolesController) loader.getController();
 			holesController.setDocument(m_state.getDocument());
 			holesController.setStage(stage);
+			holesController.setComboSelected(m_state.getActiveMap());
 			
-	    	Scene wizardScene = new Scene(dialog, 800, 600);
+	    	Scene wizardScene = new Scene(dialog, 800, 740);
 			stage.setScene(wizardScene);
 	    	stage.show();
     	} catch (Exception e) {

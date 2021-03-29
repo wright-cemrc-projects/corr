@@ -140,7 +140,7 @@ public class FindHolesController {
 		                    setText(item.getName());
 		                }
 		            }
-		        } ;
+		        };
 		    }
 		};
 		targetMapCombo.setButtonCell(cellFactory.call(null));
@@ -421,7 +421,7 @@ public class FindHolesController {
 		
 		if (targetMapCombo.getItems().size() > 0) {
 			targetMapCombo.getSelectionModel().select(0);
-			updateTargetMap();
+			// updateTargetMap();
 		}
 	}
 	
@@ -429,8 +429,17 @@ public class FindHolesController {
 	 * Set the target map.
 	 * @param selected
 	 */
-	public void setTargetMap(IMap selected) {
-		m_targetMap = selected;
+	public void setComboSelected(IMap selected) {
+		boolean update = false;
+		for (int i = 0; i < targetMapCombo.getItems().size(); i++) {
+			if (targetMapCombo.getItems().get(i) == selected) {
+				targetMapCombo.getSelectionModel().select(i);
+				update = true;
+			}
+		}
+		if (update) {
+			updateTargetMap();
+		}
 	}
 	
 	/**
