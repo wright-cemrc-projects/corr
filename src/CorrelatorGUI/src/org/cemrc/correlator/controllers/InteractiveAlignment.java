@@ -171,6 +171,7 @@ public class InteractiveAlignment {
 
 		// Calculate affine transformation as reigstration between maps.
 		Registration register = Registration.generate(m_targetPoints, m_referencePoints);
+		register.setRegisterMapId(m_referenceMap.getId());
 		
 		// Clear registration of any other point sets under this map.
 		for (IPositionDataset d : m_doc.getData().getPositionData()) {
