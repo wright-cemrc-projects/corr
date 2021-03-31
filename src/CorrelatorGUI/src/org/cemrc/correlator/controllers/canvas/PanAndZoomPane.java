@@ -91,22 +91,28 @@ public class PanAndZoomPane extends Pane {
 	 * @return
 	 */
 	private double getScaleFactor() {
-		double relativeFactor = 0.002;
+		double relativeFactor = 6;
 		
 		// Ranged scale prevents going beyond bounds.
 		double rangedScale = m_scale.get();
-		if (rangedScale > 2.5) {
-			rangedScale = 2.5;
+		
+		if (rangedScale > 4.5) {
+			rangedScale = 4.5;
 		} 
-		if (rangedScale < 0.33) {
-			rangedScale = 0.33;
+		
+		double minScale = 5000 / getCanvasDiagonal();
+		
+		if (rangedScale < minScale) {
+			rangedScale = minScale;
 		}
 		
 		double scaleFactor = relativeFactor / rangedScale;
 		
+		/*
 		if (m_canvas != null) {
-			scaleFactor *= getCanvasHeight();
+			scaleFactor *= Math.log(getCanvasDiagonal());
 		}
+		*/
 		
 		return scaleFactor;
 	}
@@ -243,6 +249,14 @@ public class PanAndZoomPane extends Pane {
 	 */
 	public double getCanvasHeight() {
 		return m_canvas.getHeight();
+	}
+	
+	public double getCanvasDiagonal() {
+		
+		double h = m_canvas.getHeight();
+		double w = m_canvas.getWidth();
+		
+		return Math.sqrt(h*h + w*w);
 	}
 	
 	/**
