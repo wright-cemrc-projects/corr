@@ -99,6 +99,7 @@ public class RegistrationPairState {
 		RegistrationPair pair = new RegistrationPair();
 		pair.setId(m_counter++);
 		m_registrationPairs.add(pair);
+		setSelected(pair);
 		firePropertyChange(EVENT_ROW_ADDED, m_registrationPairs, m_registrationPairs);
 	}
 	

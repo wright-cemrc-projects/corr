@@ -15,6 +15,41 @@
          <children>
             <VBox alignment="TOP_RIGHT">
                <children>
+                  <HBox alignment="TOP_RIGHT">
+                     <children>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label text="Target Map" />
+                              <ComboBox fx:id="targetMapComboBox" onAction="#onTargetCombo" prefWidth="128.0" />
+                           </children>
+                           <HBox.margin>
+                              <Insets bottom="15.0" right="15.0" top="15.0" />
+                           </HBox.margin>
+                        </VBox>
+                        <Button fx:id="openTargetButton" alignment="TOP_RIGHT" contentDisplay="CENTER" maxHeight="32.0" maxWidth="96.0" mnemonicParsing="false" onAction="#openTargetMap" prefHeight="32.0" prefWidth="96.0" text="Open Target" textAlignment="JUSTIFY">
+                           <HBox.margin>
+                              <Insets bottom="15.0" right="15.0" top="32.0" />
+                           </HBox.margin>
+                        </Button>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label text="Reference Map" />
+                              <ComboBox fx:id="referenceMapComboBox" onAction="#onReferenceCombo" prefWidth="128.0" />
+                           </children>
+                           <HBox.margin>
+                              <Insets bottom="15.0" left="30.0" right="15.0" top="15.0" />
+                           </HBox.margin>
+                        </VBox>
+                        <Button fx:id="openReferenceButton" alignment="TOP_RIGHT" contentDisplay="CENTER" layoutX="142.0" layoutY="45.0" maxHeight="32.0" maxWidth="112.0" mnemonicParsing="false" onAction="#openReferenceMap" prefHeight="32.0" prefWidth="112.0" text="Open Reference" textAlignment="JUSTIFY">
+                           <HBox.margin>
+                              <Insets bottom="15.0" right="15.0" top="32.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                     <padding>
+                        <Insets left="15.0" right="15.0" />
+                     </padding>
+                  </HBox>
                   <Label text="Registration Points">
                      <VBox.margin>
                         <Insets right="10.0" top="10.0" />
@@ -37,40 +72,6 @@
                            </HBox.margin>
                         </Button>
                      </children>
-                  </HBox>
-                  <HBox alignment="TOP_RIGHT">
-                     <children>
-                        <VBox prefHeight="200.0" prefWidth="100.0">
-                           <children>
-                              <Label text="Target Map" />
-                              <ComboBox fx:id="targetMapComboBox" onAction="#onTargetCombo" prefWidth="128.0" />
-                           </children>
-                           <HBox.margin>
-                              <Insets bottom="15.0" right="15.0" top="15.0" />
-                           </HBox.margin>
-                        </VBox>
-                        <Button fx:id="openTargetButton" alignment="TOP_RIGHT" contentDisplay="CENTER" maxHeight="32.0" maxWidth="96.0" mnemonicParsing="false" onAction="#openTargetMap" prefHeight="32.0" prefWidth="96.0" text="Open Target" textAlignment="JUSTIFY">
-                           <HBox.margin>
-                              <Insets bottom="15.0" right="15.0" top="32.0" />
-                           </HBox.margin></Button>
-                        <VBox prefHeight="200.0" prefWidth="100.0">
-                           <children>
-                              <Label text="Reference Map" />
-                              <ComboBox fx:id="referenceMapComboBox" onAction="#onReferenceCombo" prefWidth="128.0" />
-                           </children>
-                           <HBox.margin>
-                              <Insets bottom="15.0" left="30.0" right="15.0" top="15.0" />
-                           </HBox.margin>
-                        </VBox>
-                        <Button fx:id="openReferenceButton" alignment="TOP_RIGHT" contentDisplay="CENTER" layoutX="142.0" layoutY="45.0" maxHeight="32.0" maxWidth="112.0" mnemonicParsing="false" onAction="#openReferenceMap" prefHeight="32.0" prefWidth="112.0" text="Open Reference" textAlignment="JUSTIFY">
-                           <HBox.margin>
-                              <Insets bottom="15.0" right="15.0" top="32.0" />
-                           </HBox.margin>
-                        </Button>
-                     </children>
-                     <padding>
-                        <Insets left="15.0" right="15.0" />
-                     </padding>
                   </HBox>
                   <HBox alignment="TOP_RIGHT">
                      <children>

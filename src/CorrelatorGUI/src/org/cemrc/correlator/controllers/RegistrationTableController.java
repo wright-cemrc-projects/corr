@@ -47,34 +47,22 @@ public class RegistrationTableController {
 	private void setupTableView() {
 		// http://tutorials.jenkov.com/javafx/tableview.html#tableview-selection-model
 		
-		// TODO: can we use a parameter for these?
-		
 	    TableColumn<RegistrationPair, String> column1 = new TableColumn<>("Name");
 	    column1.setCellFactory(TextFieldTableCell.forTableColumn());
 	    column1.setCellValueFactory(new PropertyValueFactory<>("name"));
 	    column1.setMinWidth(40);
-
-	    TableColumn<RegistrationPair, String> column2 = new TableColumn<>("Target Map");
-	    column2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMapName(RegistrationPair.TARGET_ID)));
+	    
+	    TableColumn<RegistrationPair, String> column2 = new TableColumn<>("Target Point");
+	    column2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPointName(RegistrationPair.TARGET_ID)));
 	    column2.setMinWidth(60);
 	    
-	    TableColumn<RegistrationPair, String> column3 = new TableColumn<>("Target Point");
-	    column3.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPointName(RegistrationPair.TARGET_ID)));
-	    column3.setMinWidth(60);
-	    
-	    TableColumn<RegistrationPair, String> column4 = new TableColumn<>("Reference Map");
-	    column4.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMapName(RegistrationPair.REFERENCE_ID)));
-	    column4.setMinWidth(65);
-	    
-	    TableColumn<RegistrationPair, String> column5 = new TableColumn<>("Reference Point");
-	    column5.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPointName(RegistrationPair.REFERENCE_ID)));
-	    column5.setMinWidth(75);
+	    TableColumn<RegistrationPair, String> column3 = new TableColumn<>("Reference Point");
+	    column3.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPointName(RegistrationPair.REFERENCE_ID)));
+	    column3.setMinWidth(75);
 	    
 	    m_registrationTableView.getColumns().add(column1);
 	    m_registrationTableView.getColumns().add(column2);
 	    m_registrationTableView.getColumns().add(column3);
-	    m_registrationTableView.getColumns().add(column4);
-	    m_registrationTableView.getColumns().add(column5);
 	    
 	    // Add a listener for selections.
 	    m_registrationTableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<RegistrationPair>() {
@@ -131,10 +119,21 @@ public class RegistrationTableController {
 	 */
 	private void rebuildList() {
 		m_registrationTableView.getItems().clear();
+		int i = 0;
+		int selectedIndex = -1;
+		
 		for (RegistrationPair pair : m_registrationState.getRegistrationList()) {
+			if (pair == m_registrationState.getSelected()) {
+				selectedIndex = i;
+			}
 			m_registrationTableView.getItems().add(pair);
+			i++;
 		}
 		m_registrationTableView.refresh();
+		
+		if (selectedIndex >= 0) {
+			m_registrationTableView.getSelectionModel().select(selectedIndex);
+		}
 		
 	}
 	

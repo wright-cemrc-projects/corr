@@ -153,8 +153,6 @@ public class InteractiveAlignment {
 	 */
 	public void setDocument(CorrelatorDocument doc) {
 		m_doc = doc;
-		
-		// TODO: could fill out the GUI for the drop-down map selections.
 	}
 	
 	

@@ -63,6 +63,9 @@ public class ImageRegistrationController {
 	// When displaying or viewing points, what index to use?
 	private int m_registrationIndex = 0;
 	
+	// Differentiate between dragging and clicking on canvas.
+	private boolean m_dragging = false;
+	
 	@FXML
 	ScrollPane scrollPane;
 	
@@ -96,6 +99,9 @@ public class ImageRegistrationController {
 	@FXML
 	Slider contrastSlider1;
 	private ColorAdjust colorAdjust;
+	
+	@FXML
+	Button importRegistrationPairButton;
 	
 	// This TableView should get updated with registration points.
 	@FXML
@@ -292,6 +298,9 @@ public class ImageRegistrationController {
 	@FXML
 	public void initialize() {
 		
+		// TODO: disabled until feature to import sets of unpaired points.
+		importRegistrationPairButton.setVisible(false);
+		
 		// TODO: need a mechanism to share the same state among all the GUI windows
 		m_registrationTableController = new RegistrationTableController(registrationTable);
 		m_registrationTableController.getState().addPropertyChangeListener(new PropertyChangeListener() {
@@ -351,9 +360,12 @@ public class ImageRegistrationController {
 		scrollPane.setFitToHeight(true);
 		scrollPane.setFitToWidth(true);
 		
-		m_zoomPane.getCanvas().setOnMouseClicked(event -> {
+		m_zoomPane.getCanvas().setOnMousePressed(event -> {
+			// TODO: would be nice to distinguish between click and dragging
+			// https://stackoverflow.com/questions/41655507/javafx-distinguish-drag-and-click
 			canvasClickedCallback(event.getX(), event.getY());
 		});
+		
 		
 		colorAdjust = new ColorAdjust();
 		colorAdjust.brightnessProperty().bind(brightnessSlider1.valueProperty());
