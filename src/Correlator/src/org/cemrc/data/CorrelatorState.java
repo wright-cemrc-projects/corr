@@ -22,6 +22,9 @@ public class CorrelatorState {
 	// Start with an empty document.
 	CorrelatorDocument m_document = new CorrelatorDocument();
 	
+	// Set an active map.
+	IMap m_activeMap;
+	
 	// Cause UI updates when data model changes.
     private final List<PropertyChangeListener> listeners = new ArrayList<>();
 	
@@ -43,6 +46,22 @@ public class CorrelatorState {
 	 */
 	public CorrelatorDocument getDocument() {
 		return m_document;
+	}
+	
+	/**
+	 * Set the state of an active map.
+	 * @param a_mapItem
+	 */
+	public void setActiveMap(IMap a_mapItem) {
+		m_activeMap = a_mapItem;
+	}
+	
+	/**
+	 * Return the active map instance.
+	 * @return
+	 */
+	public IMap getActiveMap() {
+		return m_activeMap;
 	}
 	
 	/**

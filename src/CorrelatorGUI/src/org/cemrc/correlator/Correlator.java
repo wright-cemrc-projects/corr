@@ -10,6 +10,7 @@ import org.cemrc.correlator.actions.ActionExportAutodoc;
 import org.cemrc.correlator.actions.ActionImportAutodoc;
 import org.cemrc.correlator.actions.ActionImportImageMap;
 import org.cemrc.correlator.actions.ActionImportPoints;
+import org.cemrc.correlator.actions.ActionInteractiveAlignment;
 import org.cemrc.correlator.controllers.FindHolesController;
 import org.cemrc.correlator.controllers.ProjectController;
 import org.cemrc.correlator.wizard.WizardController;
@@ -129,6 +130,7 @@ public class Correlator extends Application {
 		Parent projectView = loader.load();
 		m_projectController = (ProjectController) loader.getController();
 		m_projectController.setDocument(m_state.getDocument());
+		m_projectController.setState(m_state);
 		
 		// Add to the view.
 		vb.getChildren().add(projectView);
@@ -389,6 +391,14 @@ public class Correlator extends Application {
 		
 	    // add to the menu
 	    menu.getItems().add(alignItem);
+	    
+		MenuItem freeAlignItem = new MenuItem("Free Alignment");
+		freeAlignItem.setOnAction(event -> {
+				ActionInteractiveAlignment startAlignmentGUI = new ActionInteractiveAlignment(m_state.getDocument(), null, null); 
+				startAlignmentGUI.doAction();
+		});
+		
+		menu.getItems().add(freeAlignItem);
 
 		return menu;
 	}
@@ -447,8 +457,9 @@ public class Correlator extends Application {
 			FindHolesController holesController = (FindHolesController) loader.getController();
 			holesController.setDocument(m_state.getDocument());
 			holesController.setStage(stage);
+			holesController.setComboSelected(m_state.getActiveMap());
 			
-	    	Scene wizardScene = new Scene(dialog, 800, 600);
+	    	Scene wizardScene = new Scene(dialog, 800, 740);
 			stage.setScene(wizardScene);
 	    	stage.show();
     	} catch (Exception e) {

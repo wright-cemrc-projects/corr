@@ -89,11 +89,6 @@
                   <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
                </HBox.margin>
             </Button>
-            <ComboBox fx:id="comboBoxMode" prefWidth="100.0" promptText="Rigid">
-               <HBox.margin>
-                  <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
-               </HBox.margin>
-            </ComboBox>
          </children>
       </HBox>
    </children>

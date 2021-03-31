@@ -2,7 +2,6 @@ package org.cemrc.correlator.controllers;
 
 import java.util.List;
 
-import org.cemrc.correlator.actions.ActionInteractiveAlignment;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
@@ -46,9 +45,6 @@ public class AlignMapsController {
 
 	@FXML
 	private ComboBox<IPositionDataset> referenceMapPointsCombo;
-	
-	@FXML
-	private ComboBox<String> comboBoxMode;
 	
 	@FXML
 	private Button cancelButton;
@@ -108,11 +104,6 @@ public class AlignMapsController {
 		targetMapPointsCombo.setCellFactory(cellFactoryPositions);
 		referenceMapPointsCombo.setButtonCell(cellFactoryPositions.call(null));
 		referenceMapPointsCombo.setCellFactory(cellFactoryPositions);
-		
-		// Setup the comboBoxMode
-		comboBoxMode.getItems().addAll(ALIGN_MODE_RIGID, ALIGN_MODE_INTERACTIVE);
-		comboBoxMode.getItems().addAll(ALIGN_MODE_RIGID);
-		comboBoxMode.setValue(ALIGN_MODE_RIGID);
 	}
 	
 	/**
@@ -184,49 +175,37 @@ public class AlignMapsController {
 	
 	@FXML
 	public void doAlign() {
-		// System.out.println("Will align: " + m_targetMap.getName() + m_targetPoints.getName() + " vs " + m_referenceMap.getName() + m_referencePoints.getName());
-		
-		if (ALIGN_MODE_RIGID.equals(comboBoxMode.getValue())) {
-		
-			// Check the inputs
-			if (m_targetPoints.getNumberPositions() != m_referencePoints.getNumberPositions()) {
-				Alert errorAlert = new Alert(AlertType.ERROR);
-				errorAlert.setHeaderText("Input not valid");
-				errorAlert.setContentText("An equal number of reference and target positions must be provided.");
-				errorAlert.showAndWait();
-			} else {
-				
-				// Calculate affine transformation as reigstration between maps.
-				Registration register = Registration.generate(m_targetPoints, m_referencePoints);
-				
-				// Clear registration of any other point sets under this map.
-				for (IPositionDataset d : m_document.getData().getPositionData()) {
-					if (d.getMap() == m_targetMap) {
-						d.setIsRegistrationPoints(false);
-					}
-				}
-				
-				// Set the targetPoints as registered.
-				m_targetPoints.setIsRegistrationPoints(true);
-				
-				Alert showMatrixDialog = new Alert(AlertType.CONFIRMATION);
-				showMatrixDialog.setHeaderText("Affine Matrix");
-				showMatrixDialog.setContentText(register.getPrettyString());
-				showMatrixDialog.showAndWait();
-				
-				m_targetMap.setRegistration(register);
-				
-				m_document.setDirt(true);
-				m_document.getData().forceUpdate();
-				
-				if (m_stage != null) {
-					m_stage.close();
-				}
-			}
+
+		// Check the inputs
+		if (m_targetPoints.getNumberPositions() != m_referencePoints.getNumberPositions()) {
+			Alert errorAlert = new Alert(AlertType.ERROR);
+			errorAlert.setHeaderText("Input not valid");
+			errorAlert.setContentText("An equal number of reference and target positions must be provided.");
+			errorAlert.showAndWait();
 		} else {
 			
-			ActionInteractiveAlignment startAlignmentGUI = new ActionInteractiveAlignment(m_document, m_targetPoints, m_referencePoints);
-			startAlignmentGUI.doAction();
+			// Calculate affine transformation as reigstration between maps.
+			Registration register = Registration.generate(m_targetPoints, m_referencePoints);
+			
+			// Clear registration of any other point sets under this map.
+			for (IPositionDataset d : m_document.getData().getPositionData()) {
+				if (d.getMap() == m_targetMap) {
+					d.setIsRegistrationPoints(false);
+				}
+			}
+			
+			// Set the targetPoints as registered.
+			m_targetPoints.setIsRegistrationPoints(true);
+			
+			Alert showMatrixDialog = new Alert(AlertType.CONFIRMATION);
+			showMatrixDialog.setHeaderText("Affine Matrix");
+			showMatrixDialog.setContentText(register.getPrettyString());
+			showMatrixDialog.showAndWait();
+			
+			m_targetMap.setRegistration(register);
+			
+			m_document.setDirt(true);
+			m_document.getData().forceUpdate();
 			
 			if (m_stage != null) {
 				m_stage.close();

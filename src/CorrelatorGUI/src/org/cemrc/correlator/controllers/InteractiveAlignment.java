@@ -74,6 +74,7 @@ public class InteractiveAlignment {
 		};
 		targetMapComboBox.setButtonCell(cellFactory.call(null));
 		targetMapComboBox.setCellFactory(cellFactory);
+		
 		referenceMapComboBox.setButtonCell(cellFactory.call(null));
 		referenceMapComboBox.setCellFactory(cellFactory);
 		
@@ -138,14 +139,20 @@ public class InteractiveAlignment {
 		referenceMapComboBox.setValue(reference);
 	}
 	
+	public void onTargetCombo() {
+		m_targetMap = targetMapComboBox.getSelectionModel().getSelectedItem();
+	}
+	
+	public void onReferenceCombo() {
+		m_referenceMap = referenceMapComboBox.getSelectionModel().getSelectedItem();
+	}
+	
 	/**
 	 * Set a document
 	 * @param doc
 	 */
 	public void setDocument(CorrelatorDocument doc) {
 		m_doc = doc;
-		
-		// TODO: could fill out the GUI for the drop-down map selections.
 	}
 	
 	
@@ -171,6 +178,7 @@ public class InteractiveAlignment {
 
 		// Calculate affine transformation as reigstration between maps.
 		Registration register = Registration.generate(m_targetPoints, m_referencePoints);
+		register.setRegisterMapId(m_referenceMap.getId());
 		
 		// Clear registration of any other point sets under this map.
 		for (IPositionDataset d : m_doc.getData().getPositionData()) {
@@ -219,14 +227,20 @@ public class InteractiveAlignment {
 		// Interactive alignment could also allow selection of additional points to use for finding new registration
 		// points as a dropdown or combo box.
 		RegistrationPairState state = m_registrationTableController.getState();
-		ActionRegisterImage action = new ActionRegisterImage(m_doc, RegistrationPair.TARGET_ID, m_targetMap, state);
-		action.doAction();
+
+		if (m_targetMap != null) {	
+			ActionRegisterImage action = new ActionRegisterImage(m_doc, RegistrationPair.TARGET_ID, m_targetMap, state);
+			action.doAction();
+		}
 	}
 	
 	@FXML
 	public void openReferenceMap() {
 		RegistrationPairState state = m_registrationTableController.getState();	
-		ActionRegisterImage action = new ActionRegisterImage(m_doc, RegistrationPair.REFERENCE_ID, m_referenceMap, state);
-		action.doAction();
+
+		if (m_referenceMap != null) {
+			ActionRegisterImage action = new ActionRegisterImage(m_doc, RegistrationPair.REFERENCE_ID, m_referenceMap, state);
+			action.doAction();
+		}
 	}
 }

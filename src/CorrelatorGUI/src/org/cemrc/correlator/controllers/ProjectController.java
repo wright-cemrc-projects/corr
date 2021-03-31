@@ -10,9 +10,12 @@ import org.cemrc.correlator.actions.ActionUnalignMaps;
 import org.cemrc.correlator.actions.ActionViewAlignedImage;
 import org.cemrc.correlator.actions.ActionViewImage;
 import org.cemrc.data.CorrelatorDocument;
+import org.cemrc.data.CorrelatorState;
 import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -30,6 +33,7 @@ import javafx.util.Callback;
  */
 public class ProjectController {
 
+	private CorrelatorState m_state;
     private CorrelatorDocument m_document;
 	
 	@FXML
@@ -179,6 +183,23 @@ public class ProjectController {
     	}
 
     	projectTreeView.setRoot(root);  
+    	
+    	projectTreeView.getSelectionModel().selectedItemProperty().addListener(
+    		new ChangeListener<TreeItem<ProjectNodeItem>>() {
+
+				@Override
+				public void changed(ObservableValue<? extends TreeItem<ProjectNodeItem>> observable,
+						TreeItem<ProjectNodeItem> oldValue, TreeItem<ProjectNodeItem> newValue) {
+
+					if (m_state != null) {
+						if (newValue != null && newValue.getValue().type == ProjectNodeItem.NodeType.Map) {
+							m_state.setActiveMap(newValue.getValue().getMapItem());
+						} else {
+							m_state.setActiveMap(null);
+						}
+					} 
+				}
+        });
     }
     
     public void setDocument(CorrelatorDocument doc) {
@@ -194,5 +215,9 @@ public class ProjectController {
     	});
     	
     	updateTreeView(m_document);
+    }
+    
+    public void setState(CorrelatorState state) {
+    	m_state = state;
     }
 }
