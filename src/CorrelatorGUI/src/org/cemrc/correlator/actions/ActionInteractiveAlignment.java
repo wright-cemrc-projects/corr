@@ -6,7 +6,7 @@ import org.cemrc.correlator.Correlator;
 import org.cemrc.correlator.CorrelatorConfig;
 import org.cemrc.correlator.controllers.InteractiveAlignment;
 import org.cemrc.data.CorrelatorDocument;
-import org.cemrc.data.IPositionDataset;
+import org.cemrc.data.IMap;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,13 +16,13 @@ import javafx.stage.Stage;
 public class ActionInteractiveAlignment {
 
 	private final CorrelatorDocument m_document;
-	private final IPositionDataset m_targetPoints, m_referencePoints;
+	private final IMap m_target, m_reference;
 	
 	
-	public ActionInteractiveAlignment(CorrelatorDocument doc, IPositionDataset target, IPositionDataset reference) {
+	public ActionInteractiveAlignment(CorrelatorDocument doc, IMap target, IMap reference) {
 		m_document = doc;
-		m_targetPoints = target;
-		m_referencePoints = reference;
+		m_target = target;
+		m_reference = reference;
 	}
 	
 	/**
@@ -39,8 +39,8 @@ public class ActionInteractiveAlignment {
 			// Note: we really don't need IPositionDatasets, instead maps...
 			InteractiveAlignment controller = loader.getController();
 			controller.setDocument(m_document);
-			controller.setTargetMap(m_targetPoints.getMap());
-			controller.setReferenceMap(m_referencePoints.getMap());
+			controller.setTargetMap(m_target);
+			controller.setReferenceMap(m_reference);
 			controller.setupMaps();
 			
 			// create a stage

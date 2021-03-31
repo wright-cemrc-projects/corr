@@ -43,7 +43,7 @@
                         <VBox prefHeight="200.0" prefWidth="100.0">
                            <children>
                               <Label text="Target Map" />
-                              <ComboBox fx:id="targetMapComboBox" prefWidth="128.0" />
+                              <ComboBox fx:id="targetMapComboBox" onAction="#onTargetCombo" prefWidth="128.0" />
                            </children>
                            <HBox.margin>
                               <Insets bottom="15.0" right="15.0" top="15.0" />
@@ -56,7 +56,7 @@
                         <VBox prefHeight="200.0" prefWidth="100.0">
                            <children>
                               <Label text="Reference Map" />
-                              <ComboBox fx:id="referenceMapComboBox" prefWidth="128.0" />
+                              <ComboBox fx:id="referenceMapComboBox" onAction="#onReferenceCombo" prefWidth="128.0" />
                            </children>
                            <HBox.margin>
                               <Insets bottom="15.0" left="30.0" right="15.0" top="15.0" />

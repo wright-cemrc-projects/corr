@@ -74,6 +74,7 @@ public class InteractiveAlignment {
 		};
 		targetMapComboBox.setButtonCell(cellFactory.call(null));
 		targetMapComboBox.setCellFactory(cellFactory);
+		
 		referenceMapComboBox.setButtonCell(cellFactory.call(null));
 		referenceMapComboBox.setCellFactory(cellFactory);
 		
@@ -136,6 +137,14 @@ public class InteractiveAlignment {
 	public void setReferenceMap(IMap reference) {
 		m_referenceMap = reference;
 		referenceMapComboBox.setValue(reference);
+	}
+	
+	public void onTargetCombo() {
+		m_targetMap = targetMapComboBox.getSelectionModel().getSelectedItem();
+	}
+	
+	public void onReferenceCombo() {
+		m_referenceMap = referenceMapComboBox.getSelectionModel().getSelectedItem();
 	}
 	
 	/**
@@ -220,14 +229,20 @@ public class InteractiveAlignment {
 		// Interactive alignment could also allow selection of additional points to use for finding new registration
 		// points as a dropdown or combo box.
 		RegistrationPairState state = m_registrationTableController.getState();
-		ActionRegisterImage action = new ActionRegisterImage(m_doc, RegistrationPair.TARGET_ID, m_targetMap, state);
-		action.doAction();
+
+		if (m_targetMap != null) {	
+			ActionRegisterImage action = new ActionRegisterImage(m_doc, RegistrationPair.TARGET_ID, m_targetMap, state);
+			action.doAction();
+		}
 	}
 	
 	@FXML
 	public void openReferenceMap() {
 		RegistrationPairState state = m_registrationTableController.getState();	
-		ActionRegisterImage action = new ActionRegisterImage(m_doc, RegistrationPair.REFERENCE_ID, m_referenceMap, state);
-		action.doAction();
+
+		if (m_referenceMap != null) {
+			ActionRegisterImage action = new ActionRegisterImage(m_doc, RegistrationPair.REFERENCE_ID, m_referenceMap, state);
+			action.doAction();
+		}
 	}
 }

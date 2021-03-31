@@ -10,6 +10,7 @@ import org.cemrc.correlator.actions.ActionExportAutodoc;
 import org.cemrc.correlator.actions.ActionImportAutodoc;
 import org.cemrc.correlator.actions.ActionImportImageMap;
 import org.cemrc.correlator.actions.ActionImportPoints;
+import org.cemrc.correlator.actions.ActionInteractiveAlignment;
 import org.cemrc.correlator.controllers.FindHolesController;
 import org.cemrc.correlator.controllers.ProjectController;
 import org.cemrc.correlator.wizard.WizardController;
@@ -390,6 +391,14 @@ public class Correlator extends Application {
 		
 	    // add to the menu
 	    menu.getItems().add(alignItem);
+	    
+		MenuItem freeAlignItem = new MenuItem("Free Alignment");
+		freeAlignItem.setOnAction(event -> {
+				ActionInteractiveAlignment startAlignmentGUI = new ActionInteractiveAlignment(m_state.getDocument(), null, null); 
+				startAlignmentGUI.doAction();
+		});
+		
+		menu.getItems().add(freeAlignItem);
 
 		return menu;
 	}
