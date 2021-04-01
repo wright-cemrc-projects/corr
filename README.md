@@ -8,6 +8,13 @@ The output is ready for SerialEM automated data collection at transformed fluore
 
 ![Map View](images/mapview.png)
 
+## Updates
+
+- Version 1.25 Release (3/31/2021) : 
+ - Added Circle Hough Transform, hole centroid finding Analysis GUI.
+ - Added Free Alignment GUI to dynamically define registrations between images.
+ - Improvements to label size in images.
+
 ## Documentation
 
 ### Tutorials
