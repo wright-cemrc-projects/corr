@@ -4,7 +4,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -44,9 +43,9 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 		xAxis.setUpperBound(256);
 		xAxis.setAutoRanging(false);
 		xAxis.setLabel("Color Value");
-		yAxis.setLabel("Count");
+		yAxis.setLabel("Percentage");
 		
-		setupDraggableLines();
+		// setupDraggableLines();
 		// Add controllable marker lines.
 		setCache(true);
 		
@@ -56,26 +55,36 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 		setVerticalGridLinesVisible(false);
 	}
 	
+	private boolean isRendered = false;
+	protected void layoutChildren() {
+	    super.layoutChildren();
+	    if(!isRendered){
+	        //This is the first time the node is rendered. Event trigger logic should be here
+	    	setupDraggableLines();
+	    }
+	    isRendered = true;
+	}
+	
 	private void setupDraggableLines() {
-		Bounds b = m_axisX.getBoundsInLocal();
+		Bounds b = m_axisX.getLayoutBounds();
 		
 		// Add interactible line nodes for min/bin/max
 	    Line cutoffLine1 = new Line();
-	    cutoffLine1.setStrokeWidth(3);
+	    cutoffLine1.setStrokeWidth(2);
 	    cutoffLine1.setStroke(Color.BLUE);
 	    
 	    Line cutoffLine2 = new Line();
-	    cutoffLine2.setStrokeWidth(3);
+	    cutoffLine2.setStrokeWidth(2);
 	    cutoffLine2.setStroke(Color.BLACK);
 	    
 	    Line cutoffLine3 = new Line();
-	    cutoffLine3.setStrokeWidth(3);
+	    cutoffLine3.setStrokeWidth(2);
 	    cutoffLine3.setStroke(Color.BLUE);
 	    
-	    m_boundMinX = 1;
-	    m_boundMaxX = 192; // Magic number, may depend on font sizing etc.
+	    m_boundMinX = 2;
+	    m_boundMaxX = 220; // Magic number, may depend on font sizing etc.
 	    m_drawY1 = 0;
-	    m_drawY2 = 150;
+	    m_drawY2 = 175;
 	    
 	    cutoffLine1.setStartY(m_drawY1);
 	    cutoffLine1.setEndY(m_drawY2);
@@ -181,19 +190,6 @@ public class CutoffLineChart extends LineChart<Number, Number> {
             dragDelta.x = me.getX();
         });
     }
-
-    private void setSeriesColor(Series s, Color c) {
-    	//Node fill = s.getNode().lookup(".chart-series-area-fill"); // only for AreaChart
-    	Node line = s.getNode().lookup(".chart-series-line");
-
-    	String rgb = String.format("%d, %d, %d",
-    	        (int) (c.getRed() * 255),
-    	        (int) (c.getGreen() * 255),
-    	        (int) (c.getBlue() * 255));
-
-    	//fill.setStyle("-fx-fill: rgba(" + rgb + ", 0.15);");
-    	line.setStyle("-fx-stroke: rgba(" + rgb + ", 1.0);");
-    }
     
 	private void buildChart(Image image) {
 		
@@ -238,19 +234,22 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 	        seriesGreen.setName("green");
 	        seriesBlue.setName("blue");
 	        
-	        // TODO: should be able to set series color using CSS.
-	        //setSeriesColor(seriesRed, Color.RED);
-	        //setSeriesColor(seriesGreen, Color.GREEN);
-	        //setSeriesColor(seriesBlue, Color.BLUE);
+	        double pixels = image.getHeight()  * image.getWidth();
 	
 	        for (int i = 0; i < 256; i++) {
-	            seriesAlpha.getData().add(new XYChart.Data<Number, Number>(i, alpha[i]));
-	            seriesRed.getData().add(new XYChart.Data<Number, Number>(i, red[i]));
-	            seriesGreen.getData().add(new XYChart.Data<Number, Number>(i, green[i]));
-	            seriesBlue.getData().add(new XYChart.Data<Number, Number>(i, blue[i]));
+	            seriesAlpha.getData().add(new XYChart.Data<Number, Number>(i, alpha[i] / pixels * 100));
+	            seriesRed.getData().add(new XYChart.Data<Number, Number>(i, red[i]  / pixels *100));
+	            seriesGreen.getData().add(new XYChart.Data<Number, Number>(i, green[i] / pixels *100));
+	            seriesBlue.getData().add(new XYChart.Data<Number, Number>(i, blue[i]  / pixels *100));
 	        }
 	        
 	        getData().addAll(seriesRed, seriesGreen, seriesBlue);
+	        
+	        seriesRed.getNode().setStyle("-fx-stroke: red; -fx-stroke-width: 1; ");
+	        seriesBlue.getNode().setStyle("-fx-stroke: blue; -fx-stroke-width: 1; ");
+	        seriesGreen.getNode().setStyle("-fx-stroke: green; -fx-stroke-width: 1; ");
+	        
+	        setLegendVisible(false);
         }
 	}
 }

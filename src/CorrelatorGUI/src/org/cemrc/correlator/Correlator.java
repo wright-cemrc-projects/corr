@@ -382,7 +382,7 @@ public class Correlator extends Application {
 	
 	private Menu createAlignmentMenu() {
 		Menu menu = new Menu("Alignment");
-        MenuItem alignItem = new MenuItem("Align to Map");
+        MenuItem alignItem = new MenuItem("Paired Alignment");
         alignItem.setOnAction(event -> {
             	ActionAlignMaps alignAction = new ActionAlignMaps(m_state.getDocument(), null);
             	alignAction.doAction();
@@ -458,7 +458,7 @@ public class Correlator extends Application {
 			holesController.setDocument(m_state.getDocument());
 			holesController.setStage(stage);
 			holesController.setComboSelected(m_state.getActiveMap());
-			
+
 	    	Scene wizardScene = new Scene(dialog, 800, 740);
 			stage.setScene(wizardScene);
 	    	stage.show();

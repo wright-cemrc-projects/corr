@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cemrc.correlator.actions.ActionAlignMaps;
+import org.cemrc.correlator.actions.ActionInteractiveAlignment;
 import org.cemrc.correlator.actions.ActionUnalignMaps;
 import org.cemrc.correlator.actions.ActionViewAlignedImage;
 import org.cemrc.correlator.actions.ActionViewImage;
@@ -87,7 +88,7 @@ public class ProjectController {
                 	}
                 });
                 
-                MenuItem alignItem = new MenuItem("Align to Map");
+                MenuItem alignItem = new MenuItem("Paired Alignment");
                 alignItem.setOnAction(event -> {
                 	if (cell.getItem().type == ProjectNodeItem.NodeType.Map) {
 	                	IMap mapItem = cell.getItem().getMapItem();  
@@ -95,6 +96,12 @@ public class ProjectController {
 	                	alignAction.doAction();
                 	}
                 });
+                
+        		MenuItem freeAlignItem = new MenuItem("Free Alignment");
+        		freeAlignItem.setOnAction(event -> {
+        				ActionInteractiveAlignment startAlignmentGUI = new ActionInteractiveAlignment(m_state.getDocument(), null, null); 
+        				startAlignmentGUI.doAction();
+        		});
                 
                 MenuItem unalignItem = new MenuItem("Un-Align Map");
                 unalignItem.setOnAction(event -> {
@@ -118,7 +125,7 @@ public class ProjectController {
                 	}
                 });
                 
-                cm.getItems().addAll(openItem, alignItem, unalignItem, viewAlignedMapItem);
+                cm.getItems().addAll(openItem, alignItem, freeAlignItem, unalignItem, viewAlignedMapItem);
                 // other menu items...
                 
                 return cm ;

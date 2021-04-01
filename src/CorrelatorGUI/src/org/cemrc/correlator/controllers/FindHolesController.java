@@ -437,9 +437,9 @@ public class FindHolesController {
 				update = true;
 			}
 		}
-		if (update) {
+		//if (update) {
 			updateTargetMap();
-		}
+		//}
 	}
 	
 	/**
