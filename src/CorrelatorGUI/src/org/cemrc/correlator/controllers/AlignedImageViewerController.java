@@ -18,6 +18,8 @@ import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector3;
 import org.cemrc.correlator.CorrelatorConfig;
 import org.cemrc.correlator.controllers.canvas.PanAndZoomPane;
+import org.cemrc.correlator.data.IMapImage;
+import org.cemrc.correlator.data.JavafxMapImage;
 import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
@@ -80,17 +82,17 @@ public class AlignedImageViewerController {
 
 	@FXML
 	ScrollPane zoomPane;
-	
-	// Image
-	private AdjustableImage m_referenceImage;
-	private AdjustableImage m_alignedImage;
-	
+		
 	// The backing data.
 	private CorrelatorDocument m_document; // may not be required
 	
 	// These are helpful for doing the alignment.
 	private IMap m_referenceMap;
 	private IMap m_activeMap;
+	
+	// Images for drawing
+	private IMapImage m_referenceMapImage;
+	private IMapImage m_alignedMapImage;
 	
 	// These are the actual alignment values
 	private double [][] m_alignmentMatrix = null;
@@ -121,8 +123,9 @@ public class AlignedImageViewerController {
 			}
 		}
 		
-		BufferedImage buffer = ReadImage.readImage(imageLocation);
-		m_alignedImage = new AdjustableImage(buffer);
+		BufferedImage buf = ReadImage.readImage(imageLocation);
+		m_alignedMapImage = new JavafxMapImage(buf);
+		
 		// m_alignedImage = ReadImage.readImage(imageLocation);
 		m_pointsTableController.addMap(map);
 		m_pointsTableController.updatePointsTableView();
@@ -143,11 +146,12 @@ public class AlignedImageViewerController {
 			}
 		}
 		
-		BufferedImage buffer = ReadImage.readImage(imageLocation);
-		m_referenceImage = new AdjustableImage(buffer);
+		BufferedImage buf = ReadImage.readImage(imageLocation);
+		m_referenceMapImage = new JavafxMapImage(buf);
+		
 		// m_referenceImage = ReadImage.readImage(imageLocation);
-		double height = m_referenceImage.getImage().getHeight();
-		double width = m_referenceImage.getImage().getWidth();
+		double height = m_referenceMapImage.getImage().getHeight();
+		double width = m_referenceMapImage.getImage().getWidth();
 		
 		Canvas c = m_zoomPane.getCanvas();
 		c.setHeight(height);
@@ -241,12 +245,12 @@ public class AlignedImageViewerController {
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				if (m_referenceImage != null) {
-					m_referenceImage.adjustImage((float)bottomColor.getBrightness(), (float)bottomColor.getContrast());
+				if (m_referenceMapImage != null) {
+					m_referenceMapImage.adjustImage((float)bottomColor.getBrightness(), (float)bottomColor.getContrast());
 				}
 				
-				if (m_alignedImage != null) {
-					m_alignedImage.adjustImage((float)topColor.getBrightness(), (float)topColor.getContrast());
+				if (m_alignedMapImage != null) {
+					m_alignedMapImage.adjustImage((float)topColor.getBrightness(), (float)topColor.getContrast());
 				}
 				
 				updateZoomCanvas();
@@ -316,8 +320,9 @@ public class AlignedImageViewerController {
 		// Calculate the current affine transform based on rotate and flips.
 		Affine mat = m_zoomPane.getMat();
 		
-		if (m_referenceImage != null && m_showReference) {
-			m_zoomPane.drawImage(m_referenceImage.getImage(), mat, false);
+		if (m_referenceMapImage != null && m_showReference) {
+			m_referenceMapImage.drawImage(m_zoomPane.getCanvas(), mat, false);
+			// m_zoomPane.drawImage(m_alignedMapImage.getImage(), mat, false);
 			
 			// Draw each checked off points set.
 			List<IPositionDataset> drawPoints = m_pointsTableController.getVisible(m_referenceMap);
@@ -339,7 +344,7 @@ public class AlignedImageViewerController {
 		
 		// The aligned image should be drawn transformed and with transparency.
 		// How do I apply the 3x3 matrix or as 2x2 matrix /w translation component?
-		if (m_alignedImage != null && m_showActive) {
+		if (m_alignedMapImage != null && m_showActive) {
 			
 			// This needs to also take into account rotations.
 			// Is there a transform to apply?
@@ -356,7 +361,8 @@ public class AlignedImageViewerController {
 			
 			mat.append(t2);
 			
-			m_zoomPane.drawImage(m_alignedImage.getImage(), mat, true);
+			m_alignedMapImage.drawImage(m_zoomPane.getCanvas(), mat, true);
+			// m_zoomPane.drawImage(m_alignedImage.getImage(), mat, true);
 			
 			// Draw each checked off points set.
 			List<IPositionDataset> drawPoints = m_pointsTableController.getVisible(m_activeMap);

@@ -1,5 +1,6 @@
 package org.cemrc.correlator.controllers;
 
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -14,6 +15,8 @@ import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector3;
 import org.cemrc.correlator.CorrelatorConfig;
 import org.cemrc.correlator.controllers.canvas.PanAndZoomPane;
+import org.cemrc.correlator.data.IMapImage;
+import org.cemrc.correlator.data.JavafxMapImage;
 import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
@@ -32,7 +35,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.effect.ColorAdjust;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
@@ -111,10 +113,12 @@ public class ImageRegistrationController {
 	// The backing data.
 	private CorrelatorDocument m_document;
 	private IMap m_activeMap;
+	private IMapImage m_mapImage;
+	
 	private RegistrationPairState m_registrationState;
 	
 	// An image with software-based brightness/contrast
-	private AdjustableImage m_image = null;
+	// private AdjustableImage m_image = null;
 	
 	public void setDocument(CorrelatorDocument doc) {
 		m_document = doc;
@@ -237,14 +241,14 @@ public class ImageRegistrationController {
 	
 	private void loadImage(File file) {
 		
-		m_image = new AdjustableImage(ReadImage.readImage(file));
-		Image fxImage = m_image.getImage();
+		BufferedImage buf = ReadImage.readImage(file);
+		m_mapImage = new JavafxMapImage(buf);
 		
-		imageViewFull.setImage(m_image.getImage());
+		imageViewFull.setImage(m_mapImage.getImage());
 		
 		// Setup the zoom view
-		m_zoomPane.getCanvas().setWidth(fxImage.getWidth());
-		m_zoomPane.getCanvas().setHeight(fxImage.getHeight());
+		m_zoomPane.getCanvas().setWidth(m_mapImage.getImage().getWidth());
+		m_zoomPane.getCanvas().setHeight(m_mapImage.getImage().getHeight());
 		m_zoomPane.getCanvas().setTranslateX(m_zoomPane.getWidth() / 2);
 		m_zoomPane.getCanvas().setTranslateY(m_zoomPane.getHeight() / 2);
 		
@@ -257,8 +261,9 @@ public class ImageRegistrationController {
 		// Calculate the current affine transform based on rotate and flips.
 		Affine mat = m_zoomPane.getMat();
 		
-		if (m_image != null) {
-			m_zoomPane.drawImage(m_image.getImage(), mat, false);
+		if (m_mapImage != null) {
+			m_mapImage.drawImage(m_zoomPane.getCanvas(), mat, false);
+			// m_zoomPane.drawImage(m_image.getImage(), mat, false);
 		}
 		
 		// Label positions that need to be drawn.
@@ -375,8 +380,8 @@ public class ImageRegistrationController {
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				if (m_image != null) {
-					m_image.adjustImage((float)colorAdjust.getBrightness(), (float)colorAdjust.getContrast());
+				if (m_mapImage != null) {
+					m_mapImage.adjustImage((float)colorAdjust.getBrightness(), (float)colorAdjust.getContrast());
 				}
 				updateZoomCanvas();
 			}

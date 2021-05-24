@@ -460,7 +460,7 @@ public class PanAndZoomPane extends Pane {
 		gc.save();
 		
 		if (transparent) {
-			gc.setGlobalBlendMode(BlendMode.OVERLAY);
+			gc.setGlobalBlendMode(BlendMode.SCREEN);
 		} 
 	
         gc.setTransform(mat);

@@ -117,4 +117,5 @@ public interface IMap {
 	 * @return
 	 */
 	public float getStageZ();
+	
 }
