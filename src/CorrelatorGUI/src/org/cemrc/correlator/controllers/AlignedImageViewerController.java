@@ -150,8 +150,8 @@ public class AlignedImageViewerController {
 		m_referenceMapImage = new JavafxMapImage(buf);
 		
 		// m_referenceImage = ReadImage.readImage(imageLocation);
-		double height = m_referenceMapImage.getImage().getHeight();
-		double width = m_referenceMapImage.getImage().getWidth();
+		double height = m_referenceMapImage.getImageHeight();
+		double width = m_referenceMapImage.getImageWidth();
 		
 		Canvas c = m_zoomPane.getCanvas();
 		c.setHeight(height);

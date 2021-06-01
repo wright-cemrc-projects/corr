@@ -244,11 +244,12 @@ public class ImageRegistrationController {
 		BufferedImage buf = ReadImage.readImage(file);
 		m_mapImage = new JavafxMapImage(buf);
 		
-		imageViewFull.setImage(m_mapImage.getImage());
+		// TODO: better handling of the ImageView
+		// imageViewFull.setImage(m_mapImage.getImage());
 		
 		// Setup the zoom view
-		m_zoomPane.getCanvas().setWidth(m_mapImage.getImage().getWidth());
-		m_zoomPane.getCanvas().setHeight(m_mapImage.getImage().getHeight());
+		m_zoomPane.getCanvas().setWidth(m_mapImage.getImageWidth());
+		m_zoomPane.getCanvas().setHeight(m_mapImage.getImageHeight());
 		m_zoomPane.getCanvas().setTranslateX(m_zoomPane.getWidth() / 2);
 		m_zoomPane.getCanvas().setTranslateY(m_zoomPane.getHeight() / 2);
 		

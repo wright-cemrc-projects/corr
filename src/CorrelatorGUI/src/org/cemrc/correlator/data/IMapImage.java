@@ -1,7 +1,6 @@
 package org.cemrc.correlator.data;
 
 import javafx.scene.canvas.Canvas;
-import javafx.scene.image.Image;
 import javafx.scene.transform.Affine;
 
 /**
@@ -34,5 +33,17 @@ public interface IMapImage {
 	 * Get the JavaFX image
 	 * @return
 	 */
-	public Image getImage();
+	// public Image getImage();
+	
+	/**
+	 * Get the width of the image
+	 * @return
+	 */
+	public int getImageWidth();
+	
+	/**
+	 * Get the height of the image
+	 * @return
+	 */
+	public int getImageHeight();
 }

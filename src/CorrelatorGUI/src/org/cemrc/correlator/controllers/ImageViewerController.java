@@ -19,7 +19,7 @@ import org.cemrc.autodoc.Vector3;
 import org.cemrc.correlator.CorrelatorConfig;
 import org.cemrc.correlator.controllers.canvas.PanAndZoomPane;
 import org.cemrc.correlator.data.IMapImage;
-import org.cemrc.correlator.data.JavafxMapImage;
+import org.cemrc.correlator.data.TiledImage;
 import org.cemrc.correlator.io.ReadImage;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
@@ -275,13 +275,15 @@ public class ImageViewerController {
 	private void loadImage(File file) {
 		
 		BufferedImage buf = ReadImage.readImage(file);
-		m_mapImage = new JavafxMapImage(buf);
+		// m_mapImage = new JavafxMapImage(buf);
+		m_mapImage = new TiledImage(buf, 1000, 1000);
 		
-		imageViewFull.setImage(m_mapImage.getImage());
+		// TODO: how to address the ImageView?
+		// imageViewFull.setImage(m_mapImage.getImage());
 		
 		// Setup the zoom view
-		m_zoomPane.getCanvas().setWidth(m_mapImage.getImage().getWidth());
-		m_zoomPane.getCanvas().setHeight(m_mapImage.getImage().getHeight());
+		m_zoomPane.getCanvas().setWidth(m_mapImage.getImageWidth());
+		m_zoomPane.getCanvas().setHeight(m_mapImage.getImageHeight());
 		m_zoomPane.getCanvas().setTranslateX(m_zoomPane.getWidth() / 2);
 		m_zoomPane.getCanvas().setTranslateY(m_zoomPane.getHeight() / 2);
 		

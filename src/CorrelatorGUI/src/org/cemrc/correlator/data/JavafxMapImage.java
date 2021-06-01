@@ -26,6 +26,9 @@ public class JavafxMapImage implements IMapImage {
 	private BufferedImage m_srcImage;
 	private Image m_image;
 	
+	private int m_imageWidth;
+	private int m_imageHeight;
+	
 	public JavafxMapImage(BufferedImage image) {
 		m_srcImage = image;
 		adjustImage(default_brightness, default_contrast);
@@ -60,16 +63,16 @@ public class JavafxMapImage implements IMapImage {
 		BufferedImage adjustedImage = deepCopy(m_srcImage);
 		
 		// Use the brightness/contrast values and pixel-by-pixel do the algorithm for brightness & contrast.
-	    int w = m_srcImage.getWidth();
-	    int h = m_srcImage.getHeight();
+	    m_imageWidth = m_srcImage.getWidth();
+	    m_imageHeight = m_srcImage.getHeight();
 	    
 	    int brightValue = (int) (brightness * 256);
 	    float c = contrast * 256;
 	    
 	    float contrastFactor = 259.0f*(255.0f+c)/(255.0f*(259.0f-c));
 	
-	    for (int i = 0; i < h; i++) {
-	      for (int j = 0; j < w; j++) {
+	    for (int i = 0; i < m_imageHeight; i++) {
+	      for (int j = 0; j < m_imageWidth; j++) {
 	        int pixel = m_srcImage.getRGB(j, i);
 	        
 	        int alpha = (pixel >> 24) & 0xff;
@@ -110,7 +113,20 @@ public class JavafxMapImage implements IMapImage {
 	}
 
 	@Override
+	public int getImageWidth() {
+		return m_imageWidth;
+	}
+
+	@Override
+	public int getImageHeight() {
+		return m_imageHeight;
+	}
+
+	/*
+	@Override
 	public Image getImage() {
 		return m_image;
 	}
+	*/
+	
 }
