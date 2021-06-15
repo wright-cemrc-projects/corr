@@ -14,7 +14,8 @@ import org.cemrc.correlator.analysis.CircleHoughTransformTask;
 import org.cemrc.correlator.analysis.ClusterMinima;
 import org.cemrc.correlator.controllers.analysis.CutoffLineChart;
 import org.cemrc.correlator.controllers.analysis.FilterGridPoints;
-import org.cemrc.correlator.io.ReadImage;
+import org.cemrc.correlator.data.IMapImage;
+import org.cemrc.correlator.io.ImageProvider;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
@@ -56,7 +57,7 @@ public class FindHolesController {
 	private CorrelatorDocument m_document;
 	
 	private CircleHoughTransformTask m_task;
-	private BufferedImage m_src;
+	private IMapImage m_src;
 	
 	// The target and reference map.
 	private IMap m_targetMap = null;
@@ -83,7 +84,6 @@ public class FindHolesController {
 	@FXML
 	private Canvas resultsCanvas;
 	
-	private Image m_image;
 	private Image m_greyScaleImage;
 	private Image m_edgeDetectImage;
 	
@@ -227,11 +227,9 @@ public class FindHolesController {
 			}
 		}
 		
-		m_src = ReadImage.readImage(imageLocation);
+		m_src = ImageProvider.readImage(imageLocation);
 		m_task = new CircleHoughTransformTask(m_src);
 		m_task.getProcessed(false);
-		
-		m_image = SwingFXUtils.toFXImage(m_src, null);
 		m_greyScaleImage =  SwingFXUtils.toFXImage(m_task.getGreyscale(), null);
 		m_edgeDetectImage =  SwingFXUtils.toFXImage(m_task.getSobel(), null);
 		
@@ -277,7 +275,9 @@ public class FindHolesController {
 		
 		final NumberAxis xAxis = new NumberAxis();
 		final NumberAxis yAxis = new NumberAxis();
-		CutoffLineChart imageHistogram = new CutoffLineChart(xAxis, yAxis, SwingFXUtils.toFXImage(m_src, null));
+		
+		// Histogram is generated from scan of pixel values.
+		CutoffLineChart imageHistogram = new CutoffLineChart(xAxis, yAxis, m_src);
 		
 		imageHistogram.setPrefSize(chartBox.getWidth(), chartBox.getHeight());
 		imageHistogram.setMinWidth(300);
@@ -468,20 +468,17 @@ public class FindHolesController {
 		// gc.setFill(Color.BLACK);
 		// gc.fillRect(0, 0, width, height);
 		
-		if (m_image != null) {
-			double mxx = width / m_image.getWidth();
-			double myy = height / m_image.getHeight();
+		if (m_src != null) {
+			double mxx = width / m_src.getImageWidth();
+			double myy = height / m_src.getImageHeight();
 			
-			gc.save();
-			gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
-			gc.drawImage(m_image,  0,  0);
-			gc.restore();
+			m_src.drawImage(resultsCanvas, Transform.affine(mxx, 0, 0, myy, 0f, 0f), false);
 		}
 		
 		if (showHoles.getValue() && m_src != null) {
 			
-			double mxx = width / m_src.getWidth();
-			double myy = height / m_src.getHeight();
+			double mxx = width / m_src.getImageWidth();
+			double myy = height / m_src.getImageHeight();
 			
 			gc.save();
 			gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
@@ -530,8 +527,8 @@ public class FindHolesController {
 		
 		if (showHoles.getValue() && m_src != null) {
 			
-			double mxx = width / m_src.getWidth();
-			double myy = height / m_src.getHeight();
+			double mxx = width / m_src.getImageWidth();
+			double myy = height / m_src.getImageHeight();
 			
 			gc.save();
 			gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));

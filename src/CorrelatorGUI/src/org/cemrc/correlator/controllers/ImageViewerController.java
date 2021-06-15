@@ -19,8 +19,7 @@ import org.cemrc.autodoc.Vector3;
 import org.cemrc.correlator.CorrelatorConfig;
 import org.cemrc.correlator.controllers.canvas.PanAndZoomPane;
 import org.cemrc.correlator.data.IMapImage;
-import org.cemrc.correlator.data.TiledImage;
-import org.cemrc.correlator.io.ReadImage;
+import org.cemrc.correlator.io.ImageProvider;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
@@ -31,6 +30,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ScrollPane;
@@ -46,6 +47,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Affine;
+import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -69,6 +71,10 @@ public class ImageViewerController {
 	double MIN_SCALE = 0.0001;
 	double MAX_SCALE = 100;
 	
+	// Describe the bounds.
+	final static int MAX_OVERVIEW_WIDTH = 300;
+	final static int MAX_OVERVIEW_HEIGHT = 300;
+	
 	double width = 600;
 	double height = 600;
 	
@@ -88,8 +94,8 @@ public class ImageViewerController {
 	// For canvas operations, zoom + pan.
 	PanAndZoomPane m_zoomPane;
 	
-	@FXML
-	ImageView imageViewFull;
+	// Need to make this added in the fullPane.
+	Canvas m_navigationCanvas;
 	
 	@FXML
 	TableView<PointsTableController.PointsDatasetTableItem> pointsTableView;
@@ -274,18 +280,20 @@ public class ImageViewerController {
 	
 	private void loadImage(File file) {
 		
-		BufferedImage buf = ReadImage.readImage(file);
 		// m_mapImage = new JavafxMapImage(buf);
-		m_mapImage = new TiledImage(buf, 1000, 1000);
-		
-		// TODO: how to address the ImageView?
-		// imageViewFull.setImage(m_mapImage.getImage());
+		m_mapImage = ImageProvider.readImage(file);
 		
 		// Setup the zoom view
 		m_zoomPane.getCanvas().setWidth(m_mapImage.getImageWidth());
 		m_zoomPane.getCanvas().setHeight(m_mapImage.getImageHeight());
 		m_zoomPane.getCanvas().setTranslateX(m_zoomPane.getWidth() / 2);
 		m_zoomPane.getCanvas().setTranslateY(m_zoomPane.getHeight() / 2);
+		
+		// Setup a canvas for a miniature view at the bottom.
+		m_navigationCanvas.setWidth(MAX_OVERVIEW_WIDTH);
+		m_navigationCanvas.setHeight(MAX_OVERVIEW_HEIGHT);
+		m_navigationCanvas.setTranslateX(0);
+		m_navigationCanvas.setTranslateY(0);
 		
 		updateZoomCanvas();
 	}
@@ -315,6 +323,63 @@ public class ImageViewerController {
 			
 			m_zoomPane.drawLabels(points, mat, item.getColor());
 		}
+		
+		// Also update the little view.
+		updateOverviewCanvas();
+	}
+	
+	public void updateOverviewCanvas() {
+		
+		// Must be a valid image to draw
+		if (m_mapImage.getImageHeight() == 0 || m_mapImage.getImageWidth() == 0) {
+			return;
+		}
+		
+		// Determine a scale based on what is needed to fit vertically or horizontally into the Canvas.
+		double widthRatio = (double) MAX_OVERVIEW_WIDTH / (double) m_mapImage.getImageWidth();
+		double heightRatio = (double) MAX_OVERVIEW_HEIGHT / (double) m_mapImage.getImageHeight();
+		
+		double scaleFactor = widthRatio < heightRatio ? widthRatio : heightRatio;
+		
+		// Set the transform
+		Affine mat = new Affine(new Scale (scaleFactor, scaleFactor));
+		
+		// Draw image
+		m_mapImage.drawImage(m_navigationCanvas, mat, false);
+		
+		// Draw bounding box
+		// Need to convert back the bounding box of the image pixel coordinates to stage coordinates.
+		double w = m_zoomPane.getCanvasWidth();
+		double h = m_zoomPane.getCanvasHeight();
+		
+		Vector3<Float> pt1 = m_zoomPane.getActualPixelPosition(0, 0);
+		Vector3<Float> pt2 = m_zoomPane.getActualPixelPosition(0, w);
+		Vector3<Float> pt3 = m_zoomPane.getActualPixelPosition(h, w);
+		Vector3<Float> pt4 = m_zoomPane.getActualPixelPosition(h, 0);
+		
+		GraphicsContext gc = m_navigationCanvas.getGraphicsContext2D();
+		
+		// Save the transform state
+		gc.save();
+        gc.setTransform(mat);
+        
+        /* TODO: need to figure out how to draw a box of the bounds.
+		Color c = Color.RED;
+        // Draw some lines.
+		gc.beginPath();
+		gc.setStroke(c);
+		gc.setFill(c);
+		
+        gc.moveTo(pt1.x, pt1.y);
+        gc.lineTo(pt2.x, pt2.y);
+        gc.moveTo(pt2.x, pt2.y);
+        gc.lineTo(pt3.x, pt3.y);
+        
+        gc.stroke();
+        gc.closePath();
+        */
+        
+        gc.restore();
 	}
 	
     public static double clamp( double value, double min, double max) {
@@ -358,6 +423,10 @@ public class ImageViewerController {
         });
         
         m_zoomPane = new PanAndZoomPane();
+        
+        // Setup the bottom canvas.
+        m_navigationCanvas = new Canvas();
+        fullPane.getChildren().add(m_navigationCanvas);
 			
 		// Maybe better PannableCanvas example.
 		// https://stackoverflow.com/questions/29506156/javafx-8-zooming-relative-to-mouse-pointer
@@ -424,7 +493,9 @@ public class ImageViewerController {
 		
 		colorAdjust.brightnessProperty().addListener(updateUI);
 		colorAdjust.contrastProperty().addListener(updateUI);
-		imageViewFull.setEffect(colorAdjust);
+		
+		// TODO : plan to draw in the bottom Canvas with a box.
+		// imageViewFull.setEffect(colorAdjust);
 	}
 	
 	public void canvasClickedCallback(double x, double y) {

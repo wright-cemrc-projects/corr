@@ -158,11 +158,19 @@ public class TiledImage implements IMapImage {
 		return m_imageHeight;
 	}
 
-	/*
+
 	@Override
-	public Image getImage() {
-		// TODO Auto-generated method stub
-		return null;
+	public int getPixelARGB(int x, int y) {
+		// TODO determine which tile has x, y
+		// TODO determine read the aRGB value from the tile.
+		return 0;
 	}
-	*/
+
+
+	@Override
+	public void drawImage(Graphics2D destination, int width, int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

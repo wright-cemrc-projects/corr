@@ -10,24 +10,34 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
-import javafx.embed.swing.SwingFXUtils;
+import org.cemrc.correlator.data.IMapImage;
+import org.cemrc.correlator.data.JavafxMapImage;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
 
-public class ReadImage {
+/**
+ * Routines for providing IMapImages.
+ * 
+ * @author mrlarson2
+ */
+public class ImageProvider {
 
 	/**
 	 * Method to wrap internal MRC image reader and JAI libraries.
-	 * @param file
-	 * @return
+	 * 
+	 * @param file : filename
+	 * @return IMapImage that could be a tiled image.
 	 */
-	public static BufferedImage readImage(File file) {
-		BufferedImage rv = null;
+	public static IMapImage readImage(File file) {
+		IMapImage rv = null;
 		
 		if (file.getName().endsWith(".st") || file.getName().endsWith(".mrc")) {
-			rv = ReadMRC.parseSerialEM(file);
+			
+			// TODO, this should return an IMapImage, so we can open montages as tiled data structure.
+			BufferedImage image = ReadMRC.parseSerialEM(file);
+			rv = new JavafxMapImage(image);
+			
 		} else {
 				
 			// Method with ImagoIO (JAI core extension for TIFF)
@@ -52,14 +62,8 @@ public class ReadImage {
 				
 				if (nbPages > 0) {
 					BufferedImage bf = reader.read(0);   //1st page of tiff file
-					rv = bf;
-					/*
-					WritableImage wr = null;
-					if (bf != null) {
-					    wr= SwingFXUtils.toFXImage(bf, null);   //convert bufferedImage (awt) into Writable Image(fx)
-					}
-					rv = wr;
-					*/
+					
+					rv = new JavafxMapImage(bf);
 				}
 			}
 			

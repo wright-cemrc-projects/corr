@@ -19,8 +19,7 @@ import org.cemrc.autodoc.Vector3;
 import org.cemrc.correlator.CorrelatorConfig;
 import org.cemrc.correlator.controllers.canvas.PanAndZoomPane;
 import org.cemrc.correlator.data.IMapImage;
-import org.cemrc.correlator.data.JavafxMapImage;
-import org.cemrc.correlator.io.ReadImage;
+import org.cemrc.correlator.io.ImageProvider;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
 import org.cemrc.data.IPositionDataset;
@@ -123,8 +122,7 @@ public class AlignedImageViewerController {
 			}
 		}
 		
-		BufferedImage buf = ReadImage.readImage(imageLocation);
-		m_alignedMapImage = new JavafxMapImage(buf);
+		m_alignedMapImage = ImageProvider.readImage(imageLocation);
 		
 		// m_alignedImage = ReadImage.readImage(imageLocation);
 		m_pointsTableController.addMap(map);
@@ -146,8 +144,7 @@ public class AlignedImageViewerController {
 			}
 		}
 		
-		BufferedImage buf = ReadImage.readImage(imageLocation);
-		m_referenceMapImage = new JavafxMapImage(buf);
+		m_referenceMapImage = ImageProvider.readImage(imageLocation);
 		
 		// m_referenceImage = ReadImage.readImage(imageLocation);
 		double height = m_referenceMapImage.getImageHeight();

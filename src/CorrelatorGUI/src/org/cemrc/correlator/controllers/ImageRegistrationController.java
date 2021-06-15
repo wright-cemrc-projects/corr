@@ -1,6 +1,5 @@
 package org.cemrc.correlator.controllers;
 
-import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -16,8 +15,7 @@ import org.cemrc.autodoc.Vector3;
 import org.cemrc.correlator.CorrelatorConfig;
 import org.cemrc.correlator.controllers.canvas.PanAndZoomPane;
 import org.cemrc.correlator.data.IMapImage;
-import org.cemrc.correlator.data.JavafxMapImage;
-import org.cemrc.correlator.io.ReadImage;
+import org.cemrc.correlator.io.ImageProvider;
 import org.cemrc.data.CorrelatorDocument;
 import org.cemrc.data.IMap;
 import org.cemrc.data.NavigatorColorEnum;
@@ -241,8 +239,7 @@ public class ImageRegistrationController {
 	
 	private void loadImage(File file) {
 		
-		BufferedImage buf = ReadImage.readImage(file);
-		m_mapImage = new JavafxMapImage(buf);
+		m_mapImage = ImageProvider.readImage(file);
 		
 		// TODO: better handling of the ImageView
 		// imageViewFull.setImage(m_mapImage.getImage());

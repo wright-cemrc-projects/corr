@@ -1,5 +1,7 @@
 package org.cemrc.correlator.data;
 
+import java.awt.Graphics2D;
+
 import javafx.scene.canvas.Canvas;
 import javafx.scene.transform.Affine;
 
@@ -13,13 +15,20 @@ import javafx.scene.transform.Affine;
 public interface IMapImage {
 	
 	/**
-	 * Draws an IMapImage to the canvas, with transformations being done.
+	 * Draws an IMapImage to the canvas with transformations being done.
 	 * 
 	 * @param destination
 	 * @param transformMat
 	 * @param transparent
 	 */
 	public void drawImage(Canvas destination, Affine transformMat, boolean transparent);
+	
+	/**
+	 * Draws an IMapImage to the Graphics2D as width/height into a Graphics2D
+	 * 
+	 * @param destination Graphics2D
+	 */
+	public void drawImage(Graphics2D destination, int width, int height);
 
 	/**
 	 * Adjust the image brightness and contrast.
@@ -46,4 +55,13 @@ public interface IMapImage {
 	 * @return
 	 */
 	public int getImageHeight();
+	
+	/**
+	 * Get the ARGB value of a pixel (x, y) on the tiled image.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public int getPixelARGB(int x, int y);
 }

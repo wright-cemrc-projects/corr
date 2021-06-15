@@ -1,5 +1,7 @@
 package org.cemrc.correlator.controllers.analysis;
 
+import org.cemrc.correlator.data.IMapImage;
+
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Bounds;
@@ -8,8 +10,6 @@ import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 
@@ -23,7 +23,7 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 	
 	private double m_boundMinX, m_boundMaxX;
 	private double m_drawY1, m_drawY2;
-	private Image m_image;
+	private IMapImage m_image;
 	
 	Axis<Number> m_axisX;
 	
@@ -32,7 +32,7 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 	public DoubleProperty m_positionBinaryCutoff = new SimpleDoubleProperty();
 	public DoubleProperty m_positionMaxCutoff = new SimpleDoubleProperty();
 
-	public CutoffLineChart(NumberAxis xAxis, NumberAxis yAxis, Image image) {
+	public CutoffLineChart(NumberAxis xAxis, NumberAxis yAxis, IMapImage image) {
 		super(xAxis, yAxis);
 		m_axisX = xAxis;
 		
@@ -191,7 +191,7 @@ public class CutoffLineChart extends LineChart<Number, Number> {
         });
     }
     
-	private void buildChart(Image image) {
+	private void buildChart(IMapImage image) {
 		
         long alpha[] = new long[256];
         long red[] = new long[256];
@@ -202,54 +202,50 @@ public class CutoffLineChart extends LineChart<Number, Number> {
         for (int i = 0; i < 256; i++) {
             alpha[i] = red[i] = green[i] = blue[i] = 0;
         }
-        
-        PixelReader pixelReader = image.getPixelReader();
-        
-        if (pixelReader != null) {
-	        //count pixels
-	        for (int y = 0; y < image.getHeight(); y++) {
-	            for (int x = 0; x < image.getWidth(); x++) {
-	                int argb = pixelReader.getArgb(x, y);
-	                int a = (0xff & (argb >> 24));
-	                int r = (0xff & (argb >> 16));
-	                int g = (0xff & (argb >> 8));
-	                int b = (0xff & argb);
-	
-	                alpha[a]++;
-	                red[r]++;
-	                green[g]++;
-	                blue[b]++;
-	
-	            }
-	        }
-	        
-	        // Use the pixel counts to fill in series for a chart.
-	        XYChart.Series<Number, Number> seriesAlpha = new XYChart.Series<Number, Number>();
-	        XYChart.Series<Number, Number> seriesRed = new XYChart.Series<Number, Number>();
-	        XYChart.Series<Number, Number> seriesGreen = new XYChart.Series<Number, Number>();
-	        XYChart.Series<Number, Number> seriesBlue = new XYChart.Series<Number, Number>();
-	        
-	        seriesAlpha.setName("alpha");
-	        seriesRed.setName("red");
-	        seriesGreen.setName("green");
-	        seriesBlue.setName("blue");
-	        
-	        double pixels = image.getHeight()  * image.getWidth();
-	
-	        for (int i = 0; i < 256; i++) {
-	            seriesAlpha.getData().add(new XYChart.Data<Number, Number>(i, alpha[i] / pixels * 100));
-	            seriesRed.getData().add(new XYChart.Data<Number, Number>(i, red[i]  / pixels *100));
-	            seriesGreen.getData().add(new XYChart.Data<Number, Number>(i, green[i] / pixels *100));
-	            seriesBlue.getData().add(new XYChart.Data<Number, Number>(i, blue[i]  / pixels *100));
-	        }
-	        
-	        getData().addAll(seriesRed, seriesGreen, seriesBlue);
-	        
-	        seriesRed.getNode().setStyle("-fx-stroke: red; -fx-stroke-width: 1; ");
-	        seriesBlue.getNode().setStyle("-fx-stroke: blue; -fx-stroke-width: 1; ");
-	        seriesGreen.getNode().setStyle("-fx-stroke: green; -fx-stroke-width: 1; ");
-	        
-	        setLegendVisible(false);
+        //count pixels
+        for (int y = 0; y < image.getImageHeight(); y++) {
+            for (int x = 0; x < image.getImageWidth(); x++) {
+                // int argb = pixelReader.getArgb(x, y);
+                int argb = image.getPixelARGB(x, y);
+            	int a = (0xff & (argb >> 24));
+                int r = (0xff & (argb >> 16));
+                int g = (0xff & (argb >> 8));
+                int b = (0xff & argb);
+
+                alpha[a]++;
+                red[r]++;
+                green[g]++;
+                blue[b]++;
+
+            }
         }
+        
+        // Use the pixel counts to fill in series for a chart.
+        XYChart.Series<Number, Number> seriesAlpha = new XYChart.Series<Number, Number>();
+        XYChart.Series<Number, Number> seriesRed = new XYChart.Series<Number, Number>();
+        XYChart.Series<Number, Number> seriesGreen = new XYChart.Series<Number, Number>();
+        XYChart.Series<Number, Number> seriesBlue = new XYChart.Series<Number, Number>();
+        
+        seriesAlpha.setName("alpha");
+        seriesRed.setName("red");
+        seriesGreen.setName("green");
+        seriesBlue.setName("blue");
+        
+        double pixels = image.getImageHeight()  * image.getImageWidth();
+
+        for (int i = 0; i < 256; i++) {
+            seriesAlpha.getData().add(new XYChart.Data<Number, Number>(i, alpha[i] / pixels * 100));
+            seriesRed.getData().add(new XYChart.Data<Number, Number>(i, red[i]  / pixels *100));
+            seriesGreen.getData().add(new XYChart.Data<Number, Number>(i, green[i] / pixels *100));
+            seriesBlue.getData().add(new XYChart.Data<Number, Number>(i, blue[i]  / pixels *100));
+        }
+        
+        getData().addAll(seriesRed, seriesGreen, seriesBlue);
+        
+        seriesRed.getNode().setStyle("-fx-stroke: red; -fx-stroke-width: 1; ");
+        seriesBlue.getNode().setStyle("-fx-stroke: blue; -fx-stroke-width: 1; ");
+        seriesGreen.getNode().setStyle("-fx-stroke: green; -fx-stroke-width: 1; ");
+        
+        setLegendVisible(false);
 	}
 }

@@ -2,7 +2,6 @@ package org.cemrc.correlator.analysis;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cemrc.autodoc.Vector2;
+import org.cemrc.correlator.data.IMapImage;
 
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
@@ -34,7 +34,7 @@ import javafx.scene.control.ProgressBar;
  */
 public class CircleHoughTransformTask {
 
-	private BufferedImage m_src;
+	private IMapImage m_src;
 	private BufferedImage m_greyScale;
 	private BufferedImage m_sobel;
 	
@@ -98,7 +98,7 @@ public class CircleHoughTransformTask {
 		}
 	}
 	
-	public CircleHoughTransformTask(BufferedImage src) {
+	public CircleHoughTransformTask(IMapImage src) {
 		m_src = src;
 	}
 	
@@ -160,16 +160,16 @@ public class CircleHoughTransformTask {
 	/**
 	 * Do the steps of the CHT algorithm
 	 */
-	private BufferedImage preprocess(BufferedImage src) {
+	private BufferedImage preprocess(IMapImage src) {
 		if (src == null) {
 			return null;
 		}
 		
-		m_scale = FIXED_WIDTH / src.getWidth();
+		m_scale = FIXED_WIDTH / src.getImageWidth();
 		
 		// 1. Convert to scale and greyscale
 		// BufferedImage image = getGreyscale(src);
-		BufferedImage image = getScaled(src, Math.round(m_scale * src.getWidth()), Math.round(m_scale * src.getHeight()));
+		BufferedImage image = getScaled(src, Math.round(m_scale * src.getImageWidth()), Math.round(m_scale * src.getImageHeight()));
 		
 
 		// 2. rescale the brightness of the image.
@@ -261,7 +261,7 @@ public class CircleHoughTransformTask {
 			updateProgress(progress);
 		}
 		
-		float scale = (float) m_src.getWidth() / FIXED_WIDTH;
+		float scale = (float) m_src.getImageWidth() / FIXED_WIDTH;
 		
 		//  -> Save the list of the (X,Y) centers.
 		List<ClusterMinima> maximum = findLocalMaximum(accumulator, width, height, radiusMax);
@@ -357,7 +357,7 @@ public class CircleHoughTransformTask {
 	 * @param newHeight
 	 * @return
 	 */
-	private BufferedImage getScaled(BufferedImage src, int newWidth, int newHeight) {
+	private BufferedImage getScaled(IMapImage src, int newWidth, int newHeight) {
 		
 		// How many 16-bit parts in a pixel
 		int numDataElements = 3; // rgb = 3
@@ -367,14 +367,11 @@ public class CircleHoughTransformTask {
 		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_USHORT, newWidth, newHeight, numDataElements, null);
 		BufferedImage resized = new BufferedImage(cm, raster, cm.isAlphaPremultiplied(), null);
 		
-		//BufferedImage resized = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_BYTE_GRAY);
-		
+		// This may not work well with the IMapImage.  The goal is to create a BufferedImage but maybe there are other options?
 		Graphics2D g = resized.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-		    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		g.drawImage(src, 0, 0, newWidth, newHeight, 0, 0, src.getWidth(),
-		    src.getHeight(), null);
+		src.drawImage(g, newWidth, newHeight);
 		g.dispose();
+
 		
 		return resized;
 	}

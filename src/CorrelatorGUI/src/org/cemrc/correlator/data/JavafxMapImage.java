@@ -1,5 +1,7 @@
 package org.cemrc.correlator.data;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
@@ -9,6 +11,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.transform.Affine;
 
 /**
@@ -54,6 +57,15 @@ public class JavafxMapImage implements IMapImage {
 
 		// Restore transform state
 		gc.restore();
+	}
+	
+	@Override
+	public void drawImage(Graphics2D destination, int newWidth, int newHeight) {
+		
+		destination.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+		    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		destination.drawImage(m_srcImage, 0, 0, newWidth, newHeight, 0, 0, getImageWidth(),
+		    getImageHeight(), null);
 	}
 	
 	public void adjustImage(float brightness, float contrast) {
@@ -122,11 +134,10 @@ public class JavafxMapImage implements IMapImage {
 		return m_imageHeight;
 	}
 
-	/*
 	@Override
-	public Image getImage() {
-		return m_image;
+	public int getPixelARGB(int x, int y) {
+		PixelReader pr = m_image.getPixelReader();
+		return pr.getArgb(x, y);
 	}
-	*/
 	
 }

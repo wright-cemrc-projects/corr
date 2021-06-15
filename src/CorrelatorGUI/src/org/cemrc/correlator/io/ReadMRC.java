@@ -92,6 +92,19 @@ public class ReadMRC {
 			// Mode 3 represents 2-byte integer complex number
 			// Mode 4 represents 4-byte real complex number
 			
+			
+			// https://bio3d.colorado.edu/imod/doc/mrc_format.txt
+			// TODO: may need value at 104 describing the Type of the extended header.
+			
+			// Need to read the value `nint` and/or `nreal` 
+			// These are at 128 and 130 in the header
+			// These will let us know if we are reading a montage of 'nz' sections
+			// And how to read in the values of the (2) X, Y, Z piece coordinates for montage (6 bytes)
+			// TODO: Maybe instead of the skipBytes below, I need to skip to 128 and read
+			//  and then read 130 value.
+			// TODO: Then, if we are NZ > 1 and looks like there are flags for short data (2) = X,Y,Z.
+			
+			
 			// Skip block possibly 128 bytes
 			//byte []  extendedBuffer = new byte[(int) 1024];
 			//in.read(extendedBuffer);
