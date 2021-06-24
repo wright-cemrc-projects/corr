@@ -292,8 +292,14 @@ public class ImageViewerController {
 		m_zoomPane.getCanvas().setTranslateY(m_zoomPane.getHeight() / 2);
 		
 		// Setup a canvas for a miniature view at the bottom.
-		m_navigationCanvas.setWidth(MAX_OVERVIEW_WIDTH);
-		m_navigationCanvas.setHeight(MAX_OVERVIEW_HEIGHT);
+		// Determine a scale based on what is needed to fit vertically or horizontally into the Canvas.
+		double widthRatio = (double) MAX_OVERVIEW_WIDTH / (double) m_mapImage.getImageWidth();
+		double heightRatio = (double) MAX_OVERVIEW_HEIGHT / (double) m_mapImage.getImageHeight();
+		
+		double scaleFactor = widthRatio < heightRatio ? widthRatio : heightRatio;
+		
+		m_navigationCanvas.setWidth(m_mapImage.getImageWidth() * scaleFactor);
+		m_navigationCanvas.setHeight(m_mapImage.getImageHeight() * scaleFactor);
 		m_navigationCanvas.setTranslateX(0);
 		m_navigationCanvas.setTranslateY(0);
 		
@@ -406,7 +412,7 @@ public class ImageViewerController {
 		gc.beginPath();
 		gc.setStroke(c);
 		gc.setFill(c);
-		gc.setLineWidth(6.0);
+		gc.setLineWidth(1.0 / scaleFactor);
 		
         gc.moveTo(pt1.x, pt1.y);
         gc.lineTo(pt2.x, pt2.y);
