@@ -30,6 +30,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
@@ -46,6 +47,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
@@ -335,6 +337,24 @@ public class ImageViewerController {
 			return;
 		}
 		
+		// What are the extents of a visible canvas in the ScrollPane/Pane?
+
+		// The bound box changes with dragging
+		Bounds b = m_zoomPane.getCanvas().getBoundsInParent();
+
+		// The bound box doesn't change with zoom
+		double scale = m_zoomPane.getScale();
+		
+		// System.out.println(b.getMinX() + " " + b.getMinY() + " " + b.getMaxX() + " " + b.getMaxY() + " " + scale);
+		
+		// At start, 0.0 and 0.0 is the canvas translation, scale is 1.0
+		// Other bounds describe the overall dimensions.
+		
+		// I need to know the size of the viewport
+		// Then offset that viewport with b.getMinX() and b.getMinY()
+		// And consider the scale factor!
+		Bounds sp = scrollPane.getBoundsInLocal();
+
 		// Determine a scale based on what is needed to fit vertically or horizontally into the Canvas.
 		double widthRatio = (double) MAX_OVERVIEW_WIDTH / (double) m_mapImage.getImageWidth();
 		double heightRatio = (double) MAX_OVERVIEW_HEIGHT / (double) m_mapImage.getImageHeight();
@@ -344,40 +364,62 @@ public class ImageViewerController {
 		// Set the transform
 		Affine mat = new Affine(new Scale (scaleFactor, scaleFactor));
 		
+		GraphicsContext gc = m_navigationCanvas.getGraphicsContext2D();
+		gc.clearRect(0, 0, m_navigationCanvas.getWidth(), m_navigationCanvas.getHeight());
+		
 		// Draw image
 		m_mapImage.drawImage(m_navigationCanvas, mat, false);
 		
 		// Draw bounding box
-		// Need to convert back the bounding box of the image pixel coordinates to stage coordinates.
-		double w = m_zoomPane.getCanvasWidth();
-		double h = m_zoomPane.getCanvasHeight();
+		// TODO: ugh, this is almost correct but its behaving oddly with the left corner X/Y.
+		double dx = (sp.getMaxX() - sp.getMaxX() / scale) / 2;
+		double dy = (sp.getMaxY() - sp.getMaxY() / scale) / 2;
 		
-		Vector3<Float> pt1 = m_zoomPane.getActualPixelPosition(0, 0);
-		Vector3<Float> pt2 = m_zoomPane.getActualPixelPosition(0, w);
-		Vector3<Float> pt3 = m_zoomPane.getActualPixelPosition(h, w);
-		Vector3<Float> pt4 = m_zoomPane.getActualPixelPosition(h, 0);
+		// double box_xl = - b.getMinX();
+		// double box_yl = - b.getMinY();
+		// double box_xr = - b.getMinX() + sp.getMaxX() / scale;
+		// double box_yr = - b.getMinY() + sp.getMaxY() / scale;
 		
-		GraphicsContext gc = m_navigationCanvas.getGraphicsContext2D();
+		double box_xl = - b.getMinX() + dx;
+		double box_yl = - b.getMinY() + dy;
+		double box_xr = - b.getMinX() + sp.getMaxX() / scale + dx;
+		double box_yr = - b.getMinY() + sp.getMaxY() / scale + dy;
+		
+		// Clamp to limit the min/max view boxes.
+		//if (box_xl < 0) box_xl = 0;
+		//if (box_yl < 0) box_yl = 0;
+		//if (box_xr > m_navigationCanvas.getWidth()) box_xr = m_navigationCanvas.getWidth();
+		//if (box_yr > m_navigationCanvas.getHeight()) box_yr = m_navigationCanvas.getHeight();
+		
+		// Let's describe how the viewport would be in the canvas.
+		Vector3<Float> pt1 = m_zoomPane.getActualPixelPosition(box_xl, box_yl);
+		Vector3<Float> pt2 = m_zoomPane.getActualPixelPosition(box_xl, box_yr);
+		Vector3<Float> pt3 = m_zoomPane.getActualPixelPosition(box_xr, box_yr);
+		Vector3<Float> pt4 = m_zoomPane.getActualPixelPosition(box_xr, box_yl);
 		
 		// Save the transform state
 		gc.save();
         gc.setTransform(mat);
         
-        /* TODO: need to figure out how to draw a box of the bounds.
 		Color c = Color.RED;
         // Draw some lines.
 		gc.beginPath();
 		gc.setStroke(c);
 		gc.setFill(c);
+		gc.setLineWidth(6.0);
 		
         gc.moveTo(pt1.x, pt1.y);
         gc.lineTo(pt2.x, pt2.y);
         gc.moveTo(pt2.x, pt2.y);
         gc.lineTo(pt3.x, pt3.y);
         
+        gc.moveTo(pt3.x, pt3.y);
+        gc.lineTo(pt4.x, pt4.y);
+        gc.moveTo(pt4.x, pt4.y);
+        gc.lineTo(pt1.x, pt1.y);
+        
         gc.stroke();
         gc.closePath();
-        */
         
         gc.restore();
 	}
@@ -423,6 +465,14 @@ public class ImageViewerController {
         });
         
         m_zoomPane = new PanAndZoomPane();
+        m_zoomPane.addDragListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent arg0) {
+				updateOverviewCanvas();
+			}
+			
+		});
         
         // Setup the bottom canvas.
         m_navigationCanvas = new Canvas();
@@ -474,6 +524,8 @@ public class ImageViewerController {
 		m_zoomPane.getCanvas().setOnMouseClicked(event -> {
 			canvasClickedCallback(event.getX(), event.getY());
 		});
+		
+		// TODO: need to register an event on drag.
 		
 		colorAdjust = new ColorAdjust();
 		colorAdjust.brightnessProperty().bind(brightnessSlider1.valueProperty());

@@ -1,5 +1,8 @@
 package org.cemrc.correlator.controllers.canvas;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +45,7 @@ public class PanAndZoomPane extends Pane {
     public DoubleProperty deltaY = new SimpleDoubleProperty(0.0);
      
     // Maintain a single scale value.
+    public static String DRAG_CHANGED="DRAG_CHANGED";
     
     // This value needs to be accessible
 	private DoubleProperty m_scale = new SimpleDoubleProperty(1.0);
@@ -56,6 +60,17 @@ public class PanAndZoomPane extends Pane {
 	// Affects hover cursor on the view.
 	public enum PointState { None, Move, Add, Remove };
 	private PointState mode = PointState.Move;
+	
+	// Cause UI updates when data model changes.
+    private final List<PropertyChangeListener> dragListeners = new ArrayList<>();
+    
+	/**
+	 * This property listener can alert when some values have updated.
+	 * @param listener
+	 */
+    public void addDragListener(PropertyChangeListener listener) {
+        dragListeners.add(listener);
+    }
 	
 	/**
 	 * Set the current zoom pane interaction
@@ -175,6 +190,9 @@ public class PanAndZoomPane extends Pane {
 
             event.consume();
 
+            for (PropertyChangeListener l : dragListeners) {
+                l.propertyChange(new PropertyChangeEvent(this, DRAG_CHANGED, m_canvas, m_canvas));
+            }
         }
     };
     
