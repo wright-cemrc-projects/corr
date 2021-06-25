@@ -11,7 +11,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import org.cemrc.correlator.data.IMapImage;
-import org.cemrc.correlator.data.JavafxMapImage;
+import org.cemrc.correlator.data.TiledImage;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -36,7 +36,8 @@ public class ImageProvider {
 			
 			// TODO, this should return an IMapImage, so we can open montages as tiled data structure.
 			BufferedImage image = ReadMRC.parseSerialEM(file);
-			rv = new JavafxMapImage(image);
+			// rv = new JavafxMapImage(image);
+			rv = new TiledImage(image, 2000, 2000);
 			
 		} else {
 				
@@ -63,7 +64,8 @@ public class ImageProvider {
 				if (nbPages > 0) {
 					BufferedImage bf = reader.read(0);   //1st page of tiff file
 					
-					rv = new JavafxMapImage(bf);
+					// rv = new JavafxMapImage(bf);
+					rv = new TiledImage(bf, 2000, 2000);
 				}
 			}
 			
