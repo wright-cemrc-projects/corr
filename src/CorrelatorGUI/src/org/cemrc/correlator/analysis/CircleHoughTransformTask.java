@@ -2,17 +2,10 @@ package org.cemrc.correlator.analysis;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
 import java.awt.image.ConvolveOp;
-import java.awt.image.DataBuffer;
 import java.awt.image.Kernel;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -359,6 +352,8 @@ public class CircleHoughTransformTask {
 	 */
 	private BufferedImage getScaled(IMapImage src, int newWidth, int newHeight) {
 		
+		/*
+		
 		// How many 16-bit parts in a pixel
 		int numDataElements = 3; // rgb = 3
 		
@@ -371,7 +366,10 @@ public class CircleHoughTransformTask {
 		Graphics2D g = resized.createGraphics();
 		src.drawImage(g, newWidth, newHeight);
 		g.dispose();
+		
+		*/
 
+		BufferedImage resized = src.getBufferedImage(newWidth, newHeight);
 		
 		return resized;
 	}

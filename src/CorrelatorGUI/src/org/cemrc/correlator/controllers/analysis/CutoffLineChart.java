@@ -1,5 +1,7 @@
 package org.cemrc.correlator.controllers.analysis;
 
+import java.awt.image.BufferedImage;
+
 import org.cemrc.correlator.data.IMapImage;
 
 import javafx.beans.property.DoubleProperty;
@@ -197,16 +199,20 @@ public class CutoffLineChart extends LineChart<Number, Number> {
         long red[] = new long[256];
         long green[] = new long[256];
         long blue[] = new long[256];
+        
+        int h = 512;
+        int w = 512;
+        BufferedImage br = image.getBufferedImage(h, w);
 		
         //init
         for (int i = 0; i < 256; i++) {
             alpha[i] = red[i] = green[i] = blue[i] = 0;
         }
         //count pixels
-        for (int y = 0; y < image.getImageHeight(); y++) {
-            for (int x = 0; x < image.getImageWidth(); x++) {
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
                 // int argb = pixelReader.getArgb(x, y);
-                int argb = image.getPixelARGB(x, y);
+                int argb = br.getRGB(x, y);
             	int a = (0xff & (argb >> 24));
                 int r = (0xff & (argb >> 16));
                 int g = (0xff & (argb >> 8));

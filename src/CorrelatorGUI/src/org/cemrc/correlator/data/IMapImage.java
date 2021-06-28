@@ -1,6 +1,7 @@
 package org.cemrc.correlator.data;
 
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.transform.Affine;
@@ -56,12 +57,24 @@ public interface IMapImage {
 	 */
 	public int getImageHeight();
 	
+	
 	/**
+	 * [DEPRECATED]
+	 * 
 	 * Get the ARGB value of a pixel (x, y) on the tiled image.
 	 * 
 	 * @param x
 	 * @param y
 	 * @return
-	 */
+	 
 	public int getPixelARGB(int x, int y);
+	 */
+
+	/**
+	 * Return a BufferedImage of the contents, rescaled to width and height.
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	public BufferedImage getBufferedImage(int width, int height);
 }

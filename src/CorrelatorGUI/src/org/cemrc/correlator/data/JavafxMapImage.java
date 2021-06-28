@@ -7,12 +7,14 @@ import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import javafx.scene.transform.Affine;
+import javafx.scene.transform.Transform;
 
 /**
  * An implementation of the IMapImage
@@ -134,10 +136,32 @@ public class JavafxMapImage implements IMapImage {
 		return m_imageHeight;
 	}
 
+	/*
 	@Override
 	public int getPixelARGB(int x, int y) {
 		PixelReader pr = m_image.getPixelReader();
 		return pr.getArgb(x, y);
 	}
+	*/
 	
+	@Override
+	public BufferedImage getBufferedImage(int width, int height) {
+		// Draw tiles to a Canvas and then paint to the Graphics2D item.
+		Canvas c = new Canvas();
+		c.setWidth(m_imageWidth);
+		c.setHeight(m_imageHeight);
+		
+		Affine mat = new Affine();
+		drawImage(c, mat, false);
+		
+		// Take a snapshot as a WritableImage
+		SnapshotParameters spa = new SnapshotParameters();
+		spa.setTransform(Transform.scale((double) width / (double) m_imageWidth, (double) height / (double) m_imageHeight));
+		WritableImage wr = new WritableImage(width, height);
+		c.snapshot(spa, wr);
+		
+		// Convert the snapshot to a BufferedImage to draw back to destination
+		BufferedImage buffered = SwingFXUtils.fromFXImage(wr, null);
+		return buffered;
+	}
 }
