@@ -9,7 +9,6 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -23,11 +22,7 @@
                   <SplitPane dividerPositions="0.75" orientation="VERTICAL">
                     <items>
                         <ScrollPane fx:id="scrollPane" />
-                        <StackPane fx:id="fullPane">
-                           <children>
-                              <ImageView fx:id="imageViewFull" fitHeight="300.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" />
-                           </children>
-                        </StackPane>
+                        <StackPane fx:id="fullPane" />
                     </items>
                   </SplitPane>
                   <VBox maxWidth="375.0" minWidth="375.0" prefHeight="200.0">
