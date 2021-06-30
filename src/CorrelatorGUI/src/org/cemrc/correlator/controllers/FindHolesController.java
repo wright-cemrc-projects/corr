@@ -520,7 +520,7 @@ public class FindHolesController {
 			
 			gc.save();
 			gc.setTransform(Transform.affine(mxx, 0, 0, myy, 0f, 0f));
-			gc.setGlobalBlendMode(BlendMode.OVERLAY);
+			gc.setGlobalBlendMode(BlendMode.SCREEN);
 			gc.drawImage(m_edgeDetectImage,  0,  0);
 			gc.restore();
 		}

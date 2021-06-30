@@ -33,6 +33,9 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 	public DoubleProperty m_positionMinCutoff = new SimpleDoubleProperty();
 	public DoubleProperty m_positionBinaryCutoff = new SimpleDoubleProperty();
 	public DoubleProperty m_positionMaxCutoff = new SimpleDoubleProperty();
+	
+	// Update this with the position of the local maxima of middle peak.
+	private int m_localMaxima = 127;
 
 	public CutoffLineChart(NumberAxis xAxis, NumberAxis yAxis, IMapImage image) {
 		super(xAxis, yAxis);
@@ -88,20 +91,27 @@ public class CutoffLineChart extends LineChart<Number, Number> {
 	    m_drawY1 = 0;
 	    m_drawY2 = 175;
 	    
+	    int left = m_localMaxima - 20 > 0 ? m_localMaxima - 20 : 1;
+	    int right = m_localMaxima + 20 < 255 ? m_localMaxima + 20 : 254;
+	    
+	    if (m_localMaxima > right) {
+	    	m_localMaxima = right - 1;
+	    }
+	    
 	    cutoffLine1.setStartY(m_drawY1);
 	    cutoffLine1.setEndY(m_drawY2);
-	    cutoffLine1.setStartX(m_boundMinX);
-	    cutoffLine1.setEndX(m_boundMinX);
+	    cutoffLine1.setStartX(m_boundMinX + left);
+	    cutoffLine1.setEndX(m_boundMinX + left);
 	    
 	    cutoffLine2.setStartY(m_drawY1);
 	    cutoffLine2.setEndY(m_drawY2);
-	    cutoffLine2.setStartX(m_boundMinX + 25);
-	    cutoffLine2.setEndX(m_boundMinX + 25);
+	    cutoffLine2.setStartX(m_boundMinX + m_localMaxima);
+	    cutoffLine2.setEndX(m_boundMinX + m_localMaxima);
 	    
 	    cutoffLine3.setStartY(m_drawY1);
 	    cutoffLine3.setEndY(m_drawY2);
-	    cutoffLine3.setStartX(m_boundMaxX);
-	    cutoffLine3.setEndX(m_boundMaxX);
+	    cutoffLine3.setStartX(m_boundMinX + right);
+	    cutoffLine3.setEndX(m_boundMinX + right);
 	    
 	    this.getPlotChildren().add(cutoffLine1);
 	    this.getPlotChildren().add(cutoffLine2);
@@ -226,6 +236,14 @@ public class CutoffLineChart extends LineChart<Number, Number> {
             }
         }
         
+        long localMax = 0;
+        for (int i = 25; i < 230; i++) {
+        	if (blue[i] > localMax) {
+        		localMax = blue[i];
+        		m_localMaxima = i;
+        	}
+        }
+        
         // Use the pixel counts to fill in series for a chart.
         XYChart.Series<Number, Number> seriesAlpha = new XYChart.Series<Number, Number>();
         XYChart.Series<Number, Number> seriesRed = new XYChart.Series<Number, Number>();
@@ -237,7 +255,7 @@ public class CutoffLineChart extends LineChart<Number, Number> {
         seriesGreen.setName("green");
         seriesBlue.setName("blue");
         
-        double pixels = image.getImageHeight()  * image.getImageWidth();
+        double pixels = h * w;
 
         for (int i = 0; i < 256; i++) {
             seriesAlpha.getData().add(new XYChart.Data<Number, Number>(i, alpha[i] / pixels * 100));

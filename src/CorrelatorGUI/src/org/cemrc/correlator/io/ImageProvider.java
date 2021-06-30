@@ -32,12 +32,14 @@ public class ImageProvider {
 	public static IMapImage readImage(File file) {
 		IMapImage rv = null;
 		
+		final int TILE_SIZE = 512;
+		
 		if (file.getName().endsWith(".st") || file.getName().endsWith(".mrc")) {
 			
 			// TODO, this should return an IMapImage, so we can open montages as tiled data structure.
 			BufferedImage image = ReadMRC.parseSerialEM(file);
 			// rv = new JavafxMapImage(image);
-			rv = new TiledImage(image, 2000, 2000);
+			rv = new TiledImage(image, TILE_SIZE, TILE_SIZE);
 			
 		} else {
 				
