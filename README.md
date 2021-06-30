@@ -10,6 +10,11 @@ The output is ready for SerialEM automated data collection at transformed fluore
 
 ## Updates
 
+- Version 1.30 Release (6/30/2021) :
+ - Added a bounding box of the viewport within the Image and Free Align views.
+ - Improvements to histogram behaviors in hole-finding view.
+ - Switch to a tile-based representation of image data for all views.
+
 - Version 1.25 Release (3/31/2021) : 
  - Added Circle Hough Transform, hole centroid finding Analysis GUI.
  - Added Free Alignment GUI to dynamically define registrations between images.
