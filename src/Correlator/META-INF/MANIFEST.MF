@@ -6,7 +6,13 @@ Bundle-Version: 1.0.0.0
 Bundle-Vendor: UW-Madison
 Automatic-Module-Name: EasyCorr
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.cemrc.autodoc,
+Export-Package: javax.xml.bind,
+ javax.xml.bind.annotation,
+ javax.xml.bind.annotation.adapters,
+ javax.xml.bind.attachment,
+ javax.xml.bind.helpers,
+ javax.xml.bind.util,
+ org.cemrc.autodoc,
  org.cemrc.data,
  org.cemrc.math
-Require-Bundle: javax.xml.bind;bundle-version="2.2.0"
+Require-Bundle: javax.xml;bundle-version="1.3.4"
