@@ -59,5 +59,18 @@ https://doi.org/10.1016/j.jsb.2021.107709.
 
 [Link to preprint](https://www.sciencedirect.com/science/article/pii/S1047847721000149)
 
+## Eclipse and OpenJDK, JavaFX notes.
 
+CorRelator should be built in an Eclipse IDE with Eciplse-RCP support.
+
+JavaFX20 is now the available library version as of March 2023.  An OS-specific version of this library should be downloaded and will need to be setup in the 
+IDE with these steps:
+
+1. Download JavaFX20 from [Gluon](https://gluonhq.com/products/javafx/).
+2. Create a user library in Eclipse that points to the local copy of the JavaFX  libraries.
+3. Include that user library "JavaFX20" in the CorRelatorGUI classpath.
+4. Create a Java Application "Run Configuration" for Correlator, org.cemrc.correlator.Correlator as the Main class. There are both required Program arguments and required VM arguments.
+ 
+  - Program `--module-path ${project_classpath:CorrelatorGUI} --add-modules=javafx.controls,javafx.fxml`
+  - VM `--module-path ${project_classpath:CorrelatorGUI} --add-modules=javafx.controls,javafx.fxml`
 
