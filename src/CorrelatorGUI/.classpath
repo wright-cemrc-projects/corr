@@ -10,14 +10,7 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="lib/jai-imageio-core-1.4.0.jar"/>
 	<classpathentry kind="lib" path="../Correlator/lib/commons-math3-3.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/javafx.base.jar"/>
-	<classpathentry kind="lib" path="lib/javafx.controls.jar"/>
-	<classpathentry kind="lib" path="lib/javafx.fxml.jar"/>
-	<classpathentry kind="lib" path="lib/javafx.graphics.jar"/>
-	<classpathentry kind="lib" path="lib/javafx.media.jar"/>
-	<classpathentry kind="lib" path="lib/javafx.swing.jar"/>
-	<classpathentry kind="lib" path="lib/javafx.web.jar"/>
-	<classpathentry kind="lib" path="lib/javafx-swt.jar"/>
 	<classpathentry kind="lib" path="/Correlator/lib/jaxb-api-2.4.0-b180830.0359.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX19"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
