@@ -2,7 +2,6 @@ package org.cemrc.tools;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,8 +11,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.cemrc.autodoc.AutodocWriter;
 import org.cemrc.autodoc.GenericItem;
 import org.cemrc.autodoc.NavigatorKey;
@@ -21,7 +18,6 @@ import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector3;
 import org.cemrc.autodoc.Vector4;
 import org.cemrc.data.BasicMap;
-import org.cemrc.math.MatrixMath;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
