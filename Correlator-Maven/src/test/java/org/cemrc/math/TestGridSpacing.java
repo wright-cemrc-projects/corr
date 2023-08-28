@@ -1,6 +1,6 @@
 package org.cemrc.math;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,12 +9,12 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.cemrc.autodoc.Vector2;
 import org.cemrc.autodoc.Vector3;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class TestGridSpacing {
 
 	@Test
-	void testGridSpacing() {
+	public void testGridSpacing() {
 		
 		// Test #1
 		// 1. Create a 3x3 grid of units of 2D points with 1-unit differences (1,1) to (2,1), to (3,1), etc.

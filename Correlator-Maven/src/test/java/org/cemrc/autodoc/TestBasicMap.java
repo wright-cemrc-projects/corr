@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.cemrc.data.BasicMap;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class TestBasicMap {
 	

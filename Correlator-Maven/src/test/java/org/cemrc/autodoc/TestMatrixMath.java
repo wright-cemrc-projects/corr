@@ -1,15 +1,15 @@
 package org.cemrc.autodoc;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.cemrc.math.MatrixMath;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class TestMatrixMath {
 
 	@Test
-	void testMatrixMath() {
+	public void testMatrixMath() {
 		
 		// Allowable error
 		float delta = 0.0001f;

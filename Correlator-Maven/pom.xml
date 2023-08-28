@@ -27,12 +27,20 @@
 		    <artifactId>commons-math3</artifactId>
 		    <version>3.6.1</version> <!-- Use the appropriate version -->
 		</dependency>
-		<!-- MRL is there an alternative here?, should support modular release -->
+
 		<dependency>
-		    <groupId>javax.xml.bind</groupId>
-		    <artifactId>jaxb-api</artifactId>
-		    <version>2.3.1</version>
+		    <groupId>jakarta.xml.bind</groupId>
+		    <artifactId>jakarta.xml.bind-api</artifactId>
+		    <version>2.3.2</version>
 		</dependency>
+		
+		<!-- Runtime, com.sun.xml.bind module -->
+		<dependency>
+		    <groupId>org.glassfish.jaxb</groupId>
+		    <artifactId>jaxb-runtime</artifactId>
+		    <version>2.3.2</version>
+		</dependency>
+		
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -48,6 +56,12 @@
 		    <artifactId>javafx-swing</artifactId>
 		    <version>19</version>
 		</dependency>
+		<dependency>
+	        <groupId>junit</groupId>
+	        <artifactId>junit</artifactId>
+	        <version>4.12</version>
+        	<scope>test</scope>
+    	</dependency> 
     </dependencies>
     <build>
         <plugins>

@@ -6,6 +6,7 @@ module org.cemrc.correlator {
 	requires commons.math3;
 	requires net.sourceforge.argparse4j;
 	requires javafx.swing;
+	// requires junit;
 
     opens org.cemrc.correlator.controllers to javafx.fxml;
     opens org.cemrc.correlator.wizard to javafx.fxml;

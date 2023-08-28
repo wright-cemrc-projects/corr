@@ -1,20 +1,20 @@
 package org.cemrc.autodoc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 import org.cemrc.data.NavData;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class TestNavData {
 
 	@Test
-	void testParseNav() {
+	public void testParseNav() {
 		
 		InputStream inputStream = getClass()
 				.getClassLoader().getResourceAsStream("clem.nav");

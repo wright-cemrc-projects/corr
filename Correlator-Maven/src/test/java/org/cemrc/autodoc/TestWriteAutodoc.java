@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class TestWriteAutodoc {
 
 	@Test
-	void testWriteNav() {
+	public void testWriteNav() {
 	
 		// Test writing out an autodoc.
 		List<GenericItem> items = new ArrayList<GenericItem>();

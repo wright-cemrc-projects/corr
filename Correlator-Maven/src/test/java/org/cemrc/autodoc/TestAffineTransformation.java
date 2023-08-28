@@ -12,12 +12,12 @@ import org.cemrc.data.Registration;
 import org.cemrc.math.AffineTransformation;
 import org.cemrc.math.MatrixMath;
 import org.junit.Assert;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class TestAffineTransformation {
 
 	@Test
-	void testAffineTransformation() {
+	public void testAffineTransformation() {
 		
 		double delta = 0.001f;
 		
@@ -58,7 +58,7 @@ public class TestAffineTransformation {
 	}
 	
 	@Test
-	void testNavDataIntegration() {
+	public void testNavDataIntegration() {
 		NavData data = new NavData();
 		
 		// NavData integration testing.
