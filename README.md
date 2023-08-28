@@ -74,3 +74,22 @@ IDE with these steps:
   - Program `--module-path ${project_classpath:CorrelatorGUI} --add-modules=javafx.controls,javafx.fxml`
   - VM `--module-path ${project_classpath:CorrelatorGUI} --add-modules=javafx.controls,javafx.fxml`
 
+ Also uncheck the "Run Configuration" VM arguments of '-XstartOnFirstThread' when launching with SWT.  Uncheck the '-XX:+ShowCodeDetailsInExceptionMessages' argument when launching.
+
+ After making these changes, it should now be possible to launch CorRelator as a Java Application with JavaFX GUI, from the Eclipse IDE and with OpenJDK as the runtime Java library.
+
+## Build changes
+
+CorRelator with Oracle JDK1.8 was previously built with a two-step Ant build system that built a base library of `CorRelator` and a separate GUI project of `CorRelatorGUI`. 
+
+CorRelator has now been upated to build with Maven, targeting OpenJDK 19 and providing all dependencies via the Maven build system.
+
+### Developer Guide for building CorRelator
+
+Running from the commandline with Maven:
+
+1. `mvn clean javafx:run`
+
+Building a distribution release with Maven:
+
+2. `mvn clean javafx:jlink`
