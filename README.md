@@ -92,4 +92,4 @@ Running from the commandline with Maven:
 
 Building a distribution release with Maven:
 
-2. `mvn clean javafx:jlink`
+2. `mvn clean package shade:shade`
