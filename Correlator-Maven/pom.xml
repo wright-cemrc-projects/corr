@@ -67,7 +67,25 @@
 	        <artifactId>junit</artifactId>
 	        <version>4.12</version>
         	<scope>test</scope>
-    	</dependency> 
+	</dependency>
+	    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-graphics </artifactId>
+        <version>11</version>
+        <classifier>win</classifier>
+    </dependency>
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-graphics </artifactId>
+        <version>11</version>
+        <classifier>linux</classifier>
+    </dependency>
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-graphics </artifactId>
+        <version>11</version>
+        <classifier>mac</classifier>
+    </dependency>
     </dependencies>
     <build>
         <plugins>
