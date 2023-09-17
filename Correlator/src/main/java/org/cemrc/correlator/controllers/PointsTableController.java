@@ -111,6 +111,11 @@ public class PointsTableController {
 			return m_visible; 
 		}
 		
+		private final BooleanProperty m_remove = new SimpleBooleanProperty();
+		public final BooleanProperty removeProperty() {
+			return m_remove;
+		}
+		
 		private IPositionDataset m_dataset;
 		
 		public String getName() {
@@ -140,6 +145,7 @@ public class PointsTableController {
 		public void setDataset(IPositionDataset dataset) {
 			m_dataset = dataset;
 		}
+		
 	}
 
 	
